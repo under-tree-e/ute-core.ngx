@@ -1,16 +1,16 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
-import { StorageService } from "./services/storage.service";
+import { PreloadService } from "./services/preload.service";
 import { UteModuleConfigs } from "./interfaces/config";
 
 /**
- * The main module of SQL Storage library. Example usage:
+ * The main module of SQL Preload library. Example usage:
  *
  * ```typescript
- * import { NgxUteStorageModule } from 'ngx-ute-preload';
+ * import { NgxUtePreloadModule } from 'ngx-ute-preload';
  *
  * @NgModule({
  *      imports: [
- *          NgxUteStorageModule.forRoot({
+ *          NgxUtePreloadModule.forRoot({
  *              name: "DB",
  *              db: "assets/databases/",
  *              model: "src/interfaces/models/",
@@ -27,7 +27,7 @@ import { UteModuleConfigs } from "./interfaces/config";
     imports: [],
     exports: [],
 })
-export class NgxUteStorageModule {
+export class NgxUtePreloadModule {
     /**
      * @param config - Ute Storage Configs Params `(UteModuleConfigs)`:
      *
@@ -42,10 +42,10 @@ export class NgxUteStorageModule {
      *
      * @returns
      */
-    static forRoot(config: UteModuleConfigs): ModuleWithProviders<NgxUteStorageModule> {
+    static forRoot(config: UteModuleConfigs): ModuleWithProviders<NgxUtePreloadModule> {
         return {
-            ngModule: NgxUteStorageModule,
-            providers: [StorageService, { provide: "config", useValue: config }],
+            ngModule: NgxUtePreloadModule,
+            providers: [PreloadService, { provide: "config", useValue: config }],
         };
     }
 }

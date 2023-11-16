@@ -1,35 +1,27 @@
 /**
- * Ute Storage Configs Params
- * @prop {@link UteModuleConfigs.name | name}: `string` - Default DB name
- * @prop {@link UteModuleConfigs.db | db}?: `string` - Path to additional DB
- * @prop {@link UteModuleConfigs.model | model}?: `string` - Path to models files
- * @prop {@link UteModuleConfigs.sync | sync}?: `boolean` - Use synchronous/manual load
- *
- * If `sync: true` Use example code to init storage:</br>
- *
- * Example: `StorageService.initialize()`;
+ * Ute Preload Configs Params
+ * @prop {@link UteModuleConfigs.version | version}: `string` - App version
+ * @prop {@link UteModuleConfigs.year | year}?: `string` - App year first build or production
+ * @prop {@link UteModuleConfigs.logo | logo}?: `string` - Image for load screen in base64 format
  */
 export interface UteModuleConfigs {
     /**
-     * Default DB name
+     * App version string
+     * @defaultValue `0.0.1`
      */
-    name: string;
+    version?: string;
     /**
-     * Path to additional DB
-     * @defaultValue `assets/databases/`
+     * App year first build or production
+     * @defaultValue `2010`
      */
-    db?: string;
+    year?: number;
     /**
-     * Path to models files
-     * @defaultValue `src/interfaces/models/`
+     * Image for load screen in base64 format
+     * @defaultValue `assets/logo.svg`
      */
-    model?: string;
+    logo?: string;
     /**
-     * Use synchronous/manual load</br>
-     *
-     * If `sync: true` Use example code to init storage:
-     * @example
-     * StorageService.initialize();
+     * Use custom html template
      */
-    sync?: boolean;
+    template?: string;
 }
