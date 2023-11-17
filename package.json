@@ -1,7 +1,7 @@
 {
-  "name": "ute-preload.ngx",
+  "name": "ute-core.ngx",
   "version": "0.0.1",
-  "description": "Angular preload module for creation preload page or simple load modules before start main app",
+  "description": "Angular Core module includes simple packs of function for base app usage",
   "scripts": {
     "start": "ng serve",
     "build": "ng build",

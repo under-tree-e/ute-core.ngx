@@ -21,14 +21,11 @@
     "lib": [
       "ES2022",
       "dom"
-    ],
-    "types": [
-      "node"
     ]
   },
   "typedocOptions": {
     "entryPoints": [
-      "./projects/ngx-ute-preload/src/public-api.ts"
+      "./projects/ngx-ute-core/src/public-api.ts"
     ],
     "out": "dist/docs"
   },
@@ -36,7 +33,6 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true,
-    "enableIvy": false
+    "strictTemplates": true
   }
 }

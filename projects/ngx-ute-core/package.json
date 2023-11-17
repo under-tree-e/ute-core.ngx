@@ -1,5 +1,5 @@
 {
-  "name": "ngx-ute-preload",
+  "name": "ngx-ute-core",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^16.1.0",

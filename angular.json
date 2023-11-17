@@ -3,23 +3,23 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ngx-ute-preload": {
+    "ngx-ute-core": {
       "projectType": "library",
-      "root": "projects/ngx-ute-preload",
-      "sourceRoot": "projects/ngx-ute-preload/src",
+      "root": "projects/ngx-ute-core",
+      "sourceRoot": "projects/ngx-ute-core/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "project": "projects/ngx-ute-preload/ng-package.json"
+            "project": "projects/ngx-ute-core/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ngx-ute-preload/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ngx-ute-core/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/ngx-ute-preload/tsconfig.lib.json"
+              "tsConfig": "projects/ngx-ute-core/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -27,7 +27,7 @@
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "tsConfig": "projects/ngx-ute-preload/tsconfig.spec.json",
+            "tsConfig": "projects/ngx-ute-core/tsconfig.spec.json",
             "polyfills": [
               "zone.js",
               "zone.js/testing"
