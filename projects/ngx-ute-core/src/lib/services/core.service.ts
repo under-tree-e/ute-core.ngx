@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
-import { UteModuleConfigs } from "@ute/core/interfaces/config";
-import { ResizeService } from "@ute/core/services/resize.service";
+import { UteModuleConfigs } from "../interfaces/config";
+import { ResizeService } from "./resize.service";
 
 @Injectable({
     providedIn: "root",

@@ -22,17 +22,6 @@
       "ES2022",
       "dom"
     ],
-    "paths": {
-      "@ute/core/interfaces/*": [
-        "./projects/ngx-ute-core/src/lib/interfaces/*"
-      ],
-      "@ute/core/services/*": [
-        "./projects/ngx-ute-core/src/lib/services/*"
-      ],
-      "@ute/core/*": [
-        "./projects/ngx-ute-core/src/lib/*"
-      ],
-    }
   },
   "typedocOptions": {
     "entryPoints": [

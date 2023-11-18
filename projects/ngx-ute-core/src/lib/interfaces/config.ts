@@ -1,4 +1,4 @@
-import { UteFontSizes } from "@ute/core/interfaces/font-sizes";
+import { UteFontSizes } from "./font-sizes";
 
 /**
  * Ute Core Configs Params

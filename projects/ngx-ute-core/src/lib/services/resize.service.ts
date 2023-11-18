@@ -1,5 +1,5 @@
 import { HostListener, Injectable } from "@angular/core";
-import { UteFontSizes } from "@ute/core/interfaces/font-sizes";
+import { UteFontSizes } from "../interfaces/font-sizes";
 
 /**
  * Default Font to Screen sizes:
