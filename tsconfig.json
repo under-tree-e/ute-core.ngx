@@ -21,7 +21,15 @@
     "lib": [
       "ES2022",
       "dom"
-    ]
+    ],
+    "paths": {
+      "@ute/core/interfaces/*": [
+        "./projects/ngx-ute-core/src/lib/interfaces/*"
+      ],
+      "@ute/core/services/*": [
+        "./projects/ngx-ute-core/src/lib/services/*"
+      ],
+    }
   },
   "typedocOptions": {
     "entryPoints": [
@@ -33,6 +41,6 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictTemplates": true,
   }
 }

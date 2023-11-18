@@ -3,7 +3,7 @@ import { CoreService } from "./services/core.service";
 import { UteModuleConfigs } from "./interfaces/config";
 
 /**
- * The main module of SQL Core library. Example usage:
+ * The main module of Core library. Example usage:
  *
  * ```typescript
  * import { NgxUteCoreModule } from 'ngx-ute-core';
@@ -20,11 +20,7 @@ import { UteModuleConfigs } from "./interfaces/config";
  * ```
  *
  */
-@NgModule({
-    declarations: [],
-    imports: [],
-    exports: [],
-})
+@NgModule()
 export class NgxUteCoreModule {
     /**
      * @param config - Ute Core Configs Params `(UteModuleConfigs)`:

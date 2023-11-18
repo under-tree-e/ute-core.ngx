@@ -1,5 +1,5 @@
 import { HostListener, Injectable } from "@angular/core";
-import { UteFontSizes } from "../interfaces/font-sizes";
+import { UteFontSizes } from "@ute/core/interfaces/font-sizes";
 
 /**
  * Default Font to Screen sizes:
@@ -32,12 +32,8 @@ export class ResizeService {
     private preSize: number = 16;
     private currentSize: number = 16;
 
-    constructor() {
-        console.log("Resize Service");
-    }
-
     public Init(customSizes?: UteFontSizes) {
-        console.log("Init Resize Service");
+        console.log("Resize Service");
         if (customSizes) {
             this.fontSizes = customSizes;
         }
