@@ -29,6 +29,9 @@
       "@ute/core/services/*": [
         "./projects/ngx-ute-core/src/lib/services/*"
       ],
+      "@ute/core/*": [
+        "./projects/ngx-ute-core/src/lib/*"
+      ],
     }
   },
   "typedocOptions": {

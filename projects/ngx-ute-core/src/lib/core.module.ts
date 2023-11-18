@@ -1,6 +1,6 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
-import { CoreService } from "./services/core.service";
-import { UteModuleConfigs } from "./interfaces/config";
+import { CoreService } from "@ute/core/services/core.service";
+import { UteModuleConfigs } from "@ute/core/interfaces/config";
 
 /**
  * The main module of Core library. Example usage:
