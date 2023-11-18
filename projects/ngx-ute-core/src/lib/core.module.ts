@@ -1,6 +1,6 @@
 import { ModuleWithProviders, NgModule } from "@angular/core";
 import { CoreService } from "./services/core.service";
-import { UteModuleConfigs } from "./interfaces/config";
+import { UteCoreConfigs } from "./interfaces/config";
 
 /**
  * The main module of Core library. Example usage:
@@ -13,7 +13,7 @@ import { UteModuleConfigs } from "./interfaces/config";
  *          NgxUteCoreModule.forRoot({
  *              resizer: true,
  *              customFontSizes: {...},
- *          } as UteModuleConfigs)
+ *          } as UteCoreConfigs)
  *      ]
  * })
  * class AppModule {}
@@ -23,16 +23,16 @@ import { UteModuleConfigs } from "./interfaces/config";
 @NgModule()
 export class NgxUteCoreModule {
     /**
-     * @param config - Ute Core Configs Params `(UteModuleConfigs)`:
+     * @param config - Ute Core Configs Params `(UteCoreConfigs)`:
      *
      * - resizer?: `boolean`</br>
      * - customFontSizes?: `UteFontSizes`
      *
      */
-    static forRoot(config: UteModuleConfigs): ModuleWithProviders<NgxUteCoreModule> {
+    static forRoot(config: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {
         return {
             ngModule: NgxUteCoreModule,
-            providers: [CoreService, { provide: "config", useValue: config }],
+            providers: [CoreService, { provide: "UteCoreConfig", useValue: config }],
         };
     }
 }

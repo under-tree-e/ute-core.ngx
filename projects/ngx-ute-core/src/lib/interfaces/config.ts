@@ -2,10 +2,10 @@ import { UteFontSizes } from "./font-sizes";
 
 /**
  * Ute Core Configs Params
- * @prop {@link UteModuleConfigs.resizer | resizer}: `boolean` - Use app auto font resizer
- * @prop {@link UteModuleConfigs.customFontSizes | customFontSizes}?: `UteFontSizes` - App year first build or production
+ * @prop {@link UteCoreConfigs.resizer | resizer}: `boolean` - Use app auto font resizer
+ * @prop {@link UteCoreConfigs.customFontSizes | customFontSizes}?: `UteFontSizes` - App year first build or production
  */
-export interface UteModuleConfigs {
+export interface UteCoreConfigs {
     /**
      * Use app auto font resizer
      */
