@@ -1,11 +1,12 @@
-import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
+import { ModuleWithProviders, NgModule } from "@angular/core";
 import { CoreService } from "./services/core.service";
+import { CookieService } from "./services/cookie.service";
 import { UteCoreConfigs } from "./interfaces/config";
 import { NumberStringPipe } from "./pipes/number-string.pipe";
 import { StringFloatPipe } from "./pipes/string-float.pipe";
 import { StringIntegerPipe } from "./pipes/string-int.pipe";
 import { DateStringPipe } from "./pipes/date-string.pipe";
-import { DatePipe, DecimalPipe } from "@angular/common";
+import { OnlineStatusService } from "ngx-online-status";
 
 /**
  * The main module of Core library. Example usage:
@@ -28,8 +29,7 @@ import { DatePipe, DecimalPipe } from "@angular/common";
 @NgModule({
     declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe],
     exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe],
-    imports: [DatePipe, DecimalPipe],
-    providers: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DatePipe, { provide: LOCALE_ID, useValue: "en-US" }],
+    providers: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, CookieService, OnlineStatusService],
 })
 export class NgxUteCoreModule {
     /**
@@ -37,6 +37,8 @@ export class NgxUteCoreModule {
      *
      * - resizer?: `boolean`</br>
      * - customFontSizes?: `UteFontSizes`
+     * - cookiesExp?: `number`
+     * - enviropment?: `Object`
      *
      */
     static forRoot(config?: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {

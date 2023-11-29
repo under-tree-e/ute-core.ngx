@@ -14,6 +14,7 @@ export class NumberStringPipe implements PipeTransform {
         { value: 1e15, symbol: "P" },
         { value: 1e18, symbol: "E" },
     ];
+    private decimalPipe: DecimalPipe = new DecimalPipe("en-US");
 
     /**
      * Covert number to small string like `"2k"`
@@ -32,12 +33,12 @@ export class NumberStringPipe implements PipeTransform {
 
         if (item && digits) {
             if (item && value.toString().length > digits) {
-                return new DecimalPipe("en-US").transform((value / item.value).toFixed(1).replace(rx, "$1")) + item.symbol;
+                return this.decimalPipe.transform((value / item.value).toFixed(1).replace(rx, "$1")) + item.symbol;
             } else {
-                return new DecimalPipe("en-US").transform(value)?.toString() || "0";
+                return this.decimalPipe.transform(value)?.toString() || "0";
             }
         } else {
-            return new DecimalPipe("en-US").transform(value)?.toString() || "0";
+            return this.decimalPipe.transform(value)?.toString() || "0";
         }
     }
 }

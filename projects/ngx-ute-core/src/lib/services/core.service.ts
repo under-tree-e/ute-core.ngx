@@ -5,18 +5,28 @@ import { UteObjects } from "../interfaces/object";
 import { UteFileFormats, UteFileOptions } from "../interfaces/file";
 import { v4 } from "uuid";
 import Compressor from "compressorjs";
+import { CookieService } from "./cookie.service";
+import { Capacitor } from "@capacitor/core";
+import { OnlineStatusService } from "ngx-online-status";
 
 @Injectable({
     providedIn: "root",
 })
 export class CoreService {
-    constructor(@Inject("UteCoreConfig") private config: UteCoreConfigs, private resizeService: ResizeService) {
+    constructor(@Inject("UteCoreConfig") private config: UteCoreConfigs, private resizeService: ResizeService, private cookieService: CookieService, private onlineStatusService: OnlineStatusService) {
         console.log(`${new Date().toISOString()} => CoreService`);
         // console.log("CoreService");
 
-        if (this.config && this.config.resizer) {
-            this.resizeService.Init(this.config.customFontSizes || undefined);
+        if (this.config) {
+            if (this.config.resizer) {
+                this.resizeService.Init(this.config.customFontSizes || undefined);
+            }
+            if (this.config.enviropment) {
+                this.config.enviropment.platform = Capacitor.getPlatform();
+                this.config.enviropment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
+            }
         }
+        this.cookieService.Init(this.config.enviropment, this.config.cookiesExp);
     }
 
     /**
@@ -133,8 +143,6 @@ export class CoreService {
      * @returns
      */
     public toIsoZone(date: Date | string): string {
-        console.log(date);
-
         if (typeof date === "string") {
             date = new Date(date);
         }
