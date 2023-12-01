@@ -143,17 +143,29 @@ export class CoreService {
      * @returns
      */
     public toIsoZone(date: Date | string): string {
-        if (typeof date === "string") {
-            date = new Date(date);
-        }
-        let tzo: number = -date.getTimezoneOffset();
-        let dif: string = tzo >= 0 ? "+" : "-";
-        let pad = (num: number) => {
-            return (num < 10 ? "0" : "") + num;
-        };
+        try {
+            if (typeof date === "string") {
+                date = new Date(date);
+            }
 
-        return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}${dif}${pad(
-            Math.floor(Math.abs(tzo) / 60)
-        )}${pad(Math.abs(tzo) % 60)}`;
+            let tzo: number = -date.getTimezoneOffset();
+            let dif: string = tzo >= 0 ? "+" : "-";
+            let pad = (num: number) => {
+                return (num < 10 ? "0" : "") + num;
+            };
+
+            return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}${dif}${pad(
+                Math.floor(Math.abs(tzo) / 60)
+            )}${pad(Math.abs(tzo) % 60)}`;
+        } catch {
+            return "";
+        }
+    }
+
+    /**
+     * Update app online status
+     */
+    public checkOnline() {
+        this.config.enviropment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
     }
 }
