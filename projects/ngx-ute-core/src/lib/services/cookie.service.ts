@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import { CookieService as NgxCookieService } from "ngx-cookie-service";
 import { Preferences } from "@capacitor/preferences";
 import { AES, enc, pad } from "crypto-ts";
-import { UteEnviropment } from "../interfaces/enviropment";
+import { UteEnvironment } from "../interfaces/environment";
 
 @Injectable({
     providedIn: "root",
@@ -10,7 +10,7 @@ import { UteEnviropment } from "../interfaces/enviropment";
 export class CookieService {
     private cookiesExp: number = 30;
     private cookiesCode: string = location.host.slice(0, 4);
-    private enviropment: UteEnviropment = {} as UteEnviropment;
+    private environment: UteEnvironment = {} as UteEnvironment;
 
     constructor(private CookieService: NgxCookieService) {}
 
@@ -19,11 +19,14 @@ export class CookieService {
      * @param environment
      * @param exp
      */
-    public Init(enviropment: UteEnviropment, exp?: number) {
+    public Init(environment: UteEnvironment, exp?: number) {
+        console.log("CookieService - Init");
+        // console.log(`${new Date().toISOString()} => CookieService`);
+
         if (exp) {
             this.cookiesExp = exp;
         }
-        this.enviropment = enviropment;
+        this.environment = environment;
     }
 
     /**
@@ -40,8 +43,8 @@ export class CookieService {
                 }
                 data = this.encryption(data, true);
 
-                if (this.enviropment.platform) {
-                    if (this.enviropment.platform === ("android" || "ios")) {
+                if (this.environment.platform) {
+                    if (this.environment.platform === ("android" || "ios")) {
                         await Preferences.set({
                             key: this.cookiesCode + name,
                             value: data,
@@ -78,8 +81,8 @@ export class CookieService {
         return new Promise(async (resolve, reject) => {
             let data: any = null;
             try {
-                if (this.enviropment.platform) {
-                    if (this.enviropment.platform === ("android" || "ios")) {
+                if (this.environment.platform) {
+                    if (this.environment.platform === ("android" || "ios")) {
                         data = await Preferences.get({
                             key: this.cookiesCode + name,
                         });
@@ -111,8 +114,8 @@ export class CookieService {
     public remove(name: string): Promise<any> {
         return new Promise(async (resolve, reject) => {
             try {
-                if (this.enviropment.platform) {
-                    if (this.enviropment.platform === ("android" || "ios")) {
+                if (this.environment.platform) {
+                    if (this.environment.platform === ("android" || "ios")) {
                         if (name) {
                             await Preferences.remove({
                                 key: this.cookiesCode + name,

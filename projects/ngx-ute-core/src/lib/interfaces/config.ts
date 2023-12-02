@@ -1,4 +1,4 @@
-import { UteEnviropment } from "./enviropment";
+import { UteEnvironment } from "./environment";
 import { UteFontSizes } from "./font-sizes";
 
 /**
@@ -16,9 +16,9 @@ export interface UteCoreConfigs {
      */
     customFontSizes?: UteFontSizes;
     /**
-     * Source project enviropment file
+     * Source project environment file
      */
-    enviropment?: UteEnviropment | any;
+    environment?: UteEnvironment | any;
     /**
      * Cookies expires time (days)
      * @default 30

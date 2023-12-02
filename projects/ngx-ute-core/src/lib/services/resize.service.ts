@@ -33,8 +33,8 @@ export class ResizeService {
     private currentSize: number = 16;
 
     public Init(customSizes?: UteFontSizes) {
-        console.log(`${new Date().toISOString()} => ResizeService`);
-        // console.log("ResizeService");
+        console.log("ResizeService - Init");
+        // console.log(`${new Date().toISOString()} => ResizeService`);
 
         if (customSizes) {
             this.fontSizes = customSizes;

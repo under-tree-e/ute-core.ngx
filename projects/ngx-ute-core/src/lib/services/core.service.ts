@@ -8,25 +8,40 @@ import Compressor from "compressorjs";
 import { CookieService } from "./cookie.service";
 import { Capacitor } from "@capacitor/core";
 import { OnlineStatusService } from "ngx-online-status";
+import { HttpService } from "./http.service";
 
 @Injectable({
     providedIn: "root",
 })
 export class CoreService {
-    constructor(@Inject("UteCoreConfig") private config: UteCoreConfigs, private resizeService: ResizeService, private cookieService: CookieService, private onlineStatusService: OnlineStatusService) {
-        console.log(`${new Date().toISOString()} => CoreService`);
-        // console.log("CoreService");
+    constructor(
+        @Inject("UteCoreConfig") private config: UteCoreConfigs,
+        private resizeService: ResizeService,
+        private cookieService: CookieService,
+        private onlineStatusService: OnlineStatusService,
+        private httpService: HttpService
+    ) {
+        this.Init();
+    }
+
+    /**
+     * Initialization module
+     */
+    private Init() {
+        console.log("CoreService - Init");
+        // console.log(`${new Date().toISOString()} => CoreService`);
 
         if (this.config) {
             if (this.config.resizer) {
                 this.resizeService.Init(this.config.customFontSizes || undefined);
             }
-            if (this.config.enviropment) {
-                this.config.enviropment.platform = Capacitor.getPlatform();
-                this.config.enviropment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
+            if (this.config.environment) {
+                this.config.environment.platform = Capacitor.getPlatform();
+                this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
             }
         }
-        this.cookieService.Init(this.config.enviropment, this.config.cookiesExp);
+        this.cookieService.Init(this.config.environment, this.config.cookiesExp);
+        this.httpService.Init(this.config.environment);
     }
 
     /**
@@ -166,6 +181,6 @@ export class CoreService {
      * Update app online status
      */
     public checkOnline() {
-        this.config.enviropment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
+        this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
     }
 }

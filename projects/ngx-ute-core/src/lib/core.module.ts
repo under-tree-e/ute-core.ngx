@@ -7,6 +7,7 @@ import { StringFloatPipe } from "./pipes/string-float.pipe";
 import { StringIntegerPipe } from "./pipes/string-int.pipe";
 import { DateStringPipe } from "./pipes/date-string.pipe";
 import { OnlineStatusService } from "ngx-online-status";
+import { HttpService } from "./services/http.service";
 
 /**
  * The main module of Core library. Example usage:
@@ -29,7 +30,7 @@ import { OnlineStatusService } from "ngx-online-status";
 @NgModule({
     declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe],
     exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe],
-    providers: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, CookieService, OnlineStatusService],
+    providers: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, CookieService, OnlineStatusService, HttpService],
 })
 export class NgxUteCoreModule {
     /**
@@ -38,7 +39,7 @@ export class NgxUteCoreModule {
      * - resizer?: `boolean`</br>
      * - customFontSizes?: `UteFontSizes`
      * - cookiesExp?: `number`
-     * - enviropment?: `Object`
+     * - environment?: `Object`
      *
      */
     static forRoot(config?: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {
