@@ -14,6 +14,8 @@ export * from "./lib/interfaces/api";
 export * from "./lib/interfaces/http-opt";
 export * from "./lib/interfaces/environment";
 
+export * from "./lib/contantes/http-method";
+
 export * from "./lib/pipes/date-string.pipe";
 export * from "./lib/pipes/number-string.pipe";
 export * from "./lib/pipes/string-float.pipe";
