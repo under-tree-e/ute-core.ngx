@@ -183,38 +183,4 @@ export class CoreService {
     public checkOnline() {
         this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
     }
-
-    /**
-     *
-     * @returns
-     */
-    public interfateToConst(): UteObjects {
-        interface TestInterface {
-            id: number;
-            type: string;
-        }
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        // Props type as an array, to be exported
-        let interfaceArray: any = Array<keyof TestInterface>;
-        console.log(interfaceArray);
-
-        return {};
-
-        // Props array itself!
-        // const propsArray: MyTablePropsArray =
-        //     Object.keys(new MyTableClass()) as MyTablePropsArray;
-
-        // console.log(propsArray); // prints out  ["id", "title", "isDeleted"]
-
-        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        // Example of creating a pure instance as an object
-        // const tableInstance: MyTableClass = { // works properly!
-        //     id: "3",
-        //     title: "hi",
-        //     isDeleted: false,
-        // };
-    }
 }
