@@ -9,6 +9,7 @@ import { CookieService } from "./cookie.service";
 import { Capacitor } from "@capacitor/core";
 import { OnlineStatusService } from "ngx-online-status";
 import { HttpService } from "./http.service";
+import { keys } from "ts-transformer-keys";
 
 @Injectable({
     providedIn: "root",
@@ -61,6 +62,16 @@ export class CoreService {
         } catch {
             return source;
         }
+    }
+
+    public objectInterface(item: any, constArray: any): any {
+        let removeKeys: string[] = Object.keys(item).filter((k: string) => !Object.keys(constArray).some((p: any) => p === k));
+
+        removeKeys.map((k: string) => {
+            delete item[k];
+        });
+
+        return item;
     }
 
     /**
