@@ -46,17 +46,30 @@ export class CoreService {
     }
 
     /**
-     *
-     * @param source
-     * @param update
+     * Update Object of Array of objects
+     * @param source - Object or Array of objects
+     * @param update - Object with new data
+     * @param key - If `source` is array, all array items similar with `update` by this key will be updated
+     * @default `key: 'id'`
      * @returns
      */
-    public objectUpdate(source: UteObjects, update: UteObjects): UteObjects {
+    public objectUpdate<T>(source: T, update: UteObjects, fieldKey?: string): T {
         try {
-            for (const key in update) {
-                if (source.hasOwnProperty(key)) {
-                    source[key] = update[key];
+            let updater = (s: any, u: UteObjects) => {
+                for (const key in u) {
+                    if (s.hasOwnProperty(key)) {
+                        s[key] = u[key];
+                    }
                 }
+                return s;
+            };
+            if (Array.isArray(source)) {
+                let index: number = source.map((x: any) => (fieldKey ? x[fieldKey] : x["id"])).indexOf(fieldKey ? update[fieldKey] : update["id"]);
+                if (index != -1) {
+                    source[index] = updater(source[index], update);
+                }
+            } else {
+                source = updater(source, update);
             }
             return source;
         } catch {

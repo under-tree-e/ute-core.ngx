@@ -9,5 +9,12 @@ export interface UteObjects<T = any> {
  * Ute Interface Object
  */
 export type InterfaceObject<T = any> = {
-    [key in keyof T]: key;
+    [key in keyof Required<T>]: key;
 };
+
+/**
+ * Ute Router data items
+ */
+// export type RouterObjects<T = any[]> = {
+//     [key in keyof Required<T>]: [];
+// };
