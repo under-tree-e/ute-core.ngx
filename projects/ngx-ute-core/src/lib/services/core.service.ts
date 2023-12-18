@@ -9,7 +9,6 @@ import { CookieService } from "./cookie.service";
 import { Capacitor } from "@capacitor/core";
 import { OnlineStatusService } from "ngx-online-status";
 import { HttpService } from "./http.service";
-import { keys } from "ts-transformer-keys";
 
 @Injectable({
     providedIn: "root",
