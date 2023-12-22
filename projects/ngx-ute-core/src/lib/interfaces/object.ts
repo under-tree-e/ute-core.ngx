@@ -11,10 +11,3 @@ export interface UteObjects<T = any> {
 export type InterfaceObject<T = any> = {
     [key in keyof Required<T>]: key;
 };
-
-/**
- * Ute Router data items
- */
-// export type RouterObjects<T = any[]> = {
-//     [key in keyof Required<T>]: [];
-// };
