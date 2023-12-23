@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@angular/core";
+import { Inject, Injectable, HostListener } from "@angular/core";
 import { UteCoreConfigs } from "../interfaces/config";
 import { ResizeService } from "./resize.service";
 import { UteObjects } from "../interfaces/object";
@@ -9,6 +9,7 @@ import { CookieService } from "./cookie.service";
 import { Capacitor } from "@capacitor/core";
 import { OnlineStatusService } from "ngx-online-status";
 import { HttpService } from "./http.service";
+import { Observable } from "rxjs";
 
 @Injectable({
     providedIn: "root",
@@ -205,5 +206,16 @@ export class CoreService {
      */
     public checkOnline() {
         this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
+    }
+
+    /**
+     * Return if mobile device
+     */
+    public isMobile() {
+        if (this.config.environment.platform === ("android" || "ios") || window.screen.width < 800) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
