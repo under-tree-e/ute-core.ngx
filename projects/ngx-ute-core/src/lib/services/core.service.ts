@@ -10,6 +10,7 @@ import { Capacitor } from "@capacitor/core";
 import { OnlineStatusService } from "ngx-online-status";
 import { HttpService } from "./http.service";
 import { Observable } from "rxjs";
+import { LangService } from "./lang.service";
 
 @Injectable({
     providedIn: "root",
@@ -20,7 +21,8 @@ export class CoreService {
         private resizeService: ResizeService,
         private cookieService: CookieService,
         private onlineStatusService: OnlineStatusService,
-        private httpService: HttpService
+        private httpService: HttpService,
+        private langService: LangService
     ) {
         this.Init();
     }
@@ -43,6 +45,7 @@ export class CoreService {
         }
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
         this.httpService.Init(this.config.environment);
+        this.langService.Init(this.config.environment);
     }
 
     /**

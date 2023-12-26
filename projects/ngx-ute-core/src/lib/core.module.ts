@@ -39,10 +39,10 @@ export class NgxUteCoreModule {
      * - resizer?: `boolean`</br>
      * - customFontSizes?: `UteFontSizes`
      * - cookiesExp?: `number`
-     * - environment?: `Object`
+     * - environment: `Object`
      *
      */
-    static forRoot(config?: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {
+    static forRoot(config: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {
         return {
             ngModule: NgxUteCoreModule,
             providers: [CoreService, { provide: "UteCoreConfig", useValue: config }],

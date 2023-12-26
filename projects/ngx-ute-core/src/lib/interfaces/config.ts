@@ -18,7 +18,7 @@ export interface UteCoreConfigs {
     /**
      * Source project environment file
      */
-    environment?: UteEnvironment | any;
+    environment: UteEnvironment | any;
     /**
      * Cookies expires time (days)
      * @default 30
