@@ -5,6 +5,8 @@
  * @prop {@link UteEnvironment.server | server}?: `string` - Server url
  * @prop {@link UteEnvironment.production | production}?: `boolean` - App production status
  * @prop {@link UteEnvironment.storage | storage}?: `any` - Variable of local storage
+ * @prop {@link UteEnvironment.defLocale | defLocale}?: `string` - Default locale
+ * @prop {@link UteEnvironment.localeList | localeList}?: `string[]` - List of available locales
  */
 export interface UteEnvironment {
     /**
@@ -27,4 +29,12 @@ export interface UteEnvironment {
      * Variable of local storage
      */
     storage: any;
+    /**
+     * Default locale
+     */
+    defLocale: string;
+    /**
+     * List of available locales
+     */
+    localeList: string[];
 }
