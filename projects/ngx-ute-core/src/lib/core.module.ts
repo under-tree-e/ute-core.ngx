@@ -1,13 +1,18 @@
-import { ModuleWithProviders, NgModule } from "@angular/core";
+import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
+import { OnlineStatusService } from "ngx-online-status";
+
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
+import { HttpService } from "./services/http.service";
+import { LangService } from "./services/lang.service";
+
 import { UteCoreConfigs } from "./interfaces/config";
+
 import { NumberStringPipe } from "./pipes/number-string.pipe";
 import { StringFloatPipe } from "./pipes/string-float.pipe";
 import { StringIntegerPipe } from "./pipes/string-int.pipe";
 import { DateStringPipe } from "./pipes/date-string.pipe";
-import { OnlineStatusService } from "ngx-online-status";
-import { HttpService } from "./services/http.service";
+import { LangPipe } from "./pipes/lang.pipe";
 
 /**
  * The main module of Core library. Example usage:
@@ -28,9 +33,23 @@ import { HttpService } from "./services/http.service";
  *
  */
 @NgModule({
-    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe],
-    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe],
-    providers: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, CookieService, OnlineStatusService, HttpService],
+    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe],
+    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe],
+    providers: [
+        NumberStringPipe,
+        StringFloatPipe,
+        StringIntegerPipe,
+        DateStringPipe,
+        LangPipe,
+        CookieService,
+        OnlineStatusService,
+        HttpService,
+        {
+            provide: LOCALE_ID,
+            useFactory: (service: LangService) => service.current(),
+            deps: [LangService],
+        },
+    ],
 })
 export class NgxUteCoreModule {
     /**

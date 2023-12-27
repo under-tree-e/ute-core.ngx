@@ -26,6 +26,7 @@
     "@angular/forms": "^16.1.0",
     "@angular/platform-browser": "^16.1.0",
     "@angular/platform-browser-dynamic": "^16.1.0",
+    "@angular/router": "^16.1.0",
     "@capacitor/preferences": "^5.0.6",
     "compressorjs": "^1.2.1",
     "crypto-ts": "^1.0.2",

@@ -3,8 +3,9 @@ import { LangService } from "../services/lang.service";
 
 @Pipe({
     name: "lang",
+    pure: false,
 })
-export class TranslatePipe implements PipeTransform {
+export class LangPipe implements PipeTransform {
     constructor(private langService: LangService) {}
     /**
      *
@@ -13,7 +14,7 @@ export class TranslatePipe implements PipeTransform {
      */
     public transform(value: string): string {
         try {
-            return this.langService.getLangSync(value);
+            return this.langService.get(value);
         } catch {
             return value;
         }

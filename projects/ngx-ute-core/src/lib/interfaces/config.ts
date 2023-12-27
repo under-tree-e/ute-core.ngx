@@ -24,4 +24,13 @@ export interface UteCoreConfigs {
      * @default 30
      */
     cookiesExp?: number;
+    /**
+     * Custom path to locales files
+     * @default `assets/locales/`
+     */
+    path?: string;
+    /**
+     * Always add locale tag to url
+     */
+    alwaysLocale?: boolean;
 }

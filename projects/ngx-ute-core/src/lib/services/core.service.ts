@@ -45,7 +45,7 @@ export class CoreService {
         }
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
         this.httpService.Init(this.config.environment);
-        this.langService.Init(this.config.environment);
+        this.langService.Init(this.config.environment, this.config);
     }
 
     /**
