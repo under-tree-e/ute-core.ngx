@@ -4,7 +4,7 @@ import { LocaleData } from "../interfaces/locale";
 import { HttpService } from "./http.service";
 import { DOCUMENT, registerLocaleData, Location } from "@angular/common";
 import { UteCoreConfigs } from "../interfaces/config";
-import { Router, Routes, Route, ActivationStart, ActivatedRoute, NavigationStart, NavigationEnd } from "@angular/router";
+import { Router, Routes, NavigationStart, NavigationEnd } from "@angular/router";
 
 @Injectable({
     providedIn: "root",
@@ -19,13 +19,13 @@ export class LangService {
     private isNav: boolean = false;
     private isUpdate: boolean = false;
 
-    constructor(@Inject(DOCUMENT) private document: Document, private httpService: HttpService, private location: Location, private router: Router, private route: ActivatedRoute) {
+    constructor(@Inject(DOCUMENT) private document: Document, private httpService: HttpService, private location: Location, private router: Router) {
         this.defaultRoute = this.router.config;
         this.router.events.subscribe((data) => {
             if (data instanceof NavigationStart) {
                 if (!this.isNav) {
                     this.isNav = true;
-                    this.router.navigateByUrl(this.updateRoute(data.url));
+                    this.router.navigateByUrl(this.updateUrl(data.url));
                 }
             }
             if (data instanceof NavigationEnd) {
@@ -45,34 +45,48 @@ export class LangService {
 
         this.environment = environment;
         this.config = config || ({} as UteCoreConfigs);
-        this.locale = this.environment.defLocale || "en-EN";
         await this.loadLibraries();
     }
 
+    /**
+     * Get translate text by code
+     * @param code - Text identifier code
+     * @returns Translate string
+     */
     public get(code: string): string {
         return this.localeData.find((locale: LocaleData) => locale.code === code)?.text || code;
     }
 
+    /**
+     * Get current Locale code
+     * @returns Locale code
+     */
     public current(): string {
         return this.locale;
     }
 
-    public setLocale(locale: string): Promise<boolean> {
+    /**
+     * Set new Locale code
+     * @param locale - Locale code from system
+     * @param rewrite - Ignore link tag and use `locale`
+     * @returns
+     */
+    public setLocale(locale: string, rewrite: boolean = false): Promise<string> {
         return new Promise(async (resolve, reject) => {
-            this.locale = locale;
-            await this.loadLocale(true);
-            resolve(true);
+            try {
+                this.getTag(locale, rewrite);
+                await this.loadLocale();
+                resolve(this.locale);
+            } catch (error) {
+                reject(error);
+            }
         });
     }
 
-    private localeTag(locale?: string): string {
-        if (locale) {
-            return locale.split("-")[0];
-        } else {
-            return this.locale.split("-")[0];
-        }
-    }
-
+    /**
+     * Load Angular Locale libraries for another modules
+     * @returns Complete status
+     */
     private loadLibraries(): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
             try {
@@ -80,7 +94,7 @@ export class LangService {
                     this.environment.localeList = ["en-EN"];
                 }
                 this.environment.localeList.map(async (x: string) => {
-                    let locale = await import(`/node_modules/@angular/common/locales/${this.localeTag(x)}.mjs`);
+                    let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
                     registerLocaleData(locale.default);
                 });
                 resolve(true);
@@ -90,37 +104,32 @@ export class LangService {
         });
     }
 
-    private async loadLocale(update: boolean = false): Promise<boolean> {
+    /**
+     * Load texts from locale json document
+     * @returns Complete status
+     */
+    private async loadLocale(): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
-            this.localeData = await this.httpService.httpLocal<LocaleData[]>(`${this.config.path ? this.config.path : "assets/locales/"}${this.locale}.json?v=${Date.now()}`);
+            try {
+                this.localeData = await this.httpService.httpLocal<LocaleData[]>(`${this.config.path ? this.config.path : "assets/locales/"}${this.locale}.json?v=${Date.now()}`);
 
-            this.document.documentElement.lang = this.locale;
+                this.document.documentElement.lang = this.locale;
 
-            if (update) {
-                this.updateUrl();
+                this.updateRouter();
+                resolve(true);
+            } catch (error) {
+                reject(error);
             }
-            resolve(true);
         });
     }
 
-    private updateUrl() {
+    /**
+     * Update Angular Router list for Locale usage
+     */
+    private updateRouter() {
         if (!this.isUpdate) {
             this.isUpdate = true;
         }
-
-        this.tag = this.environment.localeList.find((lang: string) => location.pathname.includes(this.localeTag(lang))) || "";
-
-        if (
-            (this.config.alwaysLocale && (this.tag === "" || this.tag != this.locale)) ||
-            (!this.config.alwaysLocale && ((this.tag !== "" && this.tag != this.locale) || (this.tag === "" && this.locale != this.environment.defLocale)))
-        ) {
-            this.tag = this.locale;
-        } else if (!this.config.alwaysLocale && this.tag == this.locale) {
-            this.tag = "";
-        }
-
-        console.log("tag", this.tag);
-        console.log("locale", this.locale);
 
         if (this.tag === "") {
             this.router.config = this.defaultRoute;
@@ -128,11 +137,11 @@ export class LangService {
             this.router.config = [
                 {
                     path: "",
-                    redirectTo: this.localeTag(this.tag),
+                    redirectTo: this.localeToTag(this.tag),
                     pathMatch: "full",
                 },
                 {
-                    path: this.localeTag(this.tag),
+                    path: this.localeToTag(this.tag),
                     children: this.defaultRoute,
                 },
                 {
@@ -142,9 +151,7 @@ export class LangService {
             ];
         }
 
-        let url: string = this.updateRoute(location.pathname);
-        console.log(url);
-        console.log(this.router.config);
+        let url: string = this.updateUrl(location.pathname);
 
         let interval = setInterval(() => {
             if (!this.isNav) {
@@ -154,26 +161,76 @@ export class LangService {
         }, 50);
     }
 
-    private updateRoute(value: string): string {
-        if (this.isUpdate) {
-            if (this.tag) {
-                return "";
-            } else {
-                //--
-                let languages: string[] = this.environment.localeList.map((l: string) => this.localeTag(l));
+    /**
+     * Convert Locale code to Lang tag
+     * @param locale - Locale code
+     * @returns Lang tag
+     */
+    private localeToTag(locale?: string): string {
+        if (locale) {
+            return locale.split("-")[0];
+        } else {
+            return this.locale.split("-")[0];
+        }
+    }
 
-                let languagePrefix = `${languages.join("/")}/`;
-                let remainingPath = value.slice(languagePrefix.length);
-                return remainingPath;
+    /**
+     * Check & get priority Lang tag
+     * @param locale - Locale code from system
+     * @param rewrite - Ignore link tag and use `locale`
+     */
+    private getTag(locale: string, rewrite: boolean = false) {
+        let urlTag = this.urlToTag();
+
+        if (this.config.alwaysLocale) {
+            if (rewrite) {
+                this.tag = this.locale = locale;
+            } else {
+                this.tag = this.locale = urlTag;
             }
-            // if (value.includes(`${this.localeTag(this.tag)}/`)) {
-            //     let array: string[] = value.split("/");
-            //     array.shift();
-            //     return `/${array.join("/")}`;
-            // } else {
-            //     let sl: string = value.startsWith("/") ? "" : "/";
-            //     return `${this.tag ? `${this.localeTag(this.tag)}${sl}` : ""}${value}`;
-            // }
+        } else {
+            if (rewrite) {
+                if (locale === this.environment.defLocale) {
+                    this.locale = locale;
+                    this.tag = "";
+                } else {
+                    this.tag = this.locale = locale;
+                }
+            } else {
+                if (urlTag === this.environment.defLocale) {
+                    this.locale = urlTag;
+                    this.tag = "";
+                } else {
+                    this.tag = this.locale = urlTag;
+                }
+            }
+        }
+    }
+
+    /**
+     * Convert Lang tag from url to Locale code
+     * @returns Tag code
+     */
+    private urlToTag(): string {
+        return this.environment.localeList.find((lang: string) => location.pathname.includes(this.localeToTag(lang))) || this.environment.defLocale || "en-EN";
+    }
+
+    /**
+     * Add or remove Lang tag at url
+     * @param value - `url` to change
+     * @returns new `url`
+     */
+    private updateUrl(value: string): string {
+        if (this.isUpdate) {
+            this.environment.localeList.map((l: string) => {
+                let lang: string = this.localeToTag(l);
+                value = value.replace(`/${lang}`, "");
+            });
+            if (this.tag) {
+                return `${this.localeToTag(this.tag)}${value.startsWith("/") ? value : "/" + value}`;
+            } else {
+                return value;
+            }
         } else {
             return value;
         }
