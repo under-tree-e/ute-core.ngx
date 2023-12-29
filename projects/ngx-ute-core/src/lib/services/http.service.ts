@@ -48,9 +48,13 @@ export class HttpService {
      *
      * @returns
      */
-    private httpAddress(auth?: string): string {
-        if (auth && !this.options.headers?.has("Authorization")) {
-            this.options.headers = this.options.headers?.set("Authorization", `Bearer ${auth}`);
+    private httpAddress(): string {
+        if (this.environment.authToken && !this.options.headers?.has("Authorization")) {
+            this.options.headers = this.options.headers?.set("Authorization", `Bearer ${this.environment.authToken}`);
+        }
+
+        if (this.environment.apiToken && !this.options.headers?.has("Token")) {
+            this.options.headers = this.options.headers?.set("Token", `Bearer ${this.environment.authToken}`);
         }
 
         let link: string = "http://localhost:8080";

@@ -7,6 +7,8 @@
  * @prop {@link UteEnvironment.storage | storage}?: `any` - Variable of local storage
  * @prop {@link UteEnvironment.defLocale | defLocale}?: `string` - Default locale
  * @prop {@link UteEnvironment.localeList | localeList}?: `string[]` - List of available locales
+ * @prop {@link UteEnvironment.authToken | authToken}?: `string` - User auth token for Bearer Authorization
+ * @prop {@link UteEnvironment.apiToken | apiToken}?: `string` - App api token for Bearer API Authorization
  */
 export interface UteEnvironment {
     /**
@@ -37,4 +39,12 @@ export interface UteEnvironment {
      * List of available locales
      */
     localeList: string[];
+    /**
+     * User auth token for Bearer Authorization
+     */
+    authToken?: string;
+    /**
+     * App api token for Bearer API Authorization
+     */
+    apiToken?: string;
 }
