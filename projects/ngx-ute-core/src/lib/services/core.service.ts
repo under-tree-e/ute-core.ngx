@@ -39,13 +39,39 @@ export class CoreService {
                 this.resizeService.Init(this.config.customFontSizes || undefined);
             }
             if (this.config.environment) {
-                this.config.environment.platform = Capacitor.getPlatform();
+                let platform: string = Capacitor.getPlatform();
+                if (platform === "web") {
+                    platform = this.isWebBrowser(platform);
+                }
+
+                this.config.environment.platform = platform;
                 this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
             }
         }
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
         this.httpService.Init(this.config.environment);
         this.langService.Init(this.config.environment, this.config);
+    }
+
+    /**
+     * Check if app is web platform or browser instance
+     * @returns status
+     */
+    private isWebBrowser(platform: string): string {
+        if (typeof navigator === "object" && typeof navigator.userAgent === "string") {
+            if (/android/i.test(navigator.userAgent)) {
+                return "android";
+            }
+
+            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                return "ios";
+            }
+
+            if (/Electron/.test(navigator.userAgent)) {
+                return "electron";
+            }
+        }
+        return platform;
     }
 
     /**
