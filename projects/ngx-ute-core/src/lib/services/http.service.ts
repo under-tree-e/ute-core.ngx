@@ -36,6 +36,7 @@ export class HttpService {
                 "Content-Type": "application/json",
                 Session: btoa(
                     JSON.stringify({
+                        secret: this.environment.secret,
                         device: this.environment.platform,
                         date: new Date().toISOString().split("T")[0],
                     })
@@ -138,9 +139,11 @@ export class HttpService {
                     if (this.environment.online) {
                         let rp: any = {
                             u: `${this.httpAddress()}${reqMethod}`,
-                            b: reqMethod === "http" ? jsonConvert : (json as UteApis<any>).select,
+                            // b: reqMethod === "http" ? jsonConvert : (json as UteApis<any>).select,
+                            b: jsonConvert["body"],
                             o: this.options,
                         };
+
                         // Convert method to function
                         let httpMethod: any = this.http.get<T>(rp.u, rp.o);
                         switch (sqlMethod) {
