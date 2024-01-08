@@ -9,7 +9,6 @@
  * @prop {@link UteEnvironment.localeList | localeList}?: `string[]` - List of available locales
  * @prop {@link UteEnvironment.authToken | authToken}?: `string` - User auth token for Bearer Authorization
  * @prop {@link UteEnvironment.apiToken | apiToken}?: `string` - App api token for Bearer API Authorization
- * @prop {@link UteEnvironment.secret | secret}?: `string` - Secret key from developer
  */
 export interface UteEnvironment {
     /**
@@ -48,8 +47,4 @@ export interface UteEnvironment {
      * App api token for Bearer API Authorization
      */
     apiToken?: string;
-    /**
-     * Secret key from developer
-     */
-    secret?: string;
 }

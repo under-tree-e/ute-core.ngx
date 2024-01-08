@@ -26,7 +26,7 @@ export class HttpService {
      *
      * @param environment
      */
-    public Init(environment: UteEnvironment) {
+    public async Init(environment: UteEnvironment) {
         console.log("HttpService - Init");
         // console.log(`${new Date().toISOString()} => HttpService`);
 
@@ -36,7 +36,7 @@ export class HttpService {
                 "Content-Type": "application/json",
                 Session: btoa(
                     JSON.stringify({
-                        secret: this.environment.secret,
+                        deviceId: await this.httpLocal("assets/.deviceId"),
                         device: this.environment.platform,
                         date: new Date().toISOString().split("T")[0],
                     })
