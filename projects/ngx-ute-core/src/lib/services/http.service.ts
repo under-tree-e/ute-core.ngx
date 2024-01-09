@@ -31,12 +31,16 @@ export class HttpService {
         // console.log(`${new Date().toISOString()} => HttpService`);
 
         this.environment = environment;
+        let deviceId: string = "";
+        try {
+            deviceId = await this.httpLocal("assets/.deviceId");
+        } catch {}
         this.options = {
             headers: new HttpHeaders({
                 "Content-Type": "application/json",
                 Session: btoa(
                     JSON.stringify({
-                        deviceId: await this.httpLocal("assets/.deviceId"),
+                        deviceId: deviceId,
                         device: this.environment.platform,
                         date: new Date().toISOString().split("T")[0],
                     })
