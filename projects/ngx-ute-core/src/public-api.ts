@@ -22,3 +22,4 @@ export * from "./lib/pipes/number-string.pipe";
 export * from "./lib/pipes/string-float.pipe";
 export * from "./lib/pipes/string-int.pipe";
 export * from "./lib/pipes/lang.pipe";
+export * from "./lib/pipes/delay-if.pipe";

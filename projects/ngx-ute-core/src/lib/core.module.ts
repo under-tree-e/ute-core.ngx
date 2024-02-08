@@ -13,6 +13,7 @@ import { StringFloatPipe } from "./pipes/string-float.pipe";
 import { StringIntegerPipe } from "./pipes/string-int.pipe";
 import { DateStringPipe } from "./pipes/date-string.pipe";
 import { LangPipe } from "./pipes/lang.pipe";
+import { DelayIf } from "./pipes/delay-if.pipe";
 
 /**
  * The main module of Core library. Example usage:
@@ -33,14 +34,15 @@ import { LangPipe } from "./pipes/lang.pipe";
  *
  */
 @NgModule({
-    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe],
-    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe],
+    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf],
+    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf],
     providers: [
         NumberStringPipe,
         StringFloatPipe,
         StringIntegerPipe,
         DateStringPipe,
         LangPipe,
+        DelayIf,
         CookieService,
         OnlineStatusService,
         HttpService,
