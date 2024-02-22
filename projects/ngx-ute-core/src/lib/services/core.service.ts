@@ -139,44 +139,50 @@ export class CoreService {
                 let files: any[] = [];
                 let fileArray: any[] = Array.from(file.files);
 
-                await fileArray.map(async (fileData: any) => {
-                    let array: string[] = fileData.name.split(".");
-                    let ex: string = array[array.length - 1];
-                    array.splice(-1, 1);
-                    let name: string = array.join(".");
-                    let uid: string = v4();
-                    options?.uniqName ? (name = `${name}-${uid}`) : null;
+                const fileReadingPromises = fileArray.map((fileData: any) => {
+                    return new Promise((resolve) => {
+                        let array: string[] = fileData.name.split(".");
+                        let ex: string = array[array.length - 1];
+                        array.splice(-1, 1);
+                        let name: string = array.join(".");
+                        let uid: string = v4();
+                        options?.uniqName ? (name = `${name}-${uid}`) : null;
 
-                    let type: string = "file";
-                    if (UteFileFormats.images.some((format: string) => format === ex)) {
-                        type = "image";
-                    } else if (UteFileFormats.docs.some((format: string) => format === ex)) {
-                        type = "doc";
-                    }
+                        let type: string = "file";
+                        if (UteFileFormats.images.some((format: string) => format === ex)) {
+                            type = "image";
+                        } else if (UteFileFormats.docs.some((format: string) => format === ex)) {
+                            type = "doc";
+                        }
 
-                    new Compressor(fileData, {
-                        quality: options?.quality,
-                        maxHeight: options?.maxHeight,
-                        maxWidth: options?.maxWidth,
-                        checkOrientation: options?.checkOrientation,
-                        success(result) {
-                            let fileReader: FileReader = new FileReader();
-                            fileReader.onload = () => {
-                                files.push({
-                                    uid: uid,
-                                    type: type,
-                                    name: name,
-                                    ex: ex,
-                                    base64: fileReader.result,
-                                });
-                            };
-                            fileReader.readAsDataURL(result);
-                        },
-                        error(error) {
-                            reject(error);
-                        },
+                        new Compressor(fileData, {
+                            quality: options?.quality,
+                            maxHeight: options?.maxHeight,
+                            maxWidth: options?.maxWidth,
+                            checkOrientation: options?.checkOrientation,
+                            success(result) {
+                                let fileReader: FileReader = new FileReader();
+                                fileReader.onload = () => {
+                                    files.push({
+                                        uid: uid,
+                                        type: type,
+                                        name: name,
+                                        ex: ex,
+                                        base64: fileReader.result,
+                                    });
+                                    resolve(true);
+                                };
+                                fileReader.readAsDataURL(result);
+                            },
+                            error(error) {
+                                reject(error);
+                            },
+                        });
                     });
                 });
+
+                await Promise.all(fileReadingPromises);
+
                 if (options?.multiple) {
                     resolve(files);
                 } else {
