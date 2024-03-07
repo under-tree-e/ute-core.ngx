@@ -1,5 +1,6 @@
 import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
 import { OnlineStatusService } from "ngx-online-status";
+import { HttpClientModule } from "@angular/common/http";
 
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
@@ -36,6 +37,7 @@ import { DelayIf } from "./pipes/delay-if.pipe";
 @NgModule({
     declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf],
     exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf],
+    imports: [HttpClientModule],
     providers: [
         NumberStringPipe,
         StringFloatPipe,

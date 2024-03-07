@@ -17,4 +17,15 @@ export interface HttpOptions {
      * Request direct to online db
      */
     online?: boolean;
+    /**
+     * Custom header for request
+     */
+    headers?: CustomHeaderData[];
+}
+
+/**
+ * Custom header for request
+ */
+export interface CustomHeaderData {
+    [name: string]: string;
 }
