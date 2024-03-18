@@ -11,6 +11,7 @@ import { OnlineStatusService } from "ngx-online-status";
 import { HttpService } from "./http.service";
 import { Observable } from "rxjs";
 import { LangService } from "./lang.service";
+import { DateFormat, UteMomentProvidersData } from "../interfaces/moment";
 
 @Injectable({
     providedIn: "root",
@@ -83,24 +84,31 @@ export class CoreService {
      * @returns
      */
     public objectUpdate<T>(source: T, update: UteObjects, fieldKey?: string): T {
+        let resource: T = JSON.parse(JSON.stringify(source));
+
         try {
             let updater = (s: any, u: UteObjects) => {
                 for (const key in u) {
                     if (s.hasOwnProperty(key)) {
-                        s[key] = u[key];
+                        if (typeof s[key] === "object" && !Array.isArray(s[key])) {
+                            s[key] = updater(s[key], u[key]);
+                        } else {
+                            s[key] = u[key];
+                        }
                     }
                 }
+
                 return s;
             };
-            if (Array.isArray(source)) {
-                let index: number = source.map((x: any) => (fieldKey ? x[fieldKey] : x["id"])).indexOf(fieldKey ? update[fieldKey] : update["id"]);
+            if (Array.isArray(resource)) {
+                let index: number = resource.map((x: any) => (fieldKey ? x[fieldKey] : x["id"])).indexOf(fieldKey ? update[fieldKey] : update["id"]);
                 if (index != -1) {
-                    source[index] = updater(source[index], update);
+                    resource[index] = updater(resource[index], update);
                 }
             } else {
-                source = updater(source, update);
+                resource = updater(resource, update);
             }
-            return source;
+            return resource;
         } catch {
             return source;
         }
@@ -252,5 +260,111 @@ export class CoreService {
         } else {
             return false;
         }
+    }
+
+    /**
+     * Convert user format to one of presets for moment adapter
+     * @param format - User default date format
+     * @param type - Preset name
+     * @returns New format string
+     */
+    public momentFormat(format: string, type: "date" | "time" | "shortdate" | "shorttime"): string {
+        const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
+        let value: string = JSON.parse(JSON.stringify(format));
+        switch (type) {
+            case "date":
+                let match = value.match(dateRegx);
+                return match ? match[0].replace(/y{2}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : "";
+            case "time":
+                return value.replace(/y{2}/gi, value.includes("Y") ? "YYYY" : "yyyy");
+            case "shorttime":
+                value = value.replace(/m{3,5}/gi, value.includes("M") ? "MM" : "mm");
+                return value.replace(/y{3,4}/gi, value.includes("Y") ? "YY" : "yy");
+            case "shortdate":
+                match = value.match(dateRegx);
+                return match ? match[0] : "";
+        }
+    }
+
+    /**
+     * Generate additional formats for moment adapter
+     * @param format - User default date format
+     * @returns Object with additional formats
+     */
+    public momentProviders(format: string): UteMomentProvidersData {
+        const defaultFormat: DateFormat = {
+            parse: {
+                dateInput: "LL",
+            },
+            display: {
+                dateInput: "LL",
+                monthYearLabel: "MMM YYYY",
+                dateA11yLabel: "LL",
+                monthYearA11yLabel: "MMMM YYYY",
+            },
+        };
+
+        const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
+
+        // Full DateTime
+        format = format.replace(/y{2}/gi, format.includes("Y") ? "YYYY" : "yyyy");
+
+        // Short DateTime
+        let dateTimeFormat: string = JSON.parse(JSON.stringify(format));
+        dateTimeFormat = dateTimeFormat.replace(/m{3,5}/gi, format.includes("M") ? "MM" : "mm");
+        dateTimeFormat = dateTimeFormat.replace(/y{3,4}/gi, format.includes("Y") ? "YY" : "yy");
+
+        // Full Date
+        let match = format.match(dateRegx);
+        let dateFormat: string = match ? match[0] : "";
+
+        // Short Date
+        match = dateTimeFormat.match(dateRegx);
+        let shortFormat: string = match ? match[0] : "";
+
+        const fullDateTime: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
+            parse: {
+                dateInput: format,
+            },
+            display: {
+                dateInput: format,
+            },
+        });
+
+        const shortDateTime: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
+            parse: {
+                dateInput: dateTimeFormat,
+            },
+            display: {
+                dateInput: dateTimeFormat,
+            },
+        });
+
+        const fullDate: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
+            parse: {
+                dateInput: dateFormat,
+            },
+            display: {
+                dateInput: dateFormat,
+            },
+        });
+
+        const shortDate: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
+            parse: {
+                dateInput: shortFormat,
+            },
+            display: {
+                dateInput: shortFormat,
+            },
+        });
+
+        const providers: UteMomentProvidersData = {
+            fullDateTime: fullDateTime,
+            shortDateTime: shortDateTime,
+            fullDate: fullDate,
+            shortDate: shortDate,
+        };
+
+        return providers;
     }
 }

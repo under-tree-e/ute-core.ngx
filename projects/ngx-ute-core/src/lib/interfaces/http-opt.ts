@@ -18,6 +18,10 @@ export interface HttpOptions {
      */
     online?: boolean;
     /**
+     * Custom link. By default used `env.server` link
+     */
+    link?: string;
+    /**
      * Custom header for request
      */
     headers?: CustomHeaderData[];

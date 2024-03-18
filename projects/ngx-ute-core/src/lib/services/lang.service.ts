@@ -212,7 +212,7 @@ export class LangService {
      * @returns Tag code
      */
     private urlToTag(): string {
-        return this.environment.localeList.find((lang: string) => location.pathname.includes(this.localeToTag(lang))) || this.environment.defLocale || "en-EN";
+        return (this.environment.localeList || ["en-EN"]).find((lang: string) => location.pathname.includes(this.localeToTag(lang))) || this.environment.defLocale || "en-EN";
     }
 
     /**
@@ -222,7 +222,7 @@ export class LangService {
      */
     private updateUrl(value: string): string {
         if (this.isUpdate) {
-            this.environment.localeList.map((l: string) => {
+            (this.environment.localeList || ["en-EN"]).map((l: string) => {
                 let lang: string = this.localeToTag(l);
                 value = value.replace(`/${lang}`, "");
             });

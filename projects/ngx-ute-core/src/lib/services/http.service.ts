@@ -7,7 +7,7 @@ import { UteObjects } from "../interfaces/object";
 import { UteApis } from "../interfaces/api";
 import { CustomHeaderData, HttpOptions } from "../interfaces/http-opt";
 import * as qs from "qs";
-import { ApiConst } from "../contantes/api";
+import { ApiConst } from "../constantes/api";
 import { OnlineStatusService } from "ngx-online-status";
 
 @Injectable({
@@ -53,7 +53,7 @@ export class HttpService {
      *
      * @returns
      */
-    private httpAddress(headers?: CustomHeaderData[]): string {
+    private httpAddress(option?: HttpOptions): string {
         if (this.environment.authToken && !this.options.headers?.has("Authorization")) {
             this.options.headers = this.options.headers?.set("Authorization", `Bearer ${this.environment.authToken}`);
         }
@@ -62,8 +62,8 @@ export class HttpService {
             this.options.headers = this.options.headers?.set("x-api-key", `Bearer ${this.environment.apiToken}`);
         }
 
-        if (headers) {
-            headers.map((h: CustomHeaderData) => {
+        if (option && option.headers) {
+            option.headers.map((h: CustomHeaderData) => {
                 let name: string = Object.keys(h)[0];
                 let value: string = Object.values(h)[0];
                 if (!this.options.headers?.has(name)) {
@@ -76,16 +76,16 @@ export class HttpService {
         switch (this.environment.platform) {
             case "web":
                 if (this.environment.production) {
-                    link = `${location.protocol}//${location.host}${this.platformLocation.getBaseHrefFromDOM()}`;
+                    link = option?.link ? (link = option.link) : `${location.protocol}//${location.host}${this.platformLocation.getBaseHrefFromDOM()}`;
                 } else {
-                    this.environment.server ? (link = this.environment.server) : null;
+                    option?.link ? (link = option.link) : this.environment.server ? (link = this.environment.server) : null;
                 }
                 break;
             default:
-                this.environment.server ? (link = this.environment.server) : null;
+                option?.link ? (link = option.link) : this.environment.server ? (link = this.environment.server) : null;
                 break;
         }
-        return `${link}${link.endsWith("/") ? "api/" : "/api/"}`;
+        return `${link}${link.endsWith("/") ? "" : "/"}`;
     }
 
     /**
@@ -152,7 +152,7 @@ export class HttpService {
                 if (!this.environment.storage || httpOptions?.online) {
                     if (this.environment.online) {
                         let rp: any = {
-                            u: `${this.httpAddress(httpOptions?.headers)}${reqMethod}`,
+                            u: `${this.httpAddress(httpOptions)}${reqMethod}`,
                             // b: reqMethod === "http" ? jsonConvert : (json as UteApis<any>).select,
                             b: jsonConvert["body"],
                             o: this.options,
@@ -163,7 +163,7 @@ export class HttpService {
                         switch (sqlMethod) {
                             case "GET":
                                 let jsonString = qs.stringify(jsonConvert);
-                                httpMethod = this.http.get<T>(`${this.httpAddress(httpOptions?.headers)}${reqMethod}${jsonString ? "?" + jsonString : ""}`, this.options);
+                                httpMethod = this.http.get<T>(`${this.httpAddress(httpOptions)}${reqMethod}${jsonString ? "?" + jsonString : ""}`, this.options);
                                 break;
                             case "POST":
                                 httpMethod = this.http.post<T>(rp.u, rp.b, rp.o);

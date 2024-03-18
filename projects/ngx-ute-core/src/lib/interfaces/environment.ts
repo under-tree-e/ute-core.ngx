@@ -14,31 +14,31 @@ export interface UteEnvironment {
     /**
      * App online status
      */
-    online: boolean;
+    online?: boolean;
     /**
      * Platform on app starts (`web`, `ionic`, `electron`)
      */
-    platform: string;
+    platform?: string;
     /**
      * Server url
      */
-    server: string;
+    server?: string;
     /**
      * App production status
      */
-    production: boolean;
+    production?: boolean;
     /**
      * Variable of local storage
      */
-    storage: any;
+    storage?: any;
     /**
      * Default locale
      */
-    defLocale: string;
+    defLocale?: string;
     /**
      * List of available locales
      */
-    localeList: string[];
+    localeList?: string[];
     /**
      * User auth token for Bearer Authorization
      */
