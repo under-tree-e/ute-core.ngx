@@ -16,6 +16,10 @@ export interface UteEnvironment {
      */
     online?: boolean;
     /**
+     * Mobile screen size status
+     */
+    mobile?: boolean;
+    /**
      * Platform on app starts (`web`, `ionic`, `electron`)
      */
     platform?: string;

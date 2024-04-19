@@ -1,4 +1,4 @@
-import { Inject, Injectable, HostListener } from "@angular/core";
+import { Inject, Injectable, HostListener, OnDestroy } from "@angular/core";
 import { UteCoreConfigs } from "../interfaces/config";
 import { ResizeService } from "./resize.service";
 import { UteObjects } from "../interfaces/object";
@@ -9,23 +9,31 @@ import { CookieService } from "./cookie.service";
 import { Capacitor } from "@capacitor/core";
 import { OnlineStatusService } from "ngx-online-status";
 import { HttpService } from "./http.service";
-import { Observable } from "rxjs";
+import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
-import { DateFormat, UteMomentProvidersData } from "../interfaces/moment";
+import { DateFormat, UteProvidersData } from "../interfaces/moment";
+import { BreakpointObserver } from "@angular/cdk/layout";
 
 @Injectable({
     providedIn: "root",
 })
-export class CoreService {
+export class CoreService implements OnDestroy {
+    private subscriptions = new Subscription();
+
     constructor(
         @Inject("UteCoreConfig") private config: UteCoreConfigs,
         private resizeService: ResizeService,
         private cookieService: CookieService,
         private onlineStatusService: OnlineStatusService,
         private httpService: HttpService,
-        private langService: LangService
+        private langService: LangService,
+        private breakpoints: BreakpointObserver
     ) {
         this.Init();
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 
     /**
@@ -47,6 +55,7 @@ export class CoreService {
 
                 this.config.environment.platform = platform;
                 this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
+                this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment = status)));
             }
         }
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
@@ -253,118 +262,115 @@ export class CoreService {
 
     /**
      * Return if mobile device
+     * @param custom - Custom width size
      */
-    public isMobile() {
-        if (this.config.environment.platform === ("android" || "ios") || window.screen.width < 800) {
-            return true;
-        } else {
-            return false;
-        }
+    public isMobile(custom?: string): Observable<boolean> {
+        return this.breakpoints.observe(`(max-width: ${custom ? custom : 860}px)`).pipe(map((breakpoint) => breakpoint.matches));
     }
 
     /**
-     * Convert user format to one of presets for moment adapter
+     * Convert user format to one of presets
      * @param format - User default date format
      * @param type - Preset name
      * @returns New format string
      */
-    public momentFormat(format: string, type: "date" | "time" | "shortdate" | "shorttime"): string {
+    public dateFormat(format: string, type: "date" | "time" | "shortdate" | "shorttime"): string {
         const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
         let value: string = JSON.parse(JSON.stringify(format));
         switch (type) {
             case "date":
                 let match = value.match(dateRegx);
-                return match ? match[0].replace(/y{2}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : "";
+                return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : "";
             case "time":
-                return value.replace(/y{2}/gi, value.includes("Y") ? "YYYY" : "yyyy");
+                return value.replace(/y{2,4}/gi, value.includes("Y") ? "YYYY" : "yyyy");
             case "shorttime":
-                value = value.replace(/m{3,5}/gi, value.includes("M") ? "MM" : "mm");
-                return value.replace(/y{3,4}/gi, value.includes("Y") ? "YY" : "yy");
+                value = value.replace(/m{2,5}/gi, value.includes("M") ? "MM" : "mm");
+                return value.replace(/y{2,4}/gi, value.includes("Y") ? "YY" : "yy");
             case "shortdate":
                 match = value.match(dateRegx);
                 return match ? match[0] : "";
         }
     }
 
-    /**
-     * Generate additional formats for moment adapter
-     * @param format - User default date format
-     * @returns Object with additional formats
-     */
-    public momentProviders(format: string): UteMomentProvidersData {
-        const defaultFormat: DateFormat = {
-            parse: {
-                dateInput: "LL",
-            },
-            display: {
-                dateInput: "LL",
-                monthYearLabel: "MMM YYYY",
-                dateA11yLabel: "LL",
-                monthYearA11yLabel: "MMMM YYYY",
-            },
-        };
+    // /**
+    //  * Generate additional formats for moment adapter
+    //  * @param format - User default date format
+    //  * @returns Object with additional formats
+    //  */
+    // public momentProviders(format: string): UteProvidersData {
+    //     const defaultFormat: DateFormat = {
+    //         parse: {
+    //             dateInput: "LL",
+    //         },
+    //         display: {
+    //             dateInput: "LL",
+    //             monthYearLabel: "MMM YYYY",
+    //             dateA11yLabel: "LL",
+    //             monthYearA11yLabel: "MMMM YYYY",
+    //         },
+    //     };
 
-        const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
+    //     const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
 
-        // Full DateTime
-        format = format.replace(/y{2}/gi, format.includes("Y") ? "YYYY" : "yyyy");
+    //     // Full DateTime
+    //     format = format.replace(/y{2}/gi, format.includes("Y") ? "YYYY" : "yyyy");
 
-        // Short DateTime
-        let dateTimeFormat: string = JSON.parse(JSON.stringify(format));
-        dateTimeFormat = dateTimeFormat.replace(/m{3,5}/gi, format.includes("M") ? "MM" : "mm");
-        dateTimeFormat = dateTimeFormat.replace(/y{3,4}/gi, format.includes("Y") ? "YY" : "yy");
+    //     // Short DateTime
+    //     let dateTimeFormat: string = JSON.parse(JSON.stringify(format));
+    //     dateTimeFormat = dateTimeFormat.replace(/m{3,5}/gi, format.includes("M") ? "MM" : "mm");
+    //     dateTimeFormat = dateTimeFormat.replace(/y{3,4}/gi, format.includes("Y") ? "YY" : "yy");
 
-        // Full Date
-        let match = format.match(dateRegx);
-        let dateFormat: string = match ? match[0] : "";
+    //     // Full Date
+    //     let match = format.match(dateRegx);
+    //     let dateFormat: string = match ? match[0] : "";
 
-        // Short Date
-        match = dateTimeFormat.match(dateRegx);
-        let shortFormat: string = match ? match[0] : "";
+    //     // Short Date
+    //     match = dateTimeFormat.match(dateRegx);
+    //     let shortFormat: string = match ? match[0] : "";
 
-        const fullDateTime: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
-            parse: {
-                dateInput: format,
-            },
-            display: {
-                dateInput: format,
-            },
-        });
+    //     const fullDateTime: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
+    //         parse: {
+    //             dateInput: format,
+    //         },
+    //         display: {
+    //             dateInput: format,
+    //         },
+    //     });
 
-        const shortDateTime: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
-            parse: {
-                dateInput: dateTimeFormat,
-            },
-            display: {
-                dateInput: dateTimeFormat,
-            },
-        });
+    //     const shortDateTime: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
+    //         parse: {
+    //             dateInput: dateTimeFormat,
+    //         },
+    //         display: {
+    //             dateInput: dateTimeFormat,
+    //         },
+    //     });
 
-        const fullDate: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
-            parse: {
-                dateInput: dateFormat,
-            },
-            display: {
-                dateInput: dateFormat,
-            },
-        });
+    //     const fullDate: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
+    //         parse: {
+    //             dateInput: dateFormat,
+    //         },
+    //         display: {
+    //             dateInput: dateFormat,
+    //         },
+    //     });
 
-        const shortDate: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
-            parse: {
-                dateInput: shortFormat,
-            },
-            display: {
-                dateInput: shortFormat,
-            },
-        });
+    //     const shortDate: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
+    //         parse: {
+    //             dateInput: shortFormat,
+    //         },
+    //         display: {
+    //             dateInput: shortFormat,
+    //         },
+    //     });
 
-        const providers: UteMomentProvidersData = {
-            fullDateTime: fullDateTime,
-            shortDateTime: shortDateTime,
-            fullDate: fullDate,
-            shortDate: shortDate,
-        };
+    //     const providers: UteProvidersData = {
+    //         fullDateTime: fullDateTime,
+    //         shortDateTime: shortDateTime,
+    //         fullDate: fullDate,
+    //         shortDate: shortDate,
+    //     };
 
-        return providers;
-    }
+    //     return providers;
+    // }
 }

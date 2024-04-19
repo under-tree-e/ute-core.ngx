@@ -1,4 +1,4 @@
-export interface UteMomentProvidersData {
+export interface UteProvidersData {
     fullDateTime: DateFormat;
     shortDateTime: DateFormat;
     fullDate: DateFormat;

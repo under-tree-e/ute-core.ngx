@@ -153,7 +153,6 @@ export class HttpService {
                     if (this.environment.online) {
                         let rp: any = {
                             u: `${this.httpAddress(httpOptions)}${reqMethod}`,
-                            // b: reqMethod === "http" ? jsonConvert : (json as UteApis<any>).select,
                             b: jsonConvert["body"],
                             o: this.options,
                         };
@@ -178,7 +177,6 @@ export class HttpService {
 
                         // Send request
                         response = await lastValueFrom(httpMethod);
-                        // console.log(response);
                     } else {
                         throw "502 Bad Gateway - No internet connection";
                     }
