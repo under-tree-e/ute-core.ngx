@@ -55,7 +55,7 @@ export class CoreService implements OnDestroy {
 
                 this.config.environment.platform = platform;
                 this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
-                this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment = status)));
+                this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
             }
         }
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);

@@ -15,6 +15,7 @@ import { StringIntegerPipe } from "./pipes/string-int.pipe";
 import { DateStringPipe } from "./pipes/date-string.pipe";
 import { LangPipe } from "./pipes/lang.pipe";
 import { DelayIf } from "./pipes/delay-if.pipe";
+import { HoldDirective } from "./directives/hold";
 
 /**
  * The main module of Core library. Example usage:
@@ -35,8 +36,8 @@ import { DelayIf } from "./pipes/delay-if.pipe";
  *
  */
 @NgModule({
-    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf],
-    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf],
+    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective],
+    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective],
     imports: [HttpClientModule],
     providers: [
         NumberStringPipe,
@@ -45,6 +46,7 @@ import { DelayIf } from "./pipes/delay-if.pipe";
         DateStringPipe,
         LangPipe,
         DelayIf,
+        HoldDirective,
         CookieService,
         OnlineStatusService,
         HttpService,
