@@ -9,7 +9,7 @@ import { UteEnvironment } from "../interfaces/environment";
 })
 export class CookieService {
     private cookiesExp: number = 30;
-    private cookiesCode: string = location.host.slice(0, 4);
+    private cookiesCode: string = location.host.slice(0, 4).toUpperCase();
     private environment: UteEnvironment = {} as UteEnvironment;
 
     constructor(private CookieService: NgxCookieService) {}

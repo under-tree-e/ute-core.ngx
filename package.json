@@ -1,6 +1,6 @@
 {
   "name": "ute-core.ngx",
-  "version": "0.1.1-dev.0",
+  "version": "0.1.1-dev.1",
   "description": "Angular Core module includes simple packs of function for base app usage",
   "scripts": {
     "watch": "ng build --watch",

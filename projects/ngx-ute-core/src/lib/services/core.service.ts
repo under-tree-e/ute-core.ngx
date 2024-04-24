@@ -98,7 +98,7 @@ export class CoreService implements OnDestroy {
         try {
             let updater = (s: any, u: UteObjects) => {
                 for (const key in u) {
-                    if (s.hasOwnProperty(key)) {
+                    if (s && s.hasOwnProperty(key)) {
                         if (typeof s[key] === "object" && !Array.isArray(s[key])) {
                             s[key] = updater(s[key], u[key]);
                         } else {
@@ -117,13 +117,20 @@ export class CoreService implements OnDestroy {
             } else {
                 resource = updater(resource, update);
             }
+
             return resource;
         } catch {
             return source;
         }
     }
 
-    public objectInterface(item: any, constArray: any): any {
+    /**
+     * Adaptation object keys to interface
+     * @param item - Object to change
+     * @param constArray - Interface
+     * @returns New object
+     */
+    public objToInt(item: any, constArray: any): any {
         let removeKeys: string[] = Object.keys(item).filter((k: string) => !Object.keys(constArray).some((p: any) => p === k));
 
         removeKeys.map((k: string) => {
