@@ -44,9 +44,9 @@ export interface UteEnvironment {
      */
     localeList?: string[];
     /**
-     * User auth token for Bearer Authorization
+     * User session data
      */
-    authToken?: string;
+    session?: any;
     /**
      * App api token for Bearer API Authorization
      */

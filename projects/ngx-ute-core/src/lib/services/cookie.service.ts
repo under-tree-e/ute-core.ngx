@@ -12,7 +12,7 @@ export class CookieService {
     private cookiesCode: string = location.host.slice(0, 4).toUpperCase();
     private environment: UteEnvironment = {} as UteEnvironment;
 
-    constructor(private CookieService: NgxCookieService) {}
+    constructor(private cookieService: NgxCookieService) {}
 
     /**
      *
@@ -31,11 +31,12 @@ export class CookieService {
 
     /**
      * Set cookies OR localStorage
-     * @param name - display name
+     * @param name - display name {string}
      * @param data - data to save {Object}
+     * @param time - custom expires time {number}
      * @returns boolean or error
      */
-    public set(name: string, data: any): Promise<any> {
+    public set(name: string, data: any, time?: number): Promise<any> {
         return new Promise(async (resolve, reject) => {
             try {
                 if (typeof data != "string") {
@@ -54,14 +55,14 @@ export class CookieService {
                     }
                 } else {
                     let expires = new Date();
-                    expires.setDate(expires.getDate() + (this.cookiesExp || 30));
+                    expires.setDate(expires.getDate() + (time ? time : this.cookiesExp));
                     let local = location.host.split(":")[0];
                     let secure = false;
                     if (location.protocol == "https:") {
                         secure = true;
                     }
 
-                    await this.CookieService.set(this.cookiesCode + name, data, expires, "/", local, secure);
+                    await this.cookieService.set(this.cookiesCode + name, data, expires, "/", local, secure);
                 }
 
                 resolve(true);
@@ -90,8 +91,8 @@ export class CookieService {
                         data = localStorage.getItem(this.cookiesCode + name);
                     }
                 } else {
-                    if ((await this.CookieService.get(this.cookiesCode + name)) && (await this.CookieService.get(this.cookiesCode + name)) != "undefined") {
-                        data = await this.CookieService.get(this.cookiesCode + name);
+                    if ((await this.cookieService.get(this.cookiesCode + name)) && (await this.cookieService.get(this.cookiesCode + name)) != "undefined") {
+                        data = await this.cookieService.get(this.cookiesCode + name);
                     }
                 }
 
@@ -132,7 +133,7 @@ export class CookieService {
                     }
                 } else {
                     if (name) {
-                        await this.CookieService.delete(this.cookiesCode + name, "/");
+                        await this.cookieService.delete(this.cookiesCode + name, "/");
                         resolve(true);
                     } else {
                         let local = location.host.split(":")[0];
@@ -140,7 +141,7 @@ export class CookieService {
                         if (location.protocol == "https:") {
                             secure = true;
                         }
-                        await this.CookieService.deleteAll("/", local, secure);
+                        await this.cookieService.deleteAll("/", local, secure);
                         resolve(true);
                     }
                 }
