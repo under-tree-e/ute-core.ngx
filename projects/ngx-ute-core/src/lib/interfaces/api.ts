@@ -33,7 +33,7 @@ export interface UteApis<T> {
      * @example { select: { table1: ["column1", "column2"] }, reftable: ["column1"] }
      * @example { select: { column1: value1, column2: value2 } }
      */
-    select?: string | string[] | UteObjects;
+    select?: T | T[] | UteObjects | string;
     /**
      * Where condition. Allows cond: `AND, NOT, OR, IN, NOT IN, BETWEEN, NOT BETWEEN, LIKE, NOT LIKE`</br>
      *
@@ -43,17 +43,21 @@ export interface UteApis<T> {
     where?: UteObjects;
     /**
      * Values to order returned data from table. Default `desc: false | null` => `ASC`</br>
+     * - column - Name of column
+     * - desc - Use `DESC`, default `ASC`
      *
      * *`ATTENTION`: Not work with `method`*
-     * @example { order: [{ column: "column1", desc: true }] }
-     * @example { order: [{ column: "column1"}, { column: column2, desc: true }] }
+     * @example { order: [ [ column: string, desc: boolean ] ] }
+     * @example { order: [ ["column1"], [ "column2", true ] ] }
      */
-    order?: UteObjects;
+    order?: any[];
     /**
-     * Limit number of returned values.
-     * @example { limit: 10, step: 5 }
+     * Limit number of returned values. [ limit, step ]
+     * - limit - number of values to return
+     * - step - start index
+     * @example { limit: [ 10, 5 ] }
      */
-    limit?: UteObjects;
+    limit?: number[];
     /**
      * Do not add REFERENSE tables to query result *IF IT ISSETS*</br>
      *

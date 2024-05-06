@@ -54,7 +54,7 @@ export class HttpService {
      * @returns
      */
     private httpAddress(option?: HttpOptions): string {
-        if (this.environment.session?.authToken && !this.options.headers?.has("Authorization")) {
+        if (this.environment.session?.authToken) {
             this.options.headers = this.options.headers?.set("Authorization", `Bearer ${this.environment.session?.authToken}`);
         }
 
@@ -66,9 +66,7 @@ export class HttpService {
             option.headers.map((h: CustomHeaderData) => {
                 let name: string = Object.keys(h)[0];
                 let value: string = Object.values(h)[0];
-                if (!this.options.headers?.has(name)) {
-                    this.options.headers = this.options.headers?.set(name, value);
-                }
+                this.options.headers = this.options.headers?.set(name, value);
             });
         }
 
@@ -162,6 +160,9 @@ export class HttpService {
                         switch (sqlMethod) {
                             case "GET":
                                 let jsonString = qs.stringify(jsonConvert);
+                                if (jsonString.length > 5000) {
+                                    throw "GET request too long!";
+                                }
                                 httpMethod = this.http.get<T>(`${this.httpAddress(httpOptions)}${reqMethod}${jsonString ? "?" + jsonString : ""}`, this.options);
                                 break;
                             case "POST":

@@ -4,5 +4,6 @@ export const ApiConst = {
     select: "st",
     where: "wr",
     order: "or",
+    limit: "lt",
     noref: "no",
 };
