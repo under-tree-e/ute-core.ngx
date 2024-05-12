@@ -11,7 +11,6 @@ export default class BuildScript {
 
             console.log("Building app...");
 
-            // await this.command("ng", [`build`, `--base-href`, `/ute-core.ngx/`]);
             await this.command("ng", ["build"]);
 
             console.log("Packing app...");
