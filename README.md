@@ -6,7 +6,7 @@
 
 Please do not use this module on production Angular projects. This module is for test environment only.
 
-Api list of module, [HERE](https://under-tree-e.github.io/ute-core.ngx)
+API list for module, [HERE](https://under-tree-e.github.io/ute-core.ngx)
 
 ## Getting started
 
