@@ -6,6 +6,8 @@
 
 Please do not use this module on production Angular projects. This module is for test environment only.
 
+Api list of module, [HERE](https://under-tree-e.github.io/ute-core.ngx)
+
 ## Getting started
 
 Install the package:
@@ -13,8 +15,6 @@ Install the package:
 ```shell
 npm i ngx-ute-core
 ```
-
-Api list of module, [HERE](https://under-tree-e.github.io/ute-core.ngx)
 
 ## Services and modules
 
