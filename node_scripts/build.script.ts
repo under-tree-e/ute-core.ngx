@@ -22,7 +22,7 @@ export default class BuildScript {
 
             fs.copyFileSync(`README.md`, `dist/ngx-ute-core/README.md`);
 
-            await this.command("typedoc");
+            await this.command("typedoc", ["--name", "UTE Core", "--readme", "README.md"]);
 
             if (publish) {
                 console.log("Sync git branches...");
