@@ -1,7 +1,12 @@
 {
   "name": "ngx-ute-core",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "UTE Core module includes simple packs of function for base Angular app usage",
+  "keywords": [
+    "angular",
+    "typescript",
+    "es5"
+  ],
   "license": "MIT",
   "peerDependencies": {
     "@angular/common": ">=16.0.0",
