@@ -33,7 +33,7 @@ export class HttpService {
         this.environment = environment;
         let deviceId: string = "";
         try {
-            deviceId = await this.httpLocal("assets/.deviceId");
+            deviceId = await this.httpLocal("assets/deviceId");
         } catch {}
         this.options = {
             headers: new HttpHeaders({
