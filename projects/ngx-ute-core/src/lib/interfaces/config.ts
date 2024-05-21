@@ -33,4 +33,20 @@ export interface UteCoreConfigs {
      * Always add locale tag to url
      */
     alwaysLocale?: boolean;
+    /**
+     * Api path part of link (after domain name)
+     * @example
+     * api
+     * server/api
+     * @default
+     * api
+     */
+    api?: string;
+    /**
+     * Api sub domain
+     * @example
+     * api
+     * api.server
+     */
+    subdomain?: string;
 }

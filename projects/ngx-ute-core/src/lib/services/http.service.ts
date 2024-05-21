@@ -19,6 +19,8 @@ export class HttpService {
         body?: any;
         headers?: HttpHeaders | undefined;
     } = {};
+    private apiPath: string = "api";
+    private apiSubDomain: string = "";
 
     constructor(private http: HttpClient, private platformLocation: PlatformLocation, private onlineStatusService: OnlineStatusService) {}
 
@@ -70,7 +72,7 @@ export class HttpService {
             });
         }
 
-        let link: string = "http://localhost:8080";
+        let link: string = `http://localhost:8080`;
         switch (this.environment.platform) {
             case "web":
                 if (this.environment.production) {
@@ -83,7 +85,12 @@ export class HttpService {
                 option?.link ? (link = option.link) : this.environment.server ? (link = this.environment.server) : null;
                 break;
         }
-        return `${link}${link.endsWith("/") ? "" : "/"}`;
+
+        if (this.apiSubDomain) link = link.replace("://", `://${this.apiSubDomain}`);
+        if (!link.endsWith("/")) link += "/";
+        if (this.apiPath) link += `${this.apiPath}/`;
+
+        return link;
     }
 
     /**
