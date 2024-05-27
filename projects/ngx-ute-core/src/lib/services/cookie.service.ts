@@ -15,9 +15,9 @@ export class CookieService {
     constructor(private cookieService: NgxCookieService) {}
 
     /**
-     *
-     * @param environment
-     * @param exp
+     * Init Cookie service
+     * @param environment - Info about system
+     * @param exp - Life time of cookies in days
      */
     public Init(environment: UteEnvironment, exp?: number) {
         console.log("CookieService - Init");
@@ -74,9 +74,9 @@ export class CookieService {
     }
 
     /**
-     *
-     * @param name
-     * @returns
+     * Get cookies OR localStorage
+     * @param name - display name {string}
+     * @returns data or error
      */
     public get(name: string): Promise<any> {
         return new Promise(async (resolve, reject) => {
@@ -108,9 +108,9 @@ export class CookieService {
     }
 
     /**
-     *
-     * @param name
-     * @returns
+     * Delete cookies OR localStorage
+     * @param name - display name {string}
+     * @returns boolean or error
      */
     public remove(name: string): Promise<any> {
         return new Promise(async (resolve, reject) => {
@@ -134,7 +134,6 @@ export class CookieService {
                 } else {
                     if (name) {
                         await this.cookieService.delete(this.cookiesCode + name, "/");
-                        resolve(true);
                     } else {
                         let local = location.host.split(":")[0];
                         let secure = false;
@@ -142,9 +141,9 @@ export class CookieService {
                             secure = true;
                         }
                         await this.cookieService.deleteAll("/", local, secure);
-                        resolve(true);
                     }
                 }
+                resolve(true);
             } catch (error) {
                 console.error("remove", error);
                 reject(error);
