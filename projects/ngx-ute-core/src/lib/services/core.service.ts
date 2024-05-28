@@ -88,21 +88,28 @@ export class CoreService implements OnDestroy {
      * Update Object of Array of objects
      * @param source - Object or Array of objects
      * @param update - Object with new data
-     * @param key - If `source` is array, all array items similar with `update` by this key will be updated
-     * @default `key: 'id'`
+     * @param fieldKey - If `source` is array, all array items similar with `update` by this key will be updated
+     * @param noEmpty - Not update keys if update values are empty
+     * @param update - Ignore objects diff sizes or cut final object by fileds const
      * @returns
      */
-    public objectUpdate<T>(source: T, update: UteObjects, fieldKey?: string): T {
+    public objectUpdate<T>(source: T, update: UteObjects, options?: { fieldKey?: string; noEmpty?: boolean; ignore?: boolean | UteObjects }): T {
         let resource: T = JSON.parse(JSON.stringify(source));
 
         try {
             let updater = (s: any, u: UteObjects) => {
                 for (const key in u) {
-                    if (s && s.hasOwnProperty(key)) {
+                    if ((s && s.hasOwnProperty(key)) || options?.ignore) {
                         if (typeof s[key] === "object" && !Array.isArray(s[key])) {
                             s[key] = updater(s[key], u[key]);
                         } else {
-                            s[key] = u[key];
+                            if (options?.noEmpty) {
+                                if (u[key] !== null && u[key] !== undefined) {
+                                    s[key] = u[key];
+                                }
+                            } else {
+                                s[key] = u[key];
+                            }
                         }
                     }
                 }
@@ -110,12 +117,16 @@ export class CoreService implements OnDestroy {
                 return s;
             };
             if (Array.isArray(resource)) {
-                let index: number = resource.map((x: any) => (fieldKey ? x[fieldKey] : x["id"])).indexOf(fieldKey ? update[fieldKey] : update["id"]);
+                let index: number = resource.map((x: any) => (options?.fieldKey ? x[options?.fieldKey] : x["id"])).indexOf(options?.fieldKey ? update[options?.fieldKey] : update["id"]);
                 if (index != -1) {
                     resource[index] = updater(resource[index], update);
                 }
             } else {
                 resource = updater(resource, update);
+            }
+
+            if (typeof options?.ignore !== "boolean") {
+                resource = this.objToInt(resource, options?.ignore);
             }
 
             return resource;
