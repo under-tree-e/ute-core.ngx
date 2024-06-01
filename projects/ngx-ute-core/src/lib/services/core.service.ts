@@ -95,7 +95,7 @@ export class CoreService implements OnDestroy {
      */
     public objectUpdate<T>(source: T, update: UteObjects, options?: { fieldKey?: string; noEmpty?: boolean; ignore?: boolean | UteObjects }): T {
         let resource: T = JSON.parse(JSON.stringify(source));
-
+        console.log("resource", resource);
         try {
             let updater = (s: any, u: UteObjects) => {
                 for (const key in u) {
@@ -125,12 +125,16 @@ export class CoreService implements OnDestroy {
                 resource = updater(resource, update);
             }
 
-            if (typeof options?.ignore !== "boolean") {
+            if (typeof options?.ignore === "object") {
                 resource = this.objToInt(resource, options?.ignore);
             }
 
+            console.log("resource", resource);
+
             return resource;
-        } catch {
+        } catch (error) {
+            console.error(error);
+
             return source;
         }
     }

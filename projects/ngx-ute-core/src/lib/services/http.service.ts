@@ -163,7 +163,7 @@ export class HttpService {
                         };
 
                         // Convert method to function
-                        let httpMethod: any = this.http.get<T>(rp.u, rp.o);
+                        let httpMethod: any = null;
                         switch (sqlMethod) {
                             case "GET":
                                 let jsonString = qs.stringify(jsonConvert);
