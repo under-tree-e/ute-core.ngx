@@ -15,6 +15,7 @@ export * from "./lib/interfaces/api";
 export * from "./lib/interfaces/http-opt";
 export * from "./lib/interfaces/environment";
 export * from "./lib/interfaces/moment";
+export * from "./lib/interfaces/session";
 
 export * from "./lib/constantes/http-method";
 
