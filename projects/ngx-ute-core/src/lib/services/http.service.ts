@@ -78,11 +78,11 @@ export class HttpService {
                 if (this.environment.production) {
                     link = option?.link ? (link = option.link) : `${location.protocol}//${location.host}${this.platformLocation.getBaseHrefFromDOM()}`;
                 } else {
-                    option?.link ? (link = option.link) : this.environment.server ? (link = this.environment.server) : null;
+                    option?.link ? (link = option.link) : this.environment.appServer ? (link = this.environment.appServer) : null;
                 }
                 break;
             default:
-                option?.link ? (link = option.link) : this.environment.server ? (link = this.environment.server) : null;
+                option?.link ? (link = option.link) : this.environment.appServer ? (link = this.environment.appServer) : null;
                 break;
         }
 
