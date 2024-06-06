@@ -1,5 +1,6 @@
 import { UteEnvironment } from "./environment";
 import { UteFontSizes } from "./font-sizes";
+import { PageData } from "./page";
 
 /**
  * Ute Core Configs Params
@@ -49,4 +50,8 @@ export interface UteCoreConfigs {
      * api.server
      */
     subdomain?: string;
+    /**
+     * List of static pages
+     */
+    pages?: PageData[];
 }

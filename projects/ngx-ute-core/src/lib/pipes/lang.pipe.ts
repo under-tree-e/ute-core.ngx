@@ -4,6 +4,7 @@ import { LangService } from "../services/lang.service";
 @Pipe({
     name: "lang",
     pure: false,
+    // standalone: true,
 })
 export class LangPipe implements PipeTransform {
     constructor(private langService: LangService) {}

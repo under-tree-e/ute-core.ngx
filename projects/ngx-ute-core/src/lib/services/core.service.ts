@@ -13,6 +13,7 @@ import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
 import { DateFormat, UteProvidersData } from "../interfaces/moment";
 import { BreakpointObserver } from "@angular/cdk/layout";
+import { PageService } from "./page.service";
 
 @Injectable({
     providedIn: "root",
@@ -27,7 +28,8 @@ export class CoreService implements OnDestroy {
         private onlineStatusService: OnlineStatusService,
         private httpService: HttpService,
         private langService: LangService,
-        private breakpoints: BreakpointObserver
+        private breakpoints: BreakpointObserver,
+        private pageService: PageService
     ) {
         this.Init();
     }
@@ -61,6 +63,7 @@ export class CoreService implements OnDestroy {
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
         this.httpService.Init(this.config.environment);
         this.langService.Init(this.config.environment, this.config);
+        this.pageService.Init(this.config.environment, this.config.pages);
     }
 
     /**
