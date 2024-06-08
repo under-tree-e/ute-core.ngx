@@ -56,7 +56,7 @@ export class HttpService {
      * @returns
      */
     private httpAddress(option?: HttpOptions): string {
-        if (this.environment.authToken) {
+        if (this.environment.session?.authToken) {
             this.options.headers = this.options.headers?.set("Authorization", `Bearer ${this.environment.session?.authToken}`);
         }
 

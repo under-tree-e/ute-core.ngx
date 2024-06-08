@@ -53,10 +53,10 @@ export interface UteEnvironment {
      * User session data
      */
     session: SessionData & any;
-    /**
-     * Authorisation token for Bearer API Authorization
-     */
-    authToken?: string;
+    // /**
+    //  * Authorisation token for Bearer API Authorization
+    //  */
+    // authToken?: string;
     /**
      * App api token for Bearer API Authorization
      */
