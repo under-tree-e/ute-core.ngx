@@ -87,6 +87,7 @@ export class CookieService {
                         data = await Preferences.get({
                             key: this.cookiesCode + name,
                         });
+                        data = data.value;
                     } else {
                         data = localStorage.getItem(this.cookiesCode + name);
                     }
