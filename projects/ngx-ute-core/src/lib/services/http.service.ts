@@ -73,17 +73,13 @@ export class HttpService {
         }
 
         let link: string = `http://localhost:8080`;
-        switch (this.environment.platform) {
-            case "web":
-                if (this.environment.production) {
-                    link = option?.link ? (link = option.link) : `${location.protocol}//${location.host}${this.platformLocation.getBaseHrefFromDOM()}`;
-                } else {
-                    option?.link ? (link = option.link) : this.environment.appServer ? (link = this.environment.appServer) : null;
-                }
-                break;
-            default:
-                option?.link ? (link = option.link) : this.environment.appServer ? (link = this.environment.appServer) : null;
-                break;
+
+        if ((option?.online && this.environment.appServer) || (!option?.global && this.environment.appServer)) {
+            link = this.environment.appServer;
+        } else if (option?.global && this.environment.globalServer) {
+            link = this.environment.globalServer;
+        } else {
+            link = `${location.protocol}//${location.host}${this.platformLocation.getBaseHrefFromDOM()}`;
         }
 
         if (this.apiSubDomain) link = link.replace("://", `://${this.apiSubDomain}`);
@@ -154,7 +150,7 @@ export class HttpService {
                     });
                 }
 
-                if (!this.environment.storage || httpOptions?.online) {
+                if (!this.environment.storage || httpOptions?.online || httpOptions?.global) {
                     if (this.environment.online) {
                         let rp: any = {
                             u: `${this.httpAddress(httpOptions)}${reqMethod}`,

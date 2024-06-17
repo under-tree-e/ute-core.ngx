@@ -3,6 +3,8 @@
  * @prop {@link HttpOptions.db | db}?: `string` - Custom DB name
  * @prop {@link HttpOptions.auth | auth}?: `string` - Authorization header string
  * @prop {@link HttpOptions.online | online}?: `boolean` - Request direct to online db
+ * @prop {@link HttpOptions.global | global}?: `boolean` - Request direct to global server
+ * @prop {@link HttpOptions.headers | headers}?: `CustomHeaderData` - Custom header for request
  */
 export interface HttpOptions {
     /**
@@ -18,9 +20,9 @@ export interface HttpOptions {
      */
     online?: boolean;
     /**
-     * Custom link. By default used `env.server` link
+     * Request direct to global server
      */
-    link?: string;
+    global?: boolean;
     /**
      * Custom header for request
      */
