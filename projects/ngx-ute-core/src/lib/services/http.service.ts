@@ -42,6 +42,7 @@ export class HttpService {
                 "Content-Type": "application/json",
                 Session: btoa(
                     JSON.stringify({
+                        appId: this.environment.appId || "---",
                         deviceId: deviceId,
                         device: this.environment.platform,
                         date: new Date().toISOString().split("T")[0],
