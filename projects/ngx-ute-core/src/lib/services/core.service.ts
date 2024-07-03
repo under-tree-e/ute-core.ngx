@@ -98,7 +98,7 @@ export class CoreService implements OnDestroy {
      */
     public objectUpdate<T>(source: T, update: UteObjects, options?: { fieldKey?: string; noEmpty?: boolean; ignore?: boolean | UteObjects }): T {
         let resource: T = JSON.parse(JSON.stringify(source));
-        console.log("resource", resource);
+
         try {
             let updater = (s: any, u: UteObjects) => {
                 for (const key in u) {
@@ -132,12 +132,9 @@ export class CoreService implements OnDestroy {
                 resource = this.objToInt(resource, options?.ignore);
             }
 
-            console.log("resource", resource);
-
             return resource;
         } catch (error) {
             console.error(error);
-
             return source;
         }
     }
@@ -149,13 +146,15 @@ export class CoreService implements OnDestroy {
      * @returns New object
      */
     public objToInt(item: any, constArray: any): any {
-        let removeKeys: string[] = Object.keys(item).filter((k: string) => !Object.keys(constArray).some((p: any) => p === k));
+        let resource: any = JSON.parse(JSON.stringify(item));
+
+        let removeKeys: string[] = Object.keys(resource).filter((k: string) => !Object.keys(constArray).some((p: any) => p === k));
 
         removeKeys.map((k: string) => {
-            delete item[k];
+            delete resource[k];
         });
 
-        return item;
+        return resource;
     }
 
     /**
