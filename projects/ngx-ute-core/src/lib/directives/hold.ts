@@ -21,7 +21,7 @@ export class HoldDirective implements OnDestroy {
     @Output() public onHold: EventEmitter<{ event: TouchEvent | MouseEvent; type: string }> = new EventEmitter<{ event: TouchEvent | MouseEvent; type: string }>();
 
     constructor(private elementRef: ElementRef) {
-        const domElement: HTMLElement = elementRef.nativeElement;
+        const domElement: HTMLElement = this.elementRef.nativeElement;
 
         const mouseStarts = fromEvent<MouseEvent>(domElement, "mousedown").pipe(map(this.getActions));
         const mouseMoves = fromEvent<MouseEvent>(domElement, "mousemove").pipe(map(this.getActions));
