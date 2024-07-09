@@ -17,6 +17,7 @@ import { LangPipe } from "./pipes/lang.pipe";
 import { DelayIf } from "./pipes/delay-if.pipe";
 import { HoldDirective } from "./directives/hold";
 import { LengthCutPipe } from "./pipes/leng-cut.pipe";
+import { SwipeDirective } from "./directives/swipe";
 
 /**
  * The main module of Core library. Example usage:
@@ -37,8 +38,8 @@ import { LengthCutPipe } from "./pipes/leng-cut.pipe";
  *
  */
 @NgModule({
-    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe],
-    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe],
+    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, HoldDirective, SwipeDirective],
+    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, HoldDirective, SwipeDirective],
     imports: [HttpClientModule],
     providers: [
         NumberStringPipe,
@@ -52,6 +53,8 @@ import { LengthCutPipe } from "./pipes/leng-cut.pipe";
         CookieService,
         OnlineStatusService,
         HttpService,
+        HoldDirective,
+        SwipeDirective,
         {
             provide: LOCALE_ID,
             useFactory: (service: LangService) => service.current(),
