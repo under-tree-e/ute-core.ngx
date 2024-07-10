@@ -14,7 +14,7 @@ export class SwipeDirective implements OnInit, OnDestroy {
     private swipeDirection: typeof SwipeDirectionConst = SwipeDirectionConst;
 
     @Input() swipeAxis: SwipeScroll = SwipeScroll.both;
-    @Input() touchEndTrigger: boolean = false;
+    @Input() touchEndTrigger: boolean = true;
     @Output() swipe: EventEmitter<SwipeEvent> = new EventEmitter<SwipeEvent>();
 
     constructor(private elementRef: ElementRef, private ngZone: NgZone) {}

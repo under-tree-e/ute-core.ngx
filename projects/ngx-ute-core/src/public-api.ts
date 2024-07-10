@@ -19,6 +19,7 @@ export * from "./lib/interfaces/environment";
 export * from "./lib/interfaces/moment";
 export * from "./lib/interfaces/session";
 export * from "./lib/interfaces/control";
+export { SwipeEvent as UTESwipeEvent } from "./lib/interfaces/swipe";
 
 export * from "./lib/constantes/http-method";
 
