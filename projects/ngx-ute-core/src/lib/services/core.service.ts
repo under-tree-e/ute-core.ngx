@@ -90,46 +90,66 @@ export class CoreService implements OnDestroy {
     /**
      * Update Object of Array of objects
      * @param source - Object or Array of objects
-     * @param update - Object with new data
-     * @param fieldKey - If `source` is array, all array items similar with `update` by this key will be updated
-     * @param noEmpty - Not update keys if update values are empty
-     * @param update - Ignore objects diff sizes or cut final object by fileds const
-     * @returns
+     * @param target - Object with new data
+     * @param key - (`source` is array) Key to search object in array
+     * @param noEmpty - Not update keys if `target` values are empty
+     * @param resize - Add new keys from `target` to `source` object
+     * @param cut - Interface keys array to remove redundent keys from object
+     * @returns Object or Array of objects
      */
-    public objectUpdate<T>(source: T, update: UteObjects, options?: { fieldKey?: string; noEmpty?: boolean; ignore?: boolean | UteObjects }): T {
+    public toObject<T>(
+        source: T,
+        target: UteObjects,
+        options?: {
+            key?: string;
+            noEmpty?: boolean;
+            resize?: boolean;
+            cut?: UteObjects;
+        }
+    ): T {
+        // Dublicate source to prevert original changes
         let resource: T = JSON.parse(JSON.stringify(source));
 
         try {
             let updater = (s: any, u: UteObjects) => {
-                for (const key in u) {
-                    if ((s && s.hasOwnProperty(key)) || options?.ignore) {
-                        if (typeof s[key] === "object" && !Array.isArray(s[key])) {
-                            s[key] = updater(s[key], u[key]);
+                for (const k in u) {
+                    if ((s && s.hasOwnProperty(k)) || options?.resize) {
+                        if (s[k] && typeof s[k] === "object" && !Array.isArray(s[k])) {
+                            s[k] = updater(s[k], u[k]);
                         } else {
                             if (options?.noEmpty) {
-                                if (u[key] !== null && u[key] !== undefined) {
-                                    s[key] = u[key];
+                                if (u[k] !== null && u[k] !== undefined) {
+                                    s[k] = u[k];
                                 }
                             } else {
-                                s[key] = u[key];
+                                s[k] = u[k];
                             }
                         }
                     }
                 }
-
                 return s;
             };
+
             if (Array.isArray(resource)) {
-                let index: number = resource.map((x: any) => (options?.fieldKey ? x[options?.fieldKey] : x["id"])).indexOf(options?.fieldKey ? update[options?.fieldKey] : update["id"]);
-                if (index != -1) {
-                    resource[index] = updater(resource[index], update);
+                if (options?.key) {
+                    let index: number = resource.map((x: any) => (options?.key ? x[options?.key] : x["id"])).indexOf(options?.key ? target[options?.key] : target["id"]);
+                    if (index !== -1) {
+                        resource[index] = updater(resource[index], target);
+                    } else {
+                        resource.push(target);
+                        index = resource.length - 1;
+                    }
+                    if (options?.cut) {
+                        resource[index] = this.toInterface(resource[index], options?.cut);
+                    }
+                } else {
+                    throw "Empty 'key' param";
                 }
             } else {
-                resource = updater(resource, update);
-            }
-
-            if (typeof options?.ignore === "object") {
-                resource = this.objToInt(resource, options?.ignore);
+                resource = updater(resource, target);
+                if (options?.cut) {
+                    resource = this.toInterface(resource, options?.cut);
+                }
             }
 
             return resource;
@@ -140,15 +160,15 @@ export class CoreService implements OnDestroy {
     }
 
     /**
-     * Adaptation object keys to interface
+     * Remove object keys not isset at interface
      * @param item - Object to change
-     * @param constArray - Interface
+     * @param interfaceConst - Interface keys array
      * @returns New object
      */
-    public objToInt(item: any, constArray: any): any {
+    public toInterface(item: any, interfaceConst: any): any {
         let resource: any = JSON.parse(JSON.stringify(item));
 
-        let removeKeys: string[] = Object.keys(resource).filter((k: string) => !Object.keys(constArray).some((p: any) => p === k));
+        let removeKeys: string[] = Object.keys(resource).filter((k: string) => !Object.keys(interfaceConst).some((p: any) => p === k));
 
         removeKeys.map((k: string) => {
             delete resource[k];
@@ -158,10 +178,10 @@ export class CoreService implements OnDestroy {
     }
 
     /**
-     *
-     * @param file
-     * @param options
-     * @returns
+     * Load file from File Input
+     * @param file - input
+     * @param options - settings
+     * @returns file object
      */
     public getFile(file: any, options?: UteFileOptions): Promise<any> {
         if (!options) {
