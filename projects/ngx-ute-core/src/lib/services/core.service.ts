@@ -3,7 +3,7 @@ import { UteCoreConfigs } from "../interfaces/config";
 import { ResizeService } from "./resize.service";
 import { UteObjects } from "../interfaces/object";
 import { UteFileFormats, UteFileOptions } from "../interfaces/file";
-import { v4 } from "uuid";
+import { uuid } from "uuidv4";
 import Compressor from "compressorjs";
 import { CookieService } from "./cookie.service";
 import { Capacitor } from "@capacitor/core";
@@ -206,7 +206,7 @@ export class CoreService implements OnDestroy {
                         let ex: string = array[array.length - 1];
                         array.splice(-1, 1);
                         let name: string = array.join(".");
-                        let uid: string = v4();
+                        let uid: string = uuid();
                         options?.uniqName ? (name = `${name}-${uid}`) : null;
 
                         let type: string = "file";
