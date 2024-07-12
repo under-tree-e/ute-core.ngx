@@ -1,14 +1,10 @@
-import { Directive, ElementRef, EventEmitter, Input, OnDestroy, Output } from "@angular/core";
-import { fromEvent, merge, Subscription } from "rxjs";
-import { map } from "rxjs/operators";
+import { Directive, EventEmitter, HostListener, Input, Output } from "@angular/core";
 
 @Directive({
     selector: "[uteHold]",
     // standalone: true,
 })
-export class HoldDirective implements OnDestroy {
-    private subscriptions = new Subscription();
-    private isAllow: boolean = false;
+export class HoldDirective {
     private isHold: boolean = false;
     private holdTimeout: any = null;
     private holdInterval: any = null;
@@ -16,52 +12,42 @@ export class HoldDirective implements OnDestroy {
     private event: TouchEvent | MouseEvent = {} as TouchEvent | MouseEvent;
 
     @Input() public eventTick: boolean = false;
+    @Input() public onClick: boolean = false;
     @Input() public minTime: number = 500;
     @Input() public maxTime: number = 2000;
-    @Output() public onHold: EventEmitter<{ event: TouchEvent | MouseEvent; type: string }> = new EventEmitter<{ event: TouchEvent | MouseEvent; type: string }>();
+    @Output() public hold: EventEmitter<{ event: TouchEvent | MouseEvent; type: string }> = new EventEmitter<{ event: TouchEvent | MouseEvent; type: string }>();
 
-    constructor(private elementRef: ElementRef) {
-        const domElement: HTMLElement = this.elementRef.nativeElement;
-
-        const mouseStarts = fromEvent<MouseEvent>(domElement, "mousedown").pipe(map(this.getActions));
-        const mouseMoves = fromEvent<MouseEvent>(domElement, "mousemove").pipe(map(this.getActions));
-        const mouseEnds = fromEvent<MouseEvent>(domElement, "mouseup").pipe(map(this.getActions));
-        const mouseCancels = fromEvent<MouseEvent>(domElement, "mouseout").pipe(map(this.getActions));
-
-        const touchStarts = fromEvent<TouchEvent>(domElement, "touchstart").pipe(map(this.getActions));
-        const touchMoves = fromEvent<TouchEvent>(domElement, "touchmove").pipe(map(this.getActions));
-        const touchEnds = fromEvent<TouchEvent>(domElement, "touchend").pipe(map(this.getActions));
-        const touchCancels = fromEvent<TouchEvent>(domElement, "touchcancel").pipe(map(this.getActions));
-
-        const allStarts = merge(touchStarts, mouseStarts);
-        const allEnds = merge(touchMoves, mouseMoves, touchEnds, mouseEnds, touchCancels, mouseCancels);
-
-        this.subscriptions.add(
-            allStarts.subscribe((action) => {
-                this.isAllow = action.allow;
-                this.event = action.event;
-
-                if (this.isAllow) {
-                    this.endAction();
-                    this.startAction();
-                }
-            })
-        );
-        this.subscriptions.add(
-            allEnds.subscribe(() => {
-                if (!this.isHold && this.isAllow) {
-                    this.onHold.emit({ type: "click", event: this.event });
-                    this.isAllow = false;
-                } else if (this.isHold && this.isAllow) {
-                    this.onHold.emit({ type: "release", event: this.event });
-                }
-                this.endAction();
-            })
-        );
+    @HostListener("touchstart", ["$event"])
+    @HostListener("mousedown", ["$event"])
+    onStart(event: TouchEvent | MouseEvent) {
+        if ((event.type === "mousedown" && (event as MouseEvent).button === 0) || event.type !== "mousedown") {
+            this.endAction();
+            this.startAction();
+        }
     }
 
-    ngOnDestroy(): void {
-        this.subscriptions.unsubscribe();
+    @HostListener("touchmove")
+    @HostListener("mousemove")
+    onMove() {
+        this.endAction();
+    }
+
+    @HostListener("touchend", ["$event"])
+    @HostListener("mouseup", ["$event"])
+    @HostListener("mouseleave", ["$event"])
+    onEnd(event: TouchEvent | MouseEvent) {
+        if (!this.isHold && this.onClick && this.holdTimeout) {
+            this.hold.emit({ type: "click", event: event });
+            event.preventDefault();
+        } else if (this.isHold) {
+            this.hold.emit({ type: "release", event: event });
+        }
+        this.endAction();
+    }
+
+    @HostListener("contextmenu", ["$event"])
+    contextPress(event: TouchEvent | MouseEvent) {
+        event.preventDefault();
     }
 
     private endAction() {
@@ -74,37 +60,23 @@ export class HoldDirective implements OnDestroy {
     }
 
     private startAction() {
-        if (this.isAllow) {
-            this.holdTimeout = setTimeout(() => {
-                this.isHold = true;
-                this.onHold.emit({ type: "hold", event: this.event });
-                this.currentTime = this.minTime;
-                if (this.eventTick) {
-                    this.holdInterval = setInterval(() => {
-                        this.currentTime += 50;
-                        this.onHold.emit({ type: "holding", event: this.event });
-                        if (this.maxTime !== 0 && this.currentTime >= this.maxTime) {
-                            this.onHold.emit({ type: "release", event: this.event });
-                            this.isAllow = false;
-                            this.endAction();
-                        }
-                    }, 50);
-                } else {
-                    this.onHold.emit({ type: "release", event: this.event });
-                    this.isAllow = false;
-                    this.endAction();
-                }
-            }, this.minTime);
-        }
-    }
-
-    private getActions(event: TouchEvent | MouseEvent): { allow: boolean; event: TouchEvent | MouseEvent } {
-        let isAllow = false;
-
-        if ((event.type === "mousedown" && (event as MouseEvent).button == 0) || event.type === "touchstart") {
-            event.preventDefault();
-            isAllow = true;
-        }
-        return { allow: isAllow, event: event };
+        this.holdTimeout = setTimeout(() => {
+            this.isHold = true;
+            this.hold.emit({ type: "hold", event: this.event });
+            this.currentTime = this.minTime;
+            if (this.eventTick) {
+                this.holdInterval = setInterval(() => {
+                    this.currentTime += 50;
+                    this.hold.emit({ type: "holding", event: this.event });
+                    if (this.maxTime !== 0 && this.currentTime >= this.maxTime) {
+                        this.hold.emit({ type: "release", event: this.event });
+                        this.endAction();
+                    }
+                }, 50);
+            } else {
+                this.hold.emit({ type: "release", event: this.event });
+                this.endAction();
+            }
+        }, this.minTime);
     }
 }
