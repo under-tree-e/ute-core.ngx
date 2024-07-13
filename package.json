@@ -1,7 +1,7 @@
 {
   "name": "ute-core.ngx",
   "title": "UTE Core",
-  "version": "0.1.7-dev.23",
+  "version": "0.1.7-dev.24",
   "description": "UTE Core module includes simple packs of function for base Angular app usage",
   "author": {
     "name": "Under Tree Entertainment",
@@ -27,6 +27,7 @@
   "private": false,
   "scripts": {
     "watch": "ng build --watch",
+    "build": "ng build",
     "---": "INSTALL",
     "load": "npm i --force",
     "fix": "npm audit fix --force",
