@@ -1,7 +1,7 @@
 {
   "name": "ute-core.ngx",
   "title": "UTE Core",
-  "version": "0.1.7-dev.24",
+  "version": "0.2.0",
   "description": "UTE Core module includes simple packs of function for base Angular app usage",
   "author": {
     "name": "Under Tree Entertainment",
@@ -78,6 +78,7 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "ng-packagr": "^18.1.0",
     "npm-check-updates": "^16.14.20",
+    "ts-node": "^10.9.2",
     "typedoc": "^0.26.4",
     "typescript": "~5.5.3"
   }

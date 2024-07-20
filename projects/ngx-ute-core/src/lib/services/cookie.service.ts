@@ -20,8 +20,9 @@ export class CookieService {
      * @param exp - Life time of cookies in days
      */
     public Init(environment: UteEnvironment, exp?: number) {
-        console.log("CookieService - Init");
-        // console.log(`${new Date().toISOString()} => CookieService`);
+        if (!environment.production) {
+            console.log(`${new Date().toISOString()} => CookieService`);
+        }
 
         if (exp) {
             this.cookiesExp = exp;

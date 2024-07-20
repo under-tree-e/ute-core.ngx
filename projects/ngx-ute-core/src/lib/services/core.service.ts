@@ -42,8 +42,9 @@ export class CoreService implements OnDestroy {
      * Initialization module
      */
     private Init() {
-        console.log("CoreService - Init");
-        // console.log(`${new Date().toISOString()} => CoreService`);
+        if (!this.config.environment.production) {
+            console.log(`${new Date().toISOString()} => CoreService`);
+        }
 
         if (this.config) {
             if (this.config.resizer) {

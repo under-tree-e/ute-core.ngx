@@ -39,8 +39,9 @@ export class LangService {
      * Initialization module
      */
     public async Init(environment: UteEnvironment, config: UteCoreConfigs) {
-        console.log("LangService - Init");
-        // console.log(`${new Date().toISOString()} => LangService`);
+        if (!environment.production) {
+            console.log(`${new Date().toISOString()} => LangService`);
+        }
 
         this.environment = environment;
         this.config = config || ({} as UteCoreConfigs);
