@@ -52,6 +52,8 @@ export class ResizeService {
             orientation = false;
         }
 
+        console.log(width, orientation);
+
         if (width < 640 && !orientation) {
             this.currentSize = this.fontSizes.mob;
         } else if ((width < 1100 && orientation) || (width < 900 && !orientation)) {
@@ -72,7 +74,7 @@ export class ResizeService {
 
         if (this.preSize != this.currentSize) {
             this.preSize = this.currentSize;
-            document.body.style.fontSize = `${this.currentSize}px`;
+            document.documentElement.style.fontSize = `${this.currentSize}px`;
         }
     }
 }
