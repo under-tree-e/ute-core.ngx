@@ -35,9 +35,9 @@ export class ResizeService {
         pad: 12,
         hd: 12,
         fhd: 14,
-        two: 20,
-        four: 30,
-        else: 34,
+        two: 16,
+        four: 18,
+        else: 20,
     };
     private fontSizes: UteFontSizes = this.defaultSizes;
     private preSize: number = 16;
@@ -62,8 +62,6 @@ export class ResizeService {
         if (window.matchMedia("(orientation: portrait)").matches) {
             orientation = false;
         }
-
-        console.log(width, orientation);
 
         if (width < 800 && !orientation) {
             this.currentSize = this.fontSizes.mob;
