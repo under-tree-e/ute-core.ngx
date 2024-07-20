@@ -19,6 +19,8 @@ export class HttpService {
         body?: any;
         headers?: HttpHeaders | undefined;
     } = {};
+    private apiPath: string = "api";
+    private apiSubDomain: string = "";
 
     constructor(private http: HttpClient, private platformLocation: PlatformLocation, private onlineStatusService: OnlineStatusService) {}
 
@@ -40,6 +42,7 @@ export class HttpService {
                 "Content-Type": "application/json",
                 Session: btoa(
                     JSON.stringify({
+                        appId: this.environment.appId || "---",
                         deviceId: deviceId,
                         device: this.environment.platform,
                         date: new Date().toISOString().split("T")[0],
@@ -70,20 +73,21 @@ export class HttpService {
             });
         }
 
-        let link: string = "http://localhost:8080";
-        switch (this.environment.platform) {
-            case "web":
-                if (this.environment.production) {
-                    link = option?.link ? (link = option.link) : `${location.protocol}//${location.host}${this.platformLocation.getBaseHrefFromDOM()}`;
-                } else {
-                    option?.link ? (link = option.link) : this.environment.server ? (link = this.environment.server) : null;
-                }
-                break;
-            default:
-                option?.link ? (link = option.link) : this.environment.server ? (link = this.environment.server) : null;
-                break;
+        let link: string = `http://localhost:8080`;
+
+        if ((option?.online && this.environment.appServer) || (!option?.global && this.environment.appServer)) {
+            link = this.environment.appServer;
+        } else if (option?.global && this.environment.globalServer) {
+            link = this.environment.globalServer;
+        } else {
+            link = `${location.protocol}//${location.host}${this.platformLocation.getBaseHrefFromDOM()}`;
         }
-        return `${link}${link.endsWith("/") ? "" : "/"}`;
+
+        if (this.apiSubDomain) link = link.replace("://", `://${this.apiSubDomain}`);
+        if (!link.endsWith("/")) link += "/";
+        if (this.apiPath) link += `${this.apiPath}/`;
+
+        return link;
     }
 
     /**
@@ -147,7 +151,7 @@ export class HttpService {
                     });
                 }
 
-                if (!this.environment.storage || httpOptions?.online) {
+                if (!this.environment.storage || httpOptions?.online || httpOptions?.global) {
                     if (this.environment.online) {
                         let rp: any = {
                             u: `${this.httpAddress(httpOptions)}${reqMethod}`,
@@ -156,7 +160,7 @@ export class HttpService {
                         };
 
                         // Convert method to function
-                        let httpMethod: any = this.http.get<T>(rp.u, rp.o);
+                        let httpMethod: any = null;
                         switch (sqlMethod) {
                             case "GET":
                                 let jsonString = qs.stringify(jsonConvert);

@@ -1,8 +1,10 @@
+import { SessionData } from "./session";
+
 /**
  * Additional parameters for Angular environment
  * @prop {@link UteEnvironment.online | online}?: `boolean` - App online status
  * @prop {@link UteEnvironment.platform | platform}?: `string` - Platform on app starts
- * @prop {@link UteEnvironment.server | server}?: `string` - Server url
+ * @prop {@link Uteenvironment.appServer | server}?: `string` - Server url
  * @prop {@link UteEnvironment.production | production}?: `boolean` - App production status
  * @prop {@link UteEnvironment.storage | storage}?: `any` - Variable of local storage
  * @prop {@link UteEnvironment.defLocale | defLocale}?: `string` - Default locale
@@ -24,13 +26,22 @@ export interface UteEnvironment {
      */
     platform?: string;
     /**
-     * Server url
+     * Application ID
+     * @template "com.domain.app"
      */
-    server?: string;
+    appId?: string;
+    /**
+     * Application Server url
+     */
+    appServer?: string;
+    /**
+     * Global Server url (user & auth)
+     */
+    globalServer?: string;
     /**
      * App production status
      */
-    production?: boolean;
+    production: boolean;
     /**
      * Variable of local storage
      */
@@ -38,15 +49,15 @@ export interface UteEnvironment {
     /**
      * Default locale
      */
-    defLocale?: string;
+    defLocale: string;
     /**
      * List of available locales
      */
-    localeList?: string[];
+    localeList: string[];
     /**
      * User session data
      */
-    session?: any;
+    session: SessionData & any;
     /**
      * App api token for Bearer API Authorization
      */

@@ -3,7 +3,7 @@ import { UteCoreConfigs } from "../interfaces/config";
 import { ResizeService } from "./resize.service";
 import { UteObjects } from "../interfaces/object";
 import { UteFileFormats, UteFileOptions } from "../interfaces/file";
-import { v4 } from "uuid";
+import { uuid } from "uuidv4";
 import Compressor from "compressorjs";
 import { CookieService } from "./cookie.service";
 import { Capacitor } from "@capacitor/core";
@@ -13,6 +13,7 @@ import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
 import { DateFormat, UteProvidersData } from "../interfaces/moment";
 import { BreakpointObserver } from "@angular/cdk/layout";
+import { PageService } from "./page.service";
 
 @Injectable({
     providedIn: "root",
@@ -27,7 +28,8 @@ export class CoreService implements OnDestroy {
         private onlineStatusService: OnlineStatusService,
         private httpService: HttpService,
         private langService: LangService,
-        private breakpoints: BreakpointObserver
+        private breakpoints: BreakpointObserver,
+        private pageService: PageService
     ) {
         this.Init();
     }
@@ -61,6 +63,7 @@ export class CoreService implements OnDestroy {
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
         this.httpService.Init(this.config.environment);
         this.langService.Init(this.config.environment, this.config);
+        this.pageService.Init(this.config.environment, this.config.pages);
     }
 
     /**
@@ -87,64 +90,98 @@ export class CoreService implements OnDestroy {
     /**
      * Update Object of Array of objects
      * @param source - Object or Array of objects
-     * @param update - Object with new data
-     * @param key - If `source` is array, all array items similar with `update` by this key will be updated
-     * @default `key: 'id'`
-     * @returns
+     * @param target - Object with new data
+     * @param key - (`source` is array) Key to search object in array
+     * @param noEmpty - Not update keys if `target` values are empty
+     * @param resize - Add new keys from `target` to `source` object
+     * @param cut - Interface keys array to remove redundent keys from object
+     * @returns Object or Array of objects
      */
-    public objectUpdate<T>(source: T, update: UteObjects, fieldKey?: string): T {
+    public toObject<T>(
+        source: T,
+        target: UteObjects,
+        options?: {
+            key?: string;
+            noEmpty?: boolean;
+            resize?: boolean;
+            cut?: UteObjects;
+        }
+    ): T {
+        // Dublicate source to prevert original changes
         let resource: T = JSON.parse(JSON.stringify(source));
 
         try {
             let updater = (s: any, u: UteObjects) => {
-                for (const key in u) {
-                    if (s && s.hasOwnProperty(key)) {
-                        if (typeof s[key] === "object" && !Array.isArray(s[key])) {
-                            s[key] = updater(s[key], u[key]);
+                for (const k in u) {
+                    if ((s && s.hasOwnProperty(k)) || options?.resize) {
+                        if (s[k] && typeof s[k] === "object" && !Array.isArray(s[k])) {
+                            s[k] = updater(s[k], u[k]);
                         } else {
-                            s[key] = u[key];
+                            if (options?.noEmpty) {
+                                if (u[k] !== null && u[k] !== undefined) {
+                                    s[k] = u[k];
+                                }
+                            } else {
+                                s[k] = u[k];
+                            }
                         }
                     }
                 }
-
                 return s;
             };
+
             if (Array.isArray(resource)) {
-                let index: number = resource.map((x: any) => (fieldKey ? x[fieldKey] : x["id"])).indexOf(fieldKey ? update[fieldKey] : update["id"]);
-                if (index != -1) {
-                    resource[index] = updater(resource[index], update);
+                if (options?.key) {
+                    let index: number = resource.map((x: any) => (options?.key ? x[options?.key] : x["id"])).indexOf(options?.key ? target[options?.key] : target["id"]);
+                    if (index !== -1) {
+                        resource[index] = updater(resource[index], target);
+                    } else {
+                        resource.push(target);
+                        index = resource.length - 1;
+                    }
+                    if (options?.cut) {
+                        resource[index] = this.toInterface(resource[index], options?.cut);
+                    }
+                } else {
+                    throw "Empty 'key' param";
                 }
             } else {
-                resource = updater(resource, update);
+                resource = updater(resource, target);
+                if (options?.cut) {
+                    resource = this.toInterface(resource, options?.cut);
+                }
             }
 
             return resource;
-        } catch {
+        } catch (error) {
+            console.error(error);
             return source;
         }
     }
 
     /**
-     * Adaptation object keys to interface
+     * Remove object keys not isset at interface
      * @param item - Object to change
-     * @param constArray - Interface
+     * @param interfaceConst - Interface keys array
      * @returns New object
      */
-    public objToInt(item: any, constArray: any): any {
-        let removeKeys: string[] = Object.keys(item).filter((k: string) => !Object.keys(constArray).some((p: any) => p === k));
+    public toInterface(item: any, interfaceConst: any): any {
+        let resource: any = JSON.parse(JSON.stringify(item));
+
+        let removeKeys: string[] = Object.keys(resource).filter((k: string) => !Object.keys(interfaceConst).some((p: any) => p === k));
 
         removeKeys.map((k: string) => {
-            delete item[k];
+            delete resource[k];
         });
 
-        return item;
+        return resource;
     }
 
     /**
-     *
-     * @param file
-     * @param options
-     * @returns
+     * Load file from File Input
+     * @param file - input
+     * @param options - settings
+     * @returns file object
      */
     public getFile(file: any, options?: UteFileOptions): Promise<any> {
         if (!options) {
@@ -169,7 +206,7 @@ export class CoreService implements OnDestroy {
                         let ex: string = array[array.length - 1];
                         array.splice(-1, 1);
                         let name: string = array.join(".");
-                        let uid: string = v4();
+                        let uid: string = uuid();
                         options?.uniqName ? (name = `${name}-${uid}`) : null;
 
                         let type: string = "file";
@@ -284,100 +321,22 @@ export class CoreService implements OnDestroy {
     public dateFormat(format: string, type: "date" | "time" | "shortdate" | "shorttime"): string {
         const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
         let value: string = JSON.parse(JSON.stringify(format));
-        switch (type) {
-            case "date":
-                let match = value.match(dateRegx);
-                return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : "";
-            case "time":
-                return value.replace(/y{2,4}/gi, value.includes("Y") ? "YYYY" : "yyyy");
-            case "shorttime":
-                value = value.replace(/m{2,5}/gi, value.includes("M") ? "MM" : "mm");
-                return value.replace(/y{2,4}/gi, value.includes("Y") ? "YY" : "yy");
-            case "shortdate":
-                match = value.match(dateRegx);
-                return match ? match[0] : "";
+        if (value) {
+            switch (type) {
+                case "date":
+                    let match = value.match(dateRegx);
+                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : "";
+                case "time":
+                    return value.replace(/y{2,4}/gi, value.includes("Y") ? "YYYY" : "yyyy");
+                case "shorttime":
+                    value = value.replace(/m{2,5}/gi, value.includes("M") ? "MM" : "mm");
+                    return value.replace(/y{2,4}/gi, value.includes("Y") ? "YY" : "yy");
+                case "shortdate":
+                    match = value.match(dateRegx);
+                    return match ? match[0] : "";
+            }
+        } else {
+            return format;
         }
     }
-
-    // /**
-    //  * Generate additional formats for moment adapter
-    //  * @param format - User default date format
-    //  * @returns Object with additional formats
-    //  */
-    // public momentProviders(format: string): UteProvidersData {
-    //     const defaultFormat: DateFormat = {
-    //         parse: {
-    //             dateInput: "LL",
-    //         },
-    //         display: {
-    //             dateInput: "LL",
-    //             monthYearLabel: "MMM YYYY",
-    //             dateA11yLabel: "LL",
-    //             monthYearA11yLabel: "MMMM YYYY",
-    //         },
-    //     };
-
-    //     const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
-
-    //     // Full DateTime
-    //     format = format.replace(/y{2}/gi, format.includes("Y") ? "YYYY" : "yyyy");
-
-    //     // Short DateTime
-    //     let dateTimeFormat: string = JSON.parse(JSON.stringify(format));
-    //     dateTimeFormat = dateTimeFormat.replace(/m{3,5}/gi, format.includes("M") ? "MM" : "mm");
-    //     dateTimeFormat = dateTimeFormat.replace(/y{3,4}/gi, format.includes("Y") ? "YY" : "yy");
-
-    //     // Full Date
-    //     let match = format.match(dateRegx);
-    //     let dateFormat: string = match ? match[0] : "";
-
-    //     // Short Date
-    //     match = dateTimeFormat.match(dateRegx);
-    //     let shortFormat: string = match ? match[0] : "";
-
-    //     const fullDateTime: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
-    //         parse: {
-    //             dateInput: format,
-    //         },
-    //         display: {
-    //             dateInput: format,
-    //         },
-    //     });
-
-    //     const shortDateTime: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
-    //         parse: {
-    //             dateInput: dateTimeFormat,
-    //         },
-    //         display: {
-    //             dateInput: dateTimeFormat,
-    //         },
-    //     });
-
-    //     const fullDate: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
-    //         parse: {
-    //             dateInput: dateFormat,
-    //         },
-    //         display: {
-    //             dateInput: dateFormat,
-    //         },
-    //     });
-
-    //     const shortDate: DateFormat = this.objectUpdate<DateFormat>(defaultFormat, {
-    //         parse: {
-    //             dateInput: shortFormat,
-    //         },
-    //         display: {
-    //             dateInput: shortFormat,
-    //         },
-    //     });
-
-    //     const providers: UteProvidersData = {
-    //         fullDateTime: fullDateTime,
-    //         shortDateTime: shortDateTime,
-    //         fullDate: fullDate,
-    //         shortDate: shortDate,
-    //     };
-
-    //     return providers;
-    // }
 }

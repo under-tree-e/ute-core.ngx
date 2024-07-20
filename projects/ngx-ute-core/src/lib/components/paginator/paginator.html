@@ -1,0 +1,12 @@
+<div class="paginator-container">
+    <div class="pages">
+        <div class="page" [ngClass]="{ active: page === pi }" *ngFor="let pi of pageList" (click)="change(pi)">{{ pi + 1 }}</div>
+    </div>
+    <div class="resizer" [ngClass]="{ active: resizerOpen }">
+        <div class="size big" (click)="resize(numberItems)" [ngClass]="{ active: pageSize === numberItems }">{{ "all" | lang }}</div>
+        <div class="size" (click)="resize(100)" [ngClass]="{ active: pageSize === 100 }">100</div>
+        <div class="size" (click)="resize(50)" [ngClass]="{ active: pageSize === 50 }">50</div>
+        <div class="size" (click)="resize(20)" [ngClass]="{ active: pageSize === 20 }">20</div>
+        <div class="size" (click)="resize(10)" [ngClass]="{ active: pageSize === 10 }">10</div>
+    </div>
+</div>
