@@ -29,8 +29,9 @@ export class HttpService {
      * @param environment
      */
     public async Init(environment: UteEnvironment) {
-        console.log("HttpService - Init");
-        // console.log(`${new Date().toISOString()} => HttpService`);
+        if (!environment.production) {
+            console.log(`${new Date().toISOString()} => HttpService`);
+        }
 
         this.environment = environment;
         let deviceId: string = "";

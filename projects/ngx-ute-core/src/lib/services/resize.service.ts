@@ -18,24 +18,32 @@ import { UteFontSizes } from "../interfaces/font-sizes";
     providedIn: "root",
 })
 export class ResizeService {
+    //<800 t -
+    //<1200 f -
+    //=====
+    //<800 f 16px
+    //800 t 8px
+    //900 t 10px
+    //1000 t 12px
+    //1280 t 12px
+    //1920 t 16px
+    //2560 t 20px
+    //3840 t 30px
     private defaultSizes: UteFontSizes = {
         mob: 16,
-        pas: 20,
-        pad: 30,
-        hd: 20,
-        fhd: 30,
-        two: 35,
-        four: 45,
-        else: 60,
+        pas: 10,
+        pad: 12,
+        hd: 12,
+        fhd: 14,
+        two: 16,
+        four: 18,
+        else: 20,
     };
     private fontSizes: UteFontSizes = this.defaultSizes;
     private preSize: number = 16;
     private currentSize: number = 16;
 
     public Init(customSizes?: UteFontSizes) {
-        console.log("ResizeService - Init");
-        // console.log(`${new Date().toISOString()} => ResizeService`);
-
         if (customSizes) {
             this.fontSizes = customSizes;
         }
@@ -55,7 +63,7 @@ export class ResizeService {
             orientation = false;
         }
 
-        if (width < 640 && !orientation) {
+        if (width < 800 && !orientation) {
             this.currentSize = this.fontSizes.mob;
         } else if ((width < 1100 && orientation) || (width < 900 && !orientation)) {
             this.currentSize = this.fontSizes.pas;
@@ -75,7 +83,7 @@ export class ResizeService {
 
         if (this.preSize != this.currentSize) {
             this.preSize = this.currentSize;
-            document.body.style.fontSize = `${this.currentSize}px`;
+            document.documentElement.style.fontSize = `${this.currentSize}px`;
         }
     }
 }
