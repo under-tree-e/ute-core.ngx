@@ -1,6 +1,6 @@
 {
   "name": "ngx-ute-core",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "UTE Core module includes simple packs of function for base Angular app usage",
   "keywords": [
     "angular",
@@ -13,7 +13,12 @@
     "@angular/core": ">=16.0.0",
     "@capacitor/preferences": ">=5.0.0",
     "@angular/cdk": ">=16.0.0",
-    "compressorjs": ">=1.0.0"
+    "compressorjs": ">=1.0.0",
+    "crypto-ts": ">=1.0.0",
+    "ngx-cookie-service": ">=18.0.0",
+    "ngx-online-status": ">=2.0.0",
+    "qs": ">=6.0.0",
+    "uuidv4": "=>6.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
