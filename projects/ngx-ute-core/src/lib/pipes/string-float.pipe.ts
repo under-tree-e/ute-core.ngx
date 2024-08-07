@@ -2,6 +2,8 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
     name: "uteFloat",
+    pure: false,
+    standalone: true,
 })
 export class StringFloatPipe implements PipeTransform {
     /**

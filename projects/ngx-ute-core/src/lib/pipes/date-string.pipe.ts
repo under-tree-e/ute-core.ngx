@@ -4,6 +4,8 @@ import { DatePipe } from "@angular/common";
 
 @Pipe({
     name: "uteDate",
+    pure: false,
+    standalone: true,
 })
 export class DateStringPipe implements PipeTransform {
     private datePipe: DatePipe = new DatePipe("en-US");

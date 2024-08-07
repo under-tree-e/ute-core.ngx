@@ -18,6 +18,7 @@ import { DelayIf } from "./pipes/delay-if.pipe";
 import { HoldDirective } from "./directives/hold";
 import { LengthCutPipe } from "./pipes/leng-cut.pipe";
 import { SwipeDirective } from "./directives/swipe";
+import { Paginator } from "./components/paginator/paginator";
 
 /**
  * The main module of Core library. Example usage:
@@ -38,9 +39,9 @@ import { SwipeDirective } from "./directives/swipe";
  *
  */
 @NgModule({
-    declarations: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, HoldDirective, SwipeDirective],
-    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, HoldDirective, SwipeDirective],
-    imports: [HttpClientModule],
+    declarations: [],
+    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, Paginator],
+    imports: [HttpClientModule, LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
     providers: [
         NumberStringPipe,
         StringFloatPipe,

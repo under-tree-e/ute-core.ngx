@@ -5,7 +5,7 @@ import { SwipeCoordinates, SwipeDirection, SwipeDirectionConst, SwipeEvent, Swip
 
 @Directive({
     selector: "[uteSwipe]",
-    // standalone: true,
+    standalone: true,
 })
 export class SwipeDirective implements OnInit, OnDestroy {
     @HostBinding("style.user-select") userSelect: string = "none";

@@ -2,6 +2,8 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
     name: "uteLengCut",
+    pure: false,
+    standalone: true,
 })
 export class LengthCutPipe implements PipeTransform {
     /**

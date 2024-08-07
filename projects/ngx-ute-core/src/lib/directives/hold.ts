@@ -2,7 +2,7 @@ import { Directive, EventEmitter, HostListener, Input, Output } from "@angular/c
 
 @Directive({
     selector: "[uteHold]",
-    // standalone: true,
+    standalone: true,
 })
 export class HoldDirective {
     private isHold: boolean = false;

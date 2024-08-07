@@ -1,6 +1,6 @@
 # UTE Core - PUBLIC ALPHA
 
-[![](https://img.shields.io/badge/npm_package-0.3.1-red)](https://www.npmjs.com/package/ngx-ute-core) [![](https://img.shields.io/badge/license-MIT-blue)](https://github.com/under-tree-e/ute-core.ngx/blob/master/LICENSE)
+[![](https://img.shields.io/badge/npm_package-0.4.0-red)](https://www.npmjs.com/package/ngx-ute-core) [![](https://img.shields.io/badge/license-MIT-blue)](https://github.com/under-tree-e/ute-core.ngx/blob/master/LICENSE)
 
 **Attention!!!**
 

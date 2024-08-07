@@ -34,3 +34,5 @@ export * from "./lib/pipes/leng-cut.pipe";
 
 export * from "./lib/directives/hold";
 export * from "./lib/directives/swipe";
+
+export * from "./lib/components/paginator/paginator";

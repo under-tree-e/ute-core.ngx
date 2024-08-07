@@ -3,6 +3,8 @@ import { DecimalPipe } from "@angular/common";
 
 @Pipe({
     name: "uteNumber",
+    pure: false,
+    standalone: true,
 })
 export class NumberStringPipe implements PipeTransform {
     private lookup: any[] = [
