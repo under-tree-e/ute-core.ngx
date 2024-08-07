@@ -1,5 +1,5 @@
-import { CommonModule, NgClass, NgFor } from "@angular/common";
-import { Component, EventEmitter, NgModule, OnDestroy, Output } from "@angular/core";
+import { NgClass, NgFor } from "@angular/common";
+import { Component, EventEmitter, OnDestroy, Output } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
 import { PaginationData } from "../../interfaces/pagination";
@@ -7,12 +7,11 @@ import { LangPipe } from "../../pipes/lang.pipe";
 import { HttpService } from "../../services/http.service";
 import { UteApis } from "../../interfaces/api";
 import { UteObjects } from "../../interfaces/object";
-import { NgxUteCoreModule } from "../../core.module";
 
 @Component({
-    selector: "app-admin-paginator",
-    // standalone: true,
-    // imports: [NgClass, LangPipe, NgFor],
+    selector: "ute-paginator",
+    standalone: true,
+    imports: [NgClass, LangPipe, NgFor],
     templateUrl: "paginator.html",
     styleUrl: "paginator.scss",
 })
@@ -125,9 +124,9 @@ export class Paginator implements OnDestroy {
     }
 }
 
-@NgModule({
-    declarations: [Paginator],
-    exports: [Paginator],
-    imports: [CommonModule, NgxUteCoreModule],
-})
-export class CrossModule {}
+// @NgModule({
+//     declarations: [Paginator],
+//     exports: [Paginator],
+//     imports: [CommonModule, NgxUteCoreModule],
+// })
+// export class CrossModule {}

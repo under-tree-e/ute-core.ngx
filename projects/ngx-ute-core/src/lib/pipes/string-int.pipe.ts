@@ -2,6 +2,8 @@ import { Pipe, PipeTransform } from "@angular/core";
 
 @Pipe({
     name: "uteInt",
+    pure: false,
+    standalone: true,
 })
 export class StringIntegerPipe implements PipeTransform {
     /**

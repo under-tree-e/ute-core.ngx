@@ -11,6 +11,7 @@ enum DelayStatus {
 @Pipe({
     name: "dlif",
     pure: false,
+    standalone: true,
 })
 export class DelayIf implements PipeTransform, OnDestroy {
     private asyncPipe: AsyncPipe;
