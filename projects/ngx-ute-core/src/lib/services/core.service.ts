@@ -20,6 +20,7 @@ import { PageService } from "./page.service";
 })
 export class CoreService implements OnDestroy {
     private subscriptions = new Subscription();
+    private serverTimer: any = null;
 
     constructor(
         @Inject("UteCoreConfig") private config: UteCoreConfigs,
@@ -65,6 +66,8 @@ export class CoreService implements OnDestroy {
         this.httpService.Init(this.config.environment);
         this.langService.Init(this.config.environment, this.config);
         this.pageService.Init(this.config.environment, this.config.pages);
+        this.checkOnline();
+        this.checkServer();
     }
 
     /**
@@ -303,6 +306,26 @@ export class CoreService implements OnDestroy {
      */
     public checkOnline() {
         this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
+    }
+
+    /**
+     * Update server online status
+     */
+    public async checkServer() {
+        if (this.serverTimer) {
+            clearTimeout(this.serverTimer);
+            this.serverTimer = null;
+        }
+
+        try {
+            await this.httpService.httpRequest("POST", [{ method: "online" }]);
+            this.config.environment.server = true;
+        } catch {
+            this.config.environment.server = false;
+            this.serverTimer = setTimeout(() => {
+                this.checkServer();
+            }, 180 * 1000);
+        }
     }
 
     /**
