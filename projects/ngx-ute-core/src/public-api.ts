@@ -11,6 +11,7 @@ export * from "./lib/services/http.service";
 export * from "./lib/services/lang.service";
 export * from "./lib/services/control.service";
 export * from "./lib/services/seo.service";
+export * from "./lib/services/page.service";
 
 export * from "./lib/interfaces/config";
 export * from "./lib/interfaces/object";
@@ -20,6 +21,7 @@ export * from "./lib/interfaces/environment";
 export * from "./lib/interfaces/moment";
 export * from "./lib/interfaces/session";
 export * from "./lib/interfaces/control";
+export * from "./lib/interfaces/page";
 export { SwipeEvent as UTESwipeEvent } from "./lib/interfaces/swipe";
 
 export * from "./lib/constantes/http-method";

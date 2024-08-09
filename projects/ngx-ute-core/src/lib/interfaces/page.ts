@@ -2,7 +2,7 @@ export interface PageData {
     id: string;
     icon: string;
     name: string;
-    desk: string;
+    desc: string;
     keys?: string;
     pipe?: boolean;
     children?: PageData[];

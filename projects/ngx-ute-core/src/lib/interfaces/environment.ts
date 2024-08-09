@@ -18,6 +18,10 @@ export interface UteEnvironment {
      */
     online?: boolean;
     /**
+     * Server online status
+     */
+    server?: boolean;
+    /**
      * Mobile screen size status
      */
     mobile?: boolean;

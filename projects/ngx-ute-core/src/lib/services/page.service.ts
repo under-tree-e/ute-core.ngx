@@ -15,11 +15,14 @@ export class PageService {
         if (pages) this.pages = pages;
     }
 
-    public getItems(): PageData[] {
+    public getItems(include?: string): PageData[] {
+        let pages = this.pages;
+        if (include) pages = pages.filter((p: PageData) => p.id.includes(include));
+
         if (this.session?.role) {
-            return this.pages.filter((p: PageData) => p.roles.some((r: string) => r === this.session?.role));
+            return pages.filter((p: PageData) => p.roles.some((r: string) => r === this.session?.role));
         } else {
-            return this.pages;
+            return pages;
         }
     }
 
