@@ -14,6 +14,8 @@ import { LangService } from "./lang.service";
 import { DateFormat, UteProvidersData } from "../interfaces/moment";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
+// import { SEOService } from "./seo.service";
+// import { Title, Meta } from "@angular/platform-browser";
 
 @Injectable({
     providedIn: "root",
@@ -30,8 +32,10 @@ export class CoreService implements OnDestroy {
         private httpService: HttpService,
         private langService: LangService,
         private breakpoints: BreakpointObserver,
-        private pageService: PageService
+        private pageService: PageService // private seoService: SEOService, // private bodyTitle: Title, // private metaService: Meta
     ) {
+        console.log(102);
+
         this.Init();
     }
 
@@ -66,6 +70,7 @@ export class CoreService implements OnDestroy {
         this.httpService.Init(this.config.environment);
         this.langService.Init(this.config.environment, this.config);
         this.pageService.Init(this.config.environment, this.config.pages);
+        // this.seoService.Init(this.bodyTitle, this.metaService, this.langService);
         this.checkOnline();
         this.checkServer();
     }

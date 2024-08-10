@@ -1,6 +1,6 @@
 import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
 import { OnlineStatusService } from "ngx-online-status";
-import { HttpClientModule } from "@angular/common/http";
+import { provideHttpClient } from "@angular/common/http";
 
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
@@ -41,7 +41,7 @@ import { Paginator } from "./components/paginator/paginator";
 @NgModule({
     declarations: [],
     exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, Paginator],
-    imports: [HttpClientModule, LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
+    imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
     providers: [
         NumberStringPipe,
         StringFloatPipe,
@@ -54,13 +54,13 @@ import { Paginator } from "./components/paginator/paginator";
         CookieService,
         OnlineStatusService,
         HttpService,
-        HoldDirective,
         SwipeDirective,
         {
             provide: LOCALE_ID,
             useFactory: (service: LangService) => service.current(),
             deps: [LangService],
         },
+        provideHttpClient(),
     ],
 })
 export class NgxUteCoreModule {
@@ -74,6 +74,8 @@ export class NgxUteCoreModule {
      *
      */
     static forRoot(config: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {
+        console.log(101);
+
         return {
             ngModule: NgxUteCoreModule,
             providers: [CoreService, { provide: "UteCoreConfig", useValue: config }],

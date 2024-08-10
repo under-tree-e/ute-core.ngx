@@ -19,6 +19,8 @@ export class LangService {
     private isUpdate: boolean = false;
 
     constructor(@Inject(DOCUMENT) private document: Document, private httpService: HttpService, private location: Location, private router: Router) {
+        console.log(103);
+
         this.defaultRoute = this.router.config;
         this.router.events.subscribe((data) => {
             if (data instanceof NavigationStart) {

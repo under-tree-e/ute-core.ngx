@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { inject, Inject, Injectable } from "@angular/core";
 import { Title, Meta } from "@angular/platform-browser";
 import { LangService } from "./lang.service";
 
@@ -8,7 +8,15 @@ import { LangService } from "./lang.service";
 @Injectable({
     providedIn: "root",
 })
+// @Injectable()
 export class SEOService {
+    // private langService: LangService = {} as LangService;
+    // private bodyTitle: Title = {} as Title;
+    // private metaService: Meta = {} as Meta;
+
+    private readonly bodyTitle = inject(Title, { self: true });
+    // private readonly langService = inject(Title);
+
     private _title: string = "";
     private _desk: string = "";
     private _keywords: string = "";
@@ -17,57 +25,73 @@ export class SEOService {
     private _originalDesk: string = "";
     private _originalKeywords: string = "";
 
-    constructor(private bodyTitle: Title, private metaService: Meta, private langService: LangService) {
-        this._originalTitle = this.langService.get("seoTitle");
-        this._originalDesk = this.langService.get("seoDesk");
-        this._originalKeywords = this.langService.get("seoKeywords");
+    // constructor(private bodyTitle: Title, private metaService: Meta, private langService: LangService) {
+    constructor() {
+        // constructor() {
+        console.log(105);
+
+        // this._originalTitle = this.langService.get("seoTitle");
+        // this._originalDesk = this.langService.get("seoDesk");
+        // this._originalKeywords = this.langService.get("seoKeywords");
     }
 
-    get title(): string {
-        return this._title;
-    }
+    // public Init() {
+    //     console.log(105.1);
 
-    set title(title: string) {
-        this._title = title;
-        if (title === "") {
-            title = this._originalTitle;
-        } else {
-            title = `${this._pipe ? this.langService.get(title) : title} | ${this._originalTitle}`;
-        }
-        this.bodyTitle.setTitle(title);
-    }
+    //     // public Init(bodyTitle: Title, metaService: Meta, langService: LangService) {
+    //     // this.langService = langService;
+    //     // this.bodyTitle = bodyTitle;
+    //     // this.metaService = metaService;
+    //     // this._originalTitle = this.langService.get("seoTitle");
+    //     // this._originalDesk = this.langService.get("seoDesk");
+    //     // this._originalKeywords = this.langService.get("seoKeywords");
+    // }
 
-    get desk(): string {
-        return this._desk;
-    }
+    // get title(): string {
+    //     return this._title;
+    // }
 
-    set desk(desk: string) {
-        this._desk = desk;
-        if (desk === "") {
-            desk = this._originalDesk;
-        } else {
-            desk = `${this._pipe ? this.langService.get(desk) : desk} | ${this._originalDesk}`;
-        }
-        this.metaService.updateTag({ name: "description", content: desk });
-        this.metaService.updateTag({ name: "twitter:description", content: desk });
-        this.metaService.updateTag({ name: "og:description", content: desk });
-    }
+    // set title(title: string) {
+    //     this._title = title;
+    //     if (title === "") {
+    //         title = this._originalTitle;
+    //     } else {
+    //         title = `${this._pipe ? this.langService.get(title) : title} | ${this._originalTitle}`;
+    //     }
+    //     this.bodyTitle.setTitle(title);
+    // }
 
-    get keys(): string {
-        return this._keywords;
-    }
+    // get desk(): string {
+    //     return this._desk;
+    // }
 
-    set keys(keys: string) {
-        this._keywords = keys;
-        if (keys === "") {
-            keys = this._originalKeywords;
-        } else {
-            keys = `${this._pipe ? this.langService.get(keys) : keys} | ${this._originalDesk}`;
-        }
-        this.metaService.updateTag({ name: "keywords", content: keys });
-    }
+    // set desk(desk: string) {
+    //     this._desk = desk;
+    //     if (desk === "") {
+    //         desk = this._originalDesk;
+    //     } else {
+    //         desk = `${this._pipe ? this.langService.get(desk) : desk} | ${this._originalDesk}`;
+    //     }
+    //     this.metaService.updateTag({ name: "description", content: desk });
+    //     this.metaService.updateTag({ name: "twitter:description", content: desk });
+    //     this.metaService.updateTag({ name: "og:description", content: desk });
+    // }
 
-    set pipe(pipe: boolean) {
-        this._pipe = pipe;
-    }
+    // get keys(): string {
+    //     return this._keywords;
+    // }
+
+    // set keys(keys: string) {
+    //     this._keywords = keys;
+    //     if (keys === "") {
+    //         keys = this._originalKeywords;
+    //     } else {
+    //         keys = `${this._pipe ? this.langService.get(keys) : keys} | ${this._originalDesk}`;
+    //     }
+    //     this.metaService.updateTag({ name: "keywords", content: keys });
+    // }
+
+    // set pipe(pipe: boolean) {
+    //     this._pipe = pipe;
+    // }
 }
