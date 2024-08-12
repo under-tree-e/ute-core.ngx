@@ -1,6 +1,7 @@
-import { inject, Inject, Injectable } from "@angular/core";
+import { inject, Inject, Injectable, Optional, Self, SkipSelf } from "@angular/core";
 import { Title, Meta } from "@angular/platform-browser";
 import { LangService } from "./lang.service";
+import { HttpClient } from "@angular/common/http";
 
 /**
  * Service responsible for setting the title that appears above the components and guide pages.
@@ -14,8 +15,9 @@ export class SEOService {
     // private bodyTitle: Title = {} as Title;
     // private metaService: Meta = {} as Meta;
 
-    private readonly bodyTitle = inject(Title, { self: true });
-    // private readonly langService = inject(Title);
+    // private readonly bodyTitle = inject(Title, { self: true });
+    // private readonly bodyTitle = inject(Title);
+    // private readonly http = inject(HttpClient);
 
     private _title: string = "";
     private _desk: string = "";
@@ -25,9 +27,10 @@ export class SEOService {
     private _originalDesk: string = "";
     private _originalKeywords: string = "";
 
-    // constructor(private bodyTitle: Title, private metaService: Meta, private langService: LangService) {
-    constructor() {
+    constructor(private bodyTitle: Title, private metaService: Meta, private langService: LangService) {
         // constructor() {
+        // constructor(private http: HttpClient) {
+        // constructor(private bodyTitle: Title) {
         console.log(105);
 
         // this._originalTitle = this.langService.get("seoTitle");

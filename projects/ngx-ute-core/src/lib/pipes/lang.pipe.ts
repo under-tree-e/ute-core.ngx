@@ -1,4 +1,4 @@
-import { Pipe, PipeTransform } from "@angular/core";
+import { inject, Pipe, PipeTransform } from "@angular/core";
 import { LangService } from "../services/lang.service";
 
 @Pipe({
@@ -7,7 +7,9 @@ import { LangService } from "../services/lang.service";
     standalone: true,
 })
 export class LangPipe implements PipeTransform {
+    // private langService: LangService = inject(LangService);
     constructor(private langService: LangService) {
+        // constructor() {
         console.log(104);
     }
     /**

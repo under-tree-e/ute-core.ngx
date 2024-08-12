@@ -14,13 +14,9 @@ import { SessionData } from "./session";
  */
 export interface UteEnvironment {
     /**
-     * App online status
+     * Server app online status
      */
     online?: boolean;
-    /**
-     * Server online status
-     */
-    server?: boolean;
     /**
      * Mobile screen size status
      */

@@ -8,7 +8,6 @@ import { UteApis } from "../interfaces/api";
 import { CustomHeaderData, HttpOptions } from "../interfaces/http-opt";
 import * as qs from "qs";
 import { ApiConst } from "../constantes/api";
-import { OnlineStatusService } from "ngx-online-status";
 
 @Injectable({
     providedIn: "root",
@@ -22,7 +21,7 @@ export class HttpService {
     private apiPath: string = "api";
     private apiSubDomain: string = "";
 
-    constructor(private http: HttpClient, private platformLocation: PlatformLocation, private onlineStatusService: OnlineStatusService) {}
+    constructor(private http: HttpClient, private platformLocation: PlatformLocation) {}
 
     /**
      *
@@ -122,7 +121,7 @@ export class HttpService {
                 sqlMethod = sqlMethod.toUpperCase();
 
                 // Check if Internet isset
-                this.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
+                this.checkOnline();
 
                 // Declare base parameters
                 let reqMethod: string = "http";
@@ -199,5 +198,17 @@ export class HttpService {
                 reject(error);
             }
         });
+    }
+
+    /**
+     * Update server online status
+     */
+    public async checkOnline() {
+        try {
+            await this.httpRequest("POST", [{ method: "online" }]);
+            this.environment.online = true;
+        } catch {
+            this.environment.online = false;
+        }
     }
 }

@@ -1,6 +1,5 @@
 import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
-import { OnlineStatusService } from "ngx-online-status";
-import { provideHttpClient } from "@angular/common/http";
+import { provideHttpClient, withFetch } from "@angular/common/http";
 
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
@@ -19,6 +18,16 @@ import { HoldDirective } from "./directives/hold";
 import { LengthCutPipe } from "./pipes/leng-cut.pipe";
 import { SwipeDirective } from "./directives/swipe";
 import { Paginator } from "./components/paginator/paginator";
+import { SEOService } from "./services/seo.service";
+
+// import { InjectionToken, FactoryProvider } from "@angular/core";
+
+// const WindowService = new InjectionToken<Window>("window");
+
+// const windowProvider: FactoryProvider = {
+//     provide: WindowService,
+//     useFactory: () => window,
+// };
 
 /**
  * The main module of Core library. Example usage:
@@ -43,6 +52,8 @@ import { Paginator } from "./components/paginator/paginator";
     exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, Paginator],
     imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
     providers: [
+        // windowProvider,
+        provideHttpClient(withFetch()),
         NumberStringPipe,
         StringFloatPipe,
         StringIntegerPipe,
@@ -52,15 +63,15 @@ import { Paginator } from "./components/paginator/paginator";
         DelayIf,
         HoldDirective,
         CookieService,
-        OnlineStatusService,
         HttpService,
         SwipeDirective,
+        SEOService,
+        LangService,
         {
             provide: LOCALE_ID,
             useFactory: (service: LangService) => service.current(),
             deps: [LangService],
         },
-        provideHttpClient(),
     ],
 })
 export class NgxUteCoreModule {

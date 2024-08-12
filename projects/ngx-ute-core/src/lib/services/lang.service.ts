@@ -41,6 +41,8 @@ export class LangService {
      * Initialization module
      */
     public async Init(environment: UteEnvironment, config: UteCoreConfigs) {
+        console.log(103.1);
+
         if (!environment.production) {
             console.log(`${new Date().toISOString()} => LangService`);
         }
@@ -90,15 +92,20 @@ export class LangService {
      * @returns Complete status
      */
     private loadLibraries(): Promise<boolean> {
+        console.log(103.2);
+
         return new Promise(async (resolve, reject) => {
             try {
                 if (!this.environment.localeList) {
                     this.environment.localeList = ["en-EN"];
                 }
                 this.environment.localeList.map(async (x: string) => {
-                    let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                    // let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                    let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
                     registerLocaleData(locale.default);
                 });
+                console.log(103.3);
+
                 resolve(true);
             } catch (error) {
                 reject(error);

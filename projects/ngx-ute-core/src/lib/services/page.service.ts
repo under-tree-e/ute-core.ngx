@@ -1,17 +1,19 @@
 import { Injectable } from "@angular/core";
 import { PageData } from "../interfaces/page";
-import { SessionData } from "../interfaces/session";
 import { UteEnvironment } from "../interfaces/environment";
 
 @Injectable({
     providedIn: "root",
 })
 export class PageService {
-    private session: SessionData = {} as SessionData;
+    private environment: UteEnvironment = {} as UteEnvironment;
     private pages: PageData[] = [];
 
-    public Init(env: UteEnvironment, pages?: PageData[]) {
-        if (env.session) this.session = env.session;
+    public Init(environment: UteEnvironment, pages?: PageData[]) {
+        if (!environment.production) {
+            console.log(`${new Date().toISOString()} => PageService`);
+        }
+
         if (pages) this.pages = pages;
     }
 
@@ -25,8 +27,8 @@ export class PageService {
             }
         }
 
-        if (this.session?.role) {
-            return pages.filter((p: PageData) => p.roles.some((r: string) => r === this.session?.role));
+        if (this.environment.session?.role) {
+            return pages.filter((p: PageData) => p.roles.some((r: string) => r === this.environment.session?.role));
         } else {
             return pages;
         }
