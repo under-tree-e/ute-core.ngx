@@ -1,4 +1,4 @@
-import { Inject, Injectable, HostListener, OnDestroy } from "@angular/core";
+import { Inject, Injectable, OnDestroy, afterNextRender } from "@angular/core";
 import { UteCoreConfigs } from "../interfaces/config";
 import { ResizeService } from "./resize.service";
 import { UteObjects } from "../interfaces/object";
@@ -7,31 +7,45 @@ import { v4 } from "uuid";
 import Compressor from "compressorjs";
 import { CookieService } from "./cookie.service";
 import { Capacitor } from "@capacitor/core";
-import { OnlineStatusService } from "ngx-online-status";
 import { HttpService } from "./http.service";
 import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
-import { DateFormat, UteProvidersData } from "../interfaces/moment";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
+import { DOCUMENT } from "@angular/common";
 
 @Injectable({
     providedIn: "root",
 })
 export class CoreService implements OnDestroy {
     private subscriptions = new Subscription();
-    private serverTimer: any = null;
 
     constructor(
         @Inject("UteCoreConfig") private config: UteCoreConfigs,
+        @Inject(DOCUMENT) private document: Document,
         private resizeService: ResizeService,
         private cookieService: CookieService,
-        private onlineStatusService: OnlineStatusService,
         private httpService: HttpService,
         private langService: LangService,
         private breakpoints: BreakpointObserver,
         private pageService: PageService
     ) {
+        if (!globalThis["document"]) {
+            globalThis["document"] = this.document;
+        }
+
+        if (!globalThis["localStorage"]) {
+            globalThis["localStorage"] = this.document.defaultView?.localStorage!;
+        }
+
+        if (!globalThis["window"]) {
+            globalThis["window"] = this.document.defaultView!;
+        }
+
+        if (!globalThis["location"]) {
+            globalThis["location"] = this.document.defaultView?.location!;
+        }
+
         this.Init();
     }
 
@@ -42,7 +56,7 @@ export class CoreService implements OnDestroy {
     /**
      * Initialization module
      */
-    private Init() {
+    public Init() {
         if (!this.config.environment.production) {
             console.log(`${new Date().toISOString()} => CoreService`);
         }
@@ -58,16 +72,17 @@ export class CoreService implements OnDestroy {
                 }
 
                 this.config.environment.platform = platform;
-                this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
+                afterNextRender(() => {
+                    this.checkOnline();
+                });
                 this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
             }
         }
+
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
         this.httpService.Init(this.config.environment);
         this.langService.Init(this.config.environment, this.config);
         this.pageService.Init(this.config.environment, this.config.pages);
-        this.checkOnline();
-        this.checkServer();
     }
 
     /**
@@ -316,30 +331,11 @@ export class CoreService implements OnDestroy {
     }
 
     /**
-     * Update app online status
-     */
-    public checkOnline() {
-        this.config.environment.online = this.onlineStatusService.getStatus() == 1 ? true : false;
-    }
-
-    /**
      * Update server online status
      */
-    public async checkServer() {
-        if (this.serverTimer) {
-            clearTimeout(this.serverTimer);
-            this.serverTimer = null;
-        }
-
-        try {
-            await this.httpService.httpRequest("POST", [{ method: "online" }]);
-            this.config.environment.server = true;
-        } catch {
-            this.config.environment.server = false;
-            this.serverTimer = setTimeout(() => {
-                this.checkServer();
-            }, 180 * 1000);
-        }
+    public async checkOnline() {
+        const res: any = await this.httpService.httpRequest("POST", [{ method: "online" }]);
+        this.config.environment.online = res.online || false;
     }
 
     /**

@@ -9,15 +9,15 @@ import { LangService } from "../services/lang.service";
 export class LangPipe implements PipeTransform {
     constructor(private langService: LangService) {}
     /**
-     *
-     * @param value
-     * @returns
+     * Get localized text
+     * @param code - uid code to search
+     * @returns translated text
      */
-    public transform(value: string): string {
+    public transform(code: string): string {
         try {
-            return this.langService.get(value);
+            return this.langService.get(code);
         } catch {
-            return value;
+            return code;
         }
     }
 }

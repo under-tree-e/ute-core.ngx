@@ -1,6 +1,5 @@
 import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
-import { OnlineStatusService } from "ngx-online-status";
-import { HttpClientModule } from "@angular/common/http";
+import { HttpClientModule, provideHttpClient, withFetch } from "@angular/common/http";
 
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
@@ -19,6 +18,7 @@ import { HoldDirective } from "./directives/hold";
 import { LengthCutPipe } from "./pipes/leng-cut.pipe";
 import { SwipeDirective } from "./directives/swipe";
 import { Paginator } from "./components/paginator/paginator";
+import { SEOService } from "./services/seo.service";
 
 /**
  * The main module of Core library. Example usage:
@@ -41,8 +41,20 @@ import { Paginator } from "./components/paginator/paginator";
 @NgModule({
     declarations: [],
     exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, Paginator],
-    imports: [HttpClientModule, LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
+    imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
     providers: [
+        provideHttpClient(withFetch()),
+        // Services
+        HttpService,
+        CookieService,
+        LangService,
+        SEOService,
+        {
+            provide: LOCALE_ID,
+            useFactory: (service: LangService) => service.current(),
+            deps: [LangService],
+        },
+        // Pipes
         NumberStringPipe,
         StringFloatPipe,
         StringIntegerPipe,
@@ -50,17 +62,9 @@ import { Paginator } from "./components/paginator/paginator";
         LengthCutPipe,
         LangPipe,
         DelayIf,
-        HoldDirective,
-        CookieService,
-        OnlineStatusService,
-        HttpService,
+        // Directives
         HoldDirective,
         SwipeDirective,
-        {
-            provide: LOCALE_ID,
-            useFactory: (service: LangService) => service.current(),
-            deps: [LangService],
-        },
     ],
 })
 export class NgxUteCoreModule {
