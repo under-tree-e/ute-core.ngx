@@ -1,7 +1,7 @@
-import { Inject, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { UteEnvironment } from "../interfaces/environment";
 import { HttpService } from "./http.service";
-import { DOCUMENT, registerLocaleData, Location } from "@angular/common";
+import { registerLocaleData, Location } from "@angular/common";
 import { UteCoreConfigs } from "../interfaces/config";
 import { Router, Routes, NavigationStart, NavigationEnd } from "@angular/router";
 
@@ -18,7 +18,7 @@ export class LangService {
     private isNav: boolean = false;
     private isUpdate: boolean = false;
 
-    constructor(@Inject(DOCUMENT) private document: Document, private httpService: HttpService, private location: Location, private router: Router) {
+    constructor(private httpService: HttpService, private location: Location, private router: Router) {
         console.log(103);
 
         this.defaultRoute = this.router.config;
@@ -41,8 +41,6 @@ export class LangService {
      * Initialization module
      */
     public async Init(environment: UteEnvironment, config: UteCoreConfigs) {
-        console.log(103.1);
-
         if (!environment.production) {
             console.log(`${new Date().toISOString()} => LangService`);
         }
@@ -92,19 +90,27 @@ export class LangService {
      * @returns Complete status
      */
     private loadLibraries(): Promise<boolean> {
-        console.log(103.2);
-
         return new Promise(async (resolve, reject) => {
             try {
+                // Check base data
                 if (!this.environment.localeList) {
                     this.environment.localeList = ["en-EN"];
                 }
+                if (!this.environment.defLocale) {
+                    this.environment.defLocale = "en-EN";
+                }
+                if (!this.locale) {
+                    this.locale = this.environment.defLocale;
+                }
+
+                // Load library
                 this.environment.localeList.map(async (x: string) => {
-                    // let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
-                    let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                    let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                    // let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
                     registerLocaleData(locale.default);
                 });
-                console.log(103.3);
+
+                await this.loadLocale();
 
                 resolve(true);
             } catch (error) {
@@ -122,7 +128,7 @@ export class LangService {
             try {
                 this.localeData = await this.httpService.httpLocal<any>(`${this.config.path ? this.config.path : "assets/locales/"}${this.locale}.json?v=${Date.now()}`);
 
-                this.document.documentElement.lang = this.locale;
+                document.documentElement.lang = this.locale;
 
                 this.updateRouter();
                 resolve(true);

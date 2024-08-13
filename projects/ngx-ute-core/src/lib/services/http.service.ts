@@ -20,6 +20,7 @@ export class HttpService {
     } = {};
     private apiPath: string = "api";
     private apiSubDomain: string = "";
+    private serverTimer: any = null;
 
     constructor(private http: HttpClient, private platformLocation: PlatformLocation) {}
 
@@ -117,14 +118,14 @@ export class HttpService {
     public httpRequest<T>(sqlMethod: string, json: UteApis<T>[], httpOptions?: HttpOptions): Promise<UteObjects<T>> {
         return new Promise(async (resolve, reject) => {
             let response: any = {};
+            let reqMethod: string = "http";
             try {
                 sqlMethod = sqlMethod.toUpperCase();
 
-                // Check if Internet isset
-                this.checkOnline();
+                // Check if Server is online
+                // this.environment.online = await this.checkOnline();
 
                 // Declare base parameters
-                let reqMethod: string = "http";
                 let jsonConvert: UteObjects = { body: [] };
                 let jsonMethods: UteApis<T>[] = json.filter((js: UteApis<T>) => js.method);
 
@@ -149,6 +150,11 @@ export class HttpService {
                         });
                         return Object.fromEntries(newObject);
                     });
+                }
+
+                if (reqMethod === "online") {
+                    clearInterval(this.serverTimer);
+                    this.serverTimer = null;
                 }
 
                 if (!this.environment.storage || httpOptions?.online || httpOptions?.global) {
@@ -195,7 +201,15 @@ export class HttpService {
                 }
                 resolve(response);
             } catch (error) {
-                reject(error);
+                if (reqMethod === "online") {
+                    this.environment.online = false;
+                    this.serverTimer = setInterval(() => {
+                        this.checkOnline();
+                    }, 300 * 1000);
+                    resolve({ online: false } as any);
+                } else {
+                    reject(error);
+                }
             }
         });
     }
@@ -203,12 +217,14 @@ export class HttpService {
     /**
      * Update server online status
      */
-    public async checkOnline() {
-        try {
-            await this.httpRequest("POST", [{ method: "online" }]);
-            this.environment.online = true;
-        } catch {
-            this.environment.online = false;
-        }
+    public checkOnline(): Promise<boolean> {
+        return new Promise(async (resolve) => {
+            try {
+                await this.httpRequest("POST", [{ method: "online" }]);
+                resolve(true);
+            } catch {
+                resolve(false);
+            }
+        });
     }
 }

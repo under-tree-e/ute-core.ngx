@@ -4,7 +4,6 @@
 
 export * from "./lib/core.module";
 export * from "./lib/core.provider";
-export * from "./lib/seo.module";
 
 export * from "./lib/services/core.service";
 export * from "./lib/services/cookie.service";

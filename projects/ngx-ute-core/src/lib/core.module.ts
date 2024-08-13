@@ -1,5 +1,5 @@
 import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
-import { provideHttpClient, withFetch } from "@angular/common/http";
+import { HttpClientModule, provideHttpClient, withFetch } from "@angular/common/http";
 
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
@@ -19,15 +19,6 @@ import { LengthCutPipe } from "./pipes/leng-cut.pipe";
 import { SwipeDirective } from "./directives/swipe";
 import { Paginator } from "./components/paginator/paginator";
 import { SEOService } from "./services/seo.service";
-
-// import { InjectionToken, FactoryProvider } from "@angular/core";
-
-// const WindowService = new InjectionToken<Window>("window");
-
-// const windowProvider: FactoryProvider = {
-//     provide: WindowService,
-//     useFactory: () => window,
-// };
 
 /**
  * The main module of Core library. Example usage:
@@ -52,8 +43,18 @@ import { SEOService } from "./services/seo.service";
     exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, Paginator],
     imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
     providers: [
-        // windowProvider,
         provideHttpClient(withFetch()),
+        // Services
+        HttpService,
+        CookieService,
+        LangService,
+        SEOService,
+        {
+            provide: LOCALE_ID,
+            useFactory: (service: LangService) => service.current(),
+            deps: [LangService],
+        },
+        // Pipes
         NumberStringPipe,
         StringFloatPipe,
         StringIntegerPipe,
@@ -61,17 +62,9 @@ import { SEOService } from "./services/seo.service";
         LengthCutPipe,
         LangPipe,
         DelayIf,
+        // Directives
         HoldDirective,
-        CookieService,
-        HttpService,
         SwipeDirective,
-        SEOService,
-        LangService,
-        {
-            provide: LOCALE_ID,
-            useFactory: (service: LangService) => service.current(),
-            deps: [LangService],
-        },
     ],
 })
 export class NgxUteCoreModule {
@@ -85,7 +78,7 @@ export class NgxUteCoreModule {
      *
      */
     static forRoot(config: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {
-        console.log(101);
+        console.log(100);
 
         return {
             ngModule: NgxUteCoreModule,

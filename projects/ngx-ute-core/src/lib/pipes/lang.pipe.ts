@@ -1,4 +1,4 @@
-import { inject, Pipe, PipeTransform } from "@angular/core";
+import { Pipe, PipeTransform } from "@angular/core";
 import { LangService } from "../services/lang.service";
 
 @Pipe({
@@ -7,21 +7,17 @@ import { LangService } from "../services/lang.service";
     standalone: true,
 })
 export class LangPipe implements PipeTransform {
-    // private langService: LangService = inject(LangService);
-    constructor(private langService: LangService) {
-        // constructor() {
-        console.log(104);
-    }
+    constructor(private langService: LangService) {}
     /**
-     *
-     * @param value
-     * @returns
+     * Get localized text
+     * @param code - uid code to search
+     * @returns translated text
      */
-    public transform(value: string): string {
+    public transform(code: string): string {
         try {
-            return this.langService.get(value);
+            return this.langService.get(code);
         } catch {
-            return value;
+            return code;
         }
     }
 }

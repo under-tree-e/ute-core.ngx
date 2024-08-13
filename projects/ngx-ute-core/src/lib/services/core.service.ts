@@ -1,4 +1,4 @@
-import { Inject, Injectable, HostListener, OnDestroy, afterRender } from "@angular/core";
+import { Inject, Injectable, OnDestroy, afterNextRender } from "@angular/core";
 import { UteCoreConfigs } from "../interfaces/config";
 import { ResizeService } from "./resize.service";
 import { UteObjects } from "../interfaces/object";
@@ -12,16 +12,17 @@ import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
+import { DOCUMENT } from "@angular/common";
 
 @Injectable({
     providedIn: "root",
 })
 export class CoreService implements OnDestroy {
     private subscriptions = new Subscription();
-    private serverTimer: any = null;
 
     constructor(
         @Inject("UteCoreConfig") private config: UteCoreConfigs,
+        @Inject(DOCUMENT) private document: Document,
         private resizeService: ResizeService,
         private cookieService: CookieService,
         private httpService: HttpService,
@@ -29,7 +30,24 @@ export class CoreService implements OnDestroy {
         private breakpoints: BreakpointObserver,
         private pageService: PageService
     ) {
-        console.log(102);
+        console.log(101.1);
+
+        if (!globalThis["document"]) {
+            globalThis["document"] = this.document;
+        }
+
+        if (!globalThis["localStorage"]) {
+            globalThis["localStorage"] = this.document.defaultView?.localStorage!;
+        }
+
+        if (!globalThis["window"]) {
+            globalThis["window"] = this.document.defaultView!;
+        }
+
+        if (!globalThis["location"]) {
+            globalThis["location"] = this.document.defaultView?.location!;
+        }
+        console.log(101.2);
 
         this.Init();
     }
@@ -42,7 +60,7 @@ export class CoreService implements OnDestroy {
      * Initialization module
      */
     public Init() {
-        console.log(102.1);
+        console.log(101.3);
 
         if (!this.config.environment.production) {
             console.log(`${new Date().toISOString()} => CoreService`);
@@ -59,24 +77,19 @@ export class CoreService implements OnDestroy {
                 }
 
                 this.config.environment.platform = platform;
-                this.checkOnline();
+                afterNextRender(() => {
+                    this.checkOnline();
+                });
                 this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
             }
         }
 
-        // afterRender(() => {
-        console.log(102.2);
-
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
+        console.log(101.4);
+
         this.httpService.Init(this.config.environment);
         this.langService.Init(this.config.environment, this.config);
-        console.log(102.3);
-
         this.pageService.Init(this.config.environment, this.config.pages);
-        console.log(102.4);
-
-        // });
-        // this.seoService.Init(this.bodyTitle, this.metaService, this.langService);
     }
 
     /**
@@ -328,20 +341,8 @@ export class CoreService implements OnDestroy {
      * Update server online status
      */
     public async checkOnline() {
-        if (this.serverTimer) {
-            clearTimeout(this.serverTimer);
-            this.serverTimer = null;
-        }
-
-        try {
-            await this.httpService.httpRequest("POST", [{ method: "online" }]);
-            this.config.environment.online = true;
-        } catch {
-            this.config.environment.online = false;
-            this.serverTimer = setTimeout(() => {
-                this.checkOnline();
-            }, 180 * 1000);
-        }
+        const res: any = await this.httpService.httpRequest("POST", [{ method: "online" }]);
+        this.config.environment.online = res.online || false;
     }
 
     /**

@@ -28,11 +28,6 @@ export class SEOService {
     private _originalKeywords: string = "";
 
     constructor(private bodyTitle: Title, private metaService: Meta, private langService: LangService) {
-        // constructor() {
-        // constructor(private http: HttpClient) {
-        // constructor(private bodyTitle: Title) {
-        console.log(105);
-
         // this._originalTitle = this.langService.get("seoTitle");
         // this._originalDesk = this.langService.get("seoDesk");
         // this._originalKeywords = this.langService.get("seoKeywords");
