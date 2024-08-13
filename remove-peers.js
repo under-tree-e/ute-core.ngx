@@ -7,4 +7,5 @@ if (libraryPackageJson.devDependencies) {
     Object.keys(libraryPackageJson.devDependencies).forEach((dep) => {
         exec(`npm r ${dep}@${libraryPackageJson.devDependencies[dep]}`, { stdio: "inherit" });
     });
+    exec(`npm i -D @capacitor/preferences`, { stdio: "inherit" });
 }

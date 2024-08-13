@@ -19,8 +19,6 @@ export class LangService {
     private isUpdate: boolean = false;
 
     constructor(private httpService: HttpService, private location: Location, private router: Router) {
-        console.log(103);
-
         this.defaultRoute = this.router.config;
         this.router.events.subscribe((data) => {
             if (data instanceof NavigationStart) {
@@ -105,8 +103,7 @@ export class LangService {
 
                 // Load library
                 this.environment.localeList.map(async (x: string) => {
-                    let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
-                    // let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                    let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
                     registerLocaleData(locale.default);
                 });
 

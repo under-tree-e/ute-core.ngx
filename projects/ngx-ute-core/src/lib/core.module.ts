@@ -78,8 +78,6 @@ export class NgxUteCoreModule {
      *
      */
     static forRoot(config: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {
-        console.log(100);
-
         return {
             ngModule: NgxUteCoreModule,
             providers: [CoreService, { provide: "UteCoreConfig", useValue: config }],

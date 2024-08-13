@@ -5,6 +5,6 @@ const libraryPackageJson = require("./projects/ngx-ute-core/package.json");
 
 if (libraryPackageJson.devDependencies) {
     Object.keys(libraryPackageJson.devDependencies).forEach((dep) => {
-        exec(`npm install -D ${dep}@${libraryPackageJson.devDependencies[dep]}`, { stdio: "inherit" });
+        exec(`npm i -D ${dep}@${libraryPackageJson.devDependencies[dep]}`, { stdio: "inherit" });
     });
 }

@@ -30,8 +30,6 @@ export class CoreService implements OnDestroy {
         private breakpoints: BreakpointObserver,
         private pageService: PageService
     ) {
-        console.log(101.1);
-
         if (!globalThis["document"]) {
             globalThis["document"] = this.document;
         }
@@ -47,7 +45,6 @@ export class CoreService implements OnDestroy {
         if (!globalThis["location"]) {
             globalThis["location"] = this.document.defaultView?.location!;
         }
-        console.log(101.2);
 
         this.Init();
     }
@@ -60,8 +57,6 @@ export class CoreService implements OnDestroy {
      * Initialization module
      */
     public Init() {
-        console.log(101.3);
-
         if (!this.config.environment.production) {
             console.log(`${new Date().toISOString()} => CoreService`);
         }
@@ -85,8 +80,6 @@ export class CoreService implements OnDestroy {
         }
 
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
-        console.log(101.4);
-
         this.httpService.Init(this.config.environment);
         this.langService.Init(this.config.environment, this.config);
         this.pageService.Init(this.config.environment, this.config.pages);

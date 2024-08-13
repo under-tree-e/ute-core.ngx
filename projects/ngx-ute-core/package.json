@@ -1,6 +1,6 @@
 {
   "name": "ngx-ute-core",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "UTE Core module includes simple packs of function for base Angular app usage",
   "keywords": [
     "angular",
