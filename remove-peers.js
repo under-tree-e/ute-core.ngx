@@ -1,11 +1,13 @@
-const fs = require("fs");
 const exec = require("child_process").execSync;
 
 const libraryPackageJson = require("./projects/ngx-ute-core/package.json");
+const excludes = ["@capacitor/preferences"];
 
 if (libraryPackageJson.devDependencies) {
     Object.keys(libraryPackageJson.devDependencies).forEach((dep) => {
-        exec(`npm r ${dep}@${libraryPackageJson.devDependencies[dep]}`, { stdio: "inherit" });
+        if (!excludes.some((ex) => ex === dep)) {
+            console.log(`Remove: ${dep}`);
+            exec(`npm r ${dep}`);
+        }
     });
-    exec(`npm i -D @capacitor/preferences`, { stdio: "inherit" });
 }

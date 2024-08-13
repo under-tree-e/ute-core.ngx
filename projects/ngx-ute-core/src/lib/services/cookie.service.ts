@@ -1,4 +1,4 @@
-import { afterNextRender, Injectable } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { CookieService as NgxCookieService } from "ngx-cookie-service";
 import { Preferences } from "@capacitor/preferences";
 import { AES, enc, pad } from "crypto-ts";
@@ -13,9 +13,7 @@ export class CookieService {
     private environment: UteEnvironment = {} as UteEnvironment;
 
     constructor(private cookieService: NgxCookieService) {
-        afterNextRender(() => {
-            this.cookiesCode = location.host.slice(0, 4).toUpperCase();
-        });
+        this.cookiesCode = location.host.slice(0, 4).toUpperCase();
     }
 
     /**

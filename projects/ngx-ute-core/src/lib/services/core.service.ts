@@ -46,7 +46,9 @@ export class CoreService implements OnDestroy {
             globalThis["location"] = this.document.defaultView?.location!;
         }
 
-        this.Init();
+        afterNextRender(() => {
+            this.Init();
+        });
     }
 
     ngOnDestroy(): void {
@@ -72,9 +74,7 @@ export class CoreService implements OnDestroy {
                 }
 
                 this.config.environment.platform = platform;
-                afterNextRender(() => {
-                    this.checkOnline();
-                });
+                this.checkOnline();
                 this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
             }
         }
