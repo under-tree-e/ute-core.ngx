@@ -12,9 +12,7 @@ export class CookieService {
     private cookiesCode: string = "";
     private environment: UteEnvironment = {} as UteEnvironment;
 
-    constructor(private cookieService: NgxCookieService) {
-        this.cookiesCode = location.host.slice(0, 4).toUpperCase();
-    }
+    constructor(private cookieService: NgxCookieService) {}
 
     /**
      * Init Cookie service
@@ -26,6 +24,7 @@ export class CookieService {
             console.log(`${new Date().toISOString()} => CookieService`);
         }
 
+        this.cookiesCode = location.host.slice(0, 4).toUpperCase();
         if (exp) {
             this.cookiesExp = exp;
         }

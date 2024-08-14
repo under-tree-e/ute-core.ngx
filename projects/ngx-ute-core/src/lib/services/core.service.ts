@@ -13,6 +13,8 @@ import { LangService } from "./lang.service";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
 import { DOCUMENT } from "@angular/common";
+import { RouterOutlet } from "@angular/router";
+import { SEOService } from "./seo.service";
 
 @Injectable({
     providedIn: "root",
@@ -28,27 +30,37 @@ export class CoreService implements OnDestroy {
         private httpService: HttpService,
         private langService: LangService,
         private breakpoints: BreakpointObserver,
-        private pageService: PageService
+        private pageService: PageService,
+        private seoService: SEOService
     ) {
-        if (!globalThis["document"]) {
-            globalThis["document"] = this.document;
-        }
+        // if (!globalThis["document"]) {
+        //     globalThis["document"] = this.document;
+        // }
 
-        if (!globalThis["localStorage"]) {
-            globalThis["localStorage"] = this.document.defaultView?.localStorage!;
-        }
+        // if (!globalThis["localStorage"]) {
+        //     globalThis["localStorage"] = this.document.defaultView?.localStorage!;
+        // }
 
-        if (!globalThis["window"]) {
-            globalThis["window"] = this.document.defaultView!;
-        }
+        // if (!globalThis["window"]) {
+        //     globalThis["window"] = this.document.defaultView!;
+        // }
 
-        if (!globalThis["location"]) {
-            globalThis["location"] = this.document.defaultView?.location!;
+        // if (!globalThis["location"]) {
+        //     globalThis["location"] = this.document.defaultView?.location!;
+        // }
+
+        if (!this.config.environment.production) {
+            console.log(`${new Date().toISOString()} => CoreService`);
         }
 
         afterNextRender(() => {
-            this.Init();
+            // this.clientInit();
+            this.serverInit();
         });
+        // this.cookieService.Init(this.config.environment, this.config.cookiesExp);
+        // this.httpService.Init(this.config.environment);
+        this.langService.Init(this.config.environment, this.config);
+        // this.pageService.Init(this.config.environment, this.config.pages);
     }
 
     ngOnDestroy(): void {
@@ -56,12 +68,12 @@ export class CoreService implements OnDestroy {
     }
 
     /**
-     * Initialization module
+     * Initialization module by server side
      */
-    public Init() {
-        if (!this.config.environment.production) {
-            console.log(`${new Date().toISOString()} => CoreService`);
-        }
+    public serverInit() {
+        // if (!this.config.environment.production) {
+        //     console.log(`${new Date().toISOString()} => CoreService`);
+        // }
 
         if (this.config) {
             if (this.config.resizer) {
@@ -81,7 +93,23 @@ export class CoreService implements OnDestroy {
 
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
         this.httpService.Init(this.config.environment);
-        this.langService.Init(this.config.environment, this.config);
+        // this.langService.Init(this.config.environment, this.config);
+        this.pageService.Init(this.config.environment, this.config.pages);
+    }
+
+    /**
+     * Initialization module by client (browser) side
+     */
+    public clientInit() {
+        if (this.config) {
+            if (this.config.resizer) {
+                this.resizeService.Init(this.config.customFontSizes || undefined);
+            }
+        }
+
+        this.cookieService.Init(this.config.environment, this.config.cookiesExp);
+        this.httpService.Init(this.config.environment);
+        // this.langService.Init(this.config.environment, this.config);
         this.pageService.Init(this.config.environment, this.config.pages);
     }
 
@@ -371,6 +399,29 @@ export class CoreService implements OnDestroy {
             }
         } else {
             return format;
+        }
+    }
+
+    /**
+     * Check router is load
+     * @param outlet
+     * @returns boolean status
+     */
+    public prepareRoute(outlet: RouterOutlet | any) {
+        return outlet && outlet.activatedRouteData && outlet.activatedRouteData["animationState"];
+    }
+
+    /**
+     * Update SEO data for page
+     * @param value - page id
+     */
+    public updatePage(value: string) {
+        const pageItem = this.pageService.getItemById(value);
+        if (pageItem) {
+            this.seoService.pipe = pageItem.pipe || false;
+            this.seoService.title = pageItem.name;
+            this.seoService.desk = pageItem.desc;
+            this.seoService.keys = pageItem.keys || "";
         }
     }
 }
