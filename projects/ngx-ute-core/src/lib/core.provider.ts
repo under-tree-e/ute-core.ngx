@@ -25,7 +25,6 @@ import { LangService } from "./services/lang.service";
  *
  * bootstrapApplication(AppComponent, {
  *   providers: [provideNgxUteCore({
- *     resizer: true,
  *     customFontSizes: {...},
  *   } as UteCoreConfigs)]
  * });

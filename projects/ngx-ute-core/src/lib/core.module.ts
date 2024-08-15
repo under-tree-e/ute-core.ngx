@@ -29,7 +29,6 @@ import { SEOService } from "./services/seo.service";
  * @NgModule({
  *      imports: [
  *          NgxUteCoreModule.forRoot({
- *              resizer: true,
  *              customFontSizes: {...},
  *          } as UteCoreConfigs)
  *      ]

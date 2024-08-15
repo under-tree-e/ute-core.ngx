@@ -1,8 +1,9 @@
-import { afterNextRender, Injectable } from "@angular/core";
+import { Inject, Injectable } from "@angular/core";
 import { CookieService as NgxCookieService } from "ngx-cookie-service";
 import { Preferences } from "@capacitor/preferences";
 import { AES, enc, pad } from "crypto-ts";
 import { UteEnvironment } from "../interfaces/environment";
+import { DOCUMENT } from "@angular/common";
 
 @Injectable({
     providedIn: "root",
@@ -11,11 +12,12 @@ export class CookieService {
     private cookiesExp: number = 30;
     private cookiesCode: string = "";
     private environment: UteEnvironment = {} as UteEnvironment;
+    private locationDom: Location;
+    private localStorageDom: Storage;
 
-    constructor(private cookieService: NgxCookieService) {
-        afterNextRender(() => {
-            this.cookiesCode = location.host.slice(0, 4).toUpperCase();
-        });
+    constructor(@Inject(DOCUMENT) private document: Document, private cookieService: NgxCookieService) {
+        this.locationDom = this.document.defaultView?.location!;
+        this.localStorageDom = this.document.defaultView?.localStorage!;
     }
 
     /**
@@ -28,6 +30,7 @@ export class CookieService {
             console.log(`${new Date().toISOString()} => CookieService`);
         }
 
+        this.cookiesCode = this.locationDom.host.slice(0, 4).toUpperCase();
         if (exp) {
             this.cookiesExp = exp;
         }
@@ -56,14 +59,14 @@ export class CookieService {
                             value: data,
                         });
                     } else {
-                        localStorage.setItem(this.cookiesCode + name, data);
+                        this.localStorageDom.setItem(this.cookiesCode + name, data);
                     }
                 } else {
                     let expires = new Date();
                     expires.setDate(expires.getDate() + (time ? time : this.cookiesExp));
-                    let local = location.host.split(":")[0];
+                    let local = this.locationDom.host.split(":")[0];
                     let secure = false;
-                    if (location.protocol == "https:") {
+                    if (this.locationDom.protocol == "https:") {
                         secure = true;
                     }
 
@@ -94,7 +97,7 @@ export class CookieService {
                         });
                         data = data.value;
                     } else {
-                        data = localStorage.getItem(this.cookiesCode + name);
+                        data = this.localStorageDom.getItem(this.cookiesCode + name);
                     }
                 } else {
                     if ((await this.cookieService.get(this.cookiesCode + name)) && (await this.cookieService.get(this.cookiesCode + name)) != "undefined") {
@@ -132,18 +135,18 @@ export class CookieService {
                         }
                     } else {
                         if (name) {
-                            localStorage.removeItem(this.cookiesCode + name);
+                            this.localStorageDom.removeItem(this.cookiesCode + name);
                         } else {
-                            localStorage.clear();
+                            this.localStorageDom.clear();
                         }
                     }
                 } else {
                     if (name) {
                         await this.cookieService.delete(this.cookiesCode + name, "/");
                     } else {
-                        let local = location.host.split(":")[0];
+                        let local = this.locationDom.host.split(":")[0];
                         let secure = false;
-                        if (location.protocol == "https:") {
+                        if (this.locationDom.protocol == "https:") {
                             secure = true;
                         }
                         await this.cookieService.deleteAll("/", local, secure);

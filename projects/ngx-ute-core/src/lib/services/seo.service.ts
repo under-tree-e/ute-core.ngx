@@ -46,7 +46,7 @@ export class SEOService {
         if (desk === "") {
             desk = this._originalDesk;
         } else {
-            desk = `${this._pipe ? this.langService.get(desk) : desk} | ${this._originalDesk}`;
+            desk = `${this._pipe ? this.langService.get(desk) : desk}`;
         }
         this.metaService.updateTag({ name: "description", content: desk });
         this.metaService.updateTag({ name: "twitter:description", content: desk });
@@ -62,7 +62,7 @@ export class SEOService {
         if (keys === "") {
             keys = this._originalKeywords;
         } else {
-            keys = `${this._pipe ? this.langService.get(keys) : keys} | ${this._originalDesk}`;
+            keys = `${this._pipe ? this.langService.get(keys) : keys}`;
         }
         this.metaService.updateTag({ name: "keywords", content: keys });
     }

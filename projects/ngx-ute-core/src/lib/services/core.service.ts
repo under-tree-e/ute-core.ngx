@@ -1,6 +1,5 @@
-import { Inject, Injectable, OnDestroy, afterNextRender } from "@angular/core";
+import { Inject, Injectable, OnDestroy } from "@angular/core";
 import { UteCoreConfigs } from "../interfaces/config";
-import { ResizeService } from "./resize.service";
 import { UteObjects } from "../interfaces/object";
 import { UteFileFormats, UteFileOptions } from "../interfaces/file";
 import { v4 } from "uuid";
@@ -12,7 +11,8 @@ import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
-import { DOCUMENT } from "@angular/common";
+import { RouterOutlet } from "@angular/router";
+import { SEOService } from "./seo.service";
 
 @Injectable({
     providedIn: "root",
@@ -22,30 +22,13 @@ export class CoreService implements OnDestroy {
 
     constructor(
         @Inject("UteCoreConfig") private config: UteCoreConfigs,
-        @Inject(DOCUMENT) private document: Document,
-        private resizeService: ResizeService,
         private cookieService: CookieService,
         private httpService: HttpService,
         private langService: LangService,
-        private breakpoints: BreakpointObserver,
-        private pageService: PageService
+        private pageService: PageService,
+        private seoService: SEOService,
+        private breakpoints: BreakpointObserver
     ) {
-        if (!globalThis["document"]) {
-            globalThis["document"] = this.document;
-        }
-
-        if (!globalThis["localStorage"]) {
-            globalThis["localStorage"] = this.document.defaultView?.localStorage!;
-        }
-
-        if (!globalThis["window"]) {
-            globalThis["window"] = this.document.defaultView!;
-        }
-
-        if (!globalThis["location"]) {
-            globalThis["location"] = this.document.defaultView?.location!;
-        }
-
         this.Init();
     }
 
@@ -62,9 +45,6 @@ export class CoreService implements OnDestroy {
         }
 
         if (this.config) {
-            if (this.config.resizer) {
-                this.resizeService.Init(this.config.customFontSizes || undefined);
-            }
             if (this.config.environment) {
                 let platform: string = Capacitor.getPlatform();
                 if (platform === "web") {
@@ -72,9 +52,7 @@ export class CoreService implements OnDestroy {
                 }
 
                 this.config.environment.platform = platform;
-                afterNextRender(() => {
-                    this.checkOnline();
-                });
+                this.checkOnline();
                 this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
             }
         }
@@ -334,8 +312,8 @@ export class CoreService implements OnDestroy {
      * Update server online status
      */
     public async checkOnline() {
-        const res: any = await this.httpService.httpRequest("POST", [{ method: "online" }]);
-        this.config.environment.online = res.online || false;
+        // const res: any = await this.httpService.httpRequest("POST", [{ method: "online" }]);
+        // this.config.environment.online = res.online || false;
     }
 
     /**
@@ -371,6 +349,29 @@ export class CoreService implements OnDestroy {
             }
         } else {
             return format;
+        }
+    }
+
+    /**
+     * Check router is load
+     * @param outlet
+     * @returns boolean status
+     */
+    public prepareRoute(outlet: RouterOutlet | any) {
+        return outlet && outlet.activatedRouteData && outlet.activatedRouteData["animationState"];
+    }
+
+    /**
+     * Update SEO data for page
+     * @param value - page id
+     */
+    public updatePage(value: string) {
+        const pageItem = this.pageService.getItemById(value);
+        if (pageItem) {
+            this.seoService.pipe = pageItem.pipe || false;
+            this.seoService.title = pageItem.name;
+            this.seoService.desk = pageItem.desc;
+            this.seoService.keys = pageItem.keys || "";
         }
     }
 }

@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
+import { Inject, Injectable } from "@angular/core";
 import { UteEnvironment } from "../interfaces/environment";
 import { HttpService } from "./http.service";
-import { registerLocaleData, Location } from "@angular/common";
+import { registerLocaleData, Location, DOCUMENT } from "@angular/common";
 import { UteCoreConfigs } from "../interfaces/config";
 import { Router, Routes, NavigationStart, NavigationEnd } from "@angular/router";
 
@@ -18,7 +18,7 @@ export class LangService {
     private isNav: boolean = false;
     private isUpdate: boolean = false;
 
-    constructor(private httpService: HttpService, private location: Location, private router: Router) {
+    constructor(@Inject(DOCUMENT) private document: Document, private httpService: HttpService, private location: Location, private router: Router) {
         this.defaultRoute = this.router.config;
         this.router.events.subscribe((data) => {
             if (data instanceof NavigationStart) {
@@ -125,7 +125,7 @@ export class LangService {
             try {
                 this.localeData = await this.httpService.httpLocal<any>(`${this.config.path ? this.config.path : "assets/locales/"}${this.locale}.json?v=${Date.now()}`);
 
-                document.documentElement.lang = this.locale;
+                this.document.documentElement.lang = this.locale;
 
                 this.updateRouter();
                 resolve(true);
@@ -163,7 +163,7 @@ export class LangService {
             ];
         }
 
-        let url: string = this.updateUrl(location.pathname);
+        let url: string = this.updateUrl(this.location.path());
 
         let interval = setInterval(() => {
             if (!this.isNav) {
@@ -224,7 +224,7 @@ export class LangService {
      * @returns Tag code
      */
     private urlToTag(): string {
-        return (this.environment.localeList || ["en-EN"]).find((lang: string) => location.pathname.includes(this.localeToTag(lang))) || this.environment.defLocale || "en-EN";
+        return (this.environment.localeList || ["en-EN"]).find((lang: string) => this.location.path().includes(this.localeToTag(lang))) || this.environment.defLocale || "en-EN";
     }
 
     /**
