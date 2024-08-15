@@ -1,7 +1,7 @@
-import { Injectable } from "@angular/core";
+import { Inject, Injectable, Optional } from "@angular/core";
 import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { UteEnvironment } from "../interfaces/environment";
-import { PlatformLocation } from "@angular/common";
+import { APP_BASE_HREF, DOCUMENT } from "@angular/common";
 import { lastValueFrom } from "rxjs";
 import { UteObjects } from "../interfaces/object";
 import { UteApis } from "../interfaces/api";
@@ -21,8 +21,11 @@ export class HttpService {
     private apiPath: string = "api";
     private apiSubDomain: string = "";
     private serverTimer: any = null;
+    private locationDom: Location;
 
-    constructor(private http: HttpClient, private platformLocation: PlatformLocation) {}
+    constructor(private http: HttpClient, @Inject(APP_BASE_HREF) @Optional() private baseHref: string, @Inject(DOCUMENT) private document: Document) {
+        this.locationDom = this.document.defaultView?.location!;
+    }
 
     /**
      *
@@ -81,7 +84,7 @@ export class HttpService {
         } else if (option?.global && this.environment.globalServer) {
             link = this.environment.globalServer;
         } else {
-            link = `${location.protocol}//${location.host}${this.platformLocation.getBaseHrefFromDOM()}`;
+            link = `${this.locationDom.protocol}//${this.locationDom.host}${this.baseHref}`;
         }
 
         if (this.apiSubDomain) link = link.replace("://", `://${this.apiSubDomain}`);

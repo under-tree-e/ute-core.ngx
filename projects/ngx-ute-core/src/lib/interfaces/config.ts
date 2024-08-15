@@ -4,14 +4,9 @@ import { PageData } from "./page";
 
 /**
  * Ute Core Configs Params
- * @prop {@link UteCoreConfigs.resizer | resizer}: `boolean` - Use app auto font resizer
  * @prop {@link UteCoreConfigs.customFontSizes | customFontSizes}?: `UteFontSizes` - App year first build or production
  */
 export interface UteCoreConfigs {
-    /**
-     * Use app auto font resizer
-     */
-    resizer?: boolean;
     /**
      * App year first build or production
      */
