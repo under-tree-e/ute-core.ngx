@@ -32,3 +32,6 @@ npm i -D @capacitor/preferences
 -   Date format converter
 -   Object converter
 -   Time zone fixer
+-   SSR
+-   Standalone App
+-   SEO Manager
