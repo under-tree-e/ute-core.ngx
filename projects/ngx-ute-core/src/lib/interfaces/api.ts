@@ -47,8 +47,8 @@ export interface UteApis<T> {
      * - desc - Use `DESC`, default `ASC`
      *
      * *`ATTENTION`: Not work with `method`*
-     * @example { order: [ [ column: string, desc: boolean ] ] }
-     * @example { order: [ ["column1"], [ "column2", true ] ] }
+     * @example { order: [ column: string, desc: boolean ] }
+     * @example { order: [ "column1" ] || [ "column2", true ] }
      */
     order?: any[];
     /**
