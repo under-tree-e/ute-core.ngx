@@ -161,18 +161,32 @@ export class HttpService {
                     let rp: any = {
                         u: `${this.httpAddress(httpOptions)}${reqMethod}`,
                         b: jsonConvert["body"],
-                        o: this.options,
+                        o: { ...this.options },
                     };
 
                     // Convert method to function
                     let httpMethod: any = null;
                     switch (sqlMethod) {
                         case "GET":
-                            let jsonString = qs.stringify(jsonConvert);
+                            function g() {
+                                const s = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+                                return s.charAt(Math.floor(Math.random() * s.length));
+                            }
+                            function a(o: string) {
+                                return g() + g() + o + g() + g();
+                            }
+
+                            let jsonString = btoa(encodeURIComponent(JSON.stringify(jsonConvert["body"])));
+                            jsonString = jsonString.replaceAll("=", "");
+                            jsonString = a(jsonString);
+                            jsonString = `body=${jsonString}`;
+
                             if (jsonString.length > 5000) {
                                 throw "GET request too long!";
                             }
+
                             httpMethod = this.http.get<T>(`${this.httpAddress(httpOptions)}${reqMethod}${jsonString ? "?" + jsonString : ""}`, this.options);
+
                             break;
                         case "POST":
                             httpMethod = this.http.post<T>(rp.u, rp.b, rp.o);
@@ -181,7 +195,8 @@ export class HttpService {
                             httpMethod = this.http.put<T>(rp.u, rp.b, rp.o);
                             break;
                         case "DELETE":
-                            (this.options.body = JSON.stringify(json)), (httpMethod = this.http.delete<T>(rp.u, rp.o));
+                            rp.o.body = JSON.stringify(json);
+                            httpMethod = this.http.delete<T>(rp.u, rp.o);
                             break;
                     }
 
