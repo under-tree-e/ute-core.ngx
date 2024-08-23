@@ -45,7 +45,7 @@ export class PageService {
                 return acc;
             }, []);
         }
-        return flattenArray(this.pages).find((item: PageData) => id.includes(item.id));
+        return flattenArray(this.pages).find((item: PageData) => item.id.includes(id));
     }
 
     public getDefault(): string {

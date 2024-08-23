@@ -39,7 +39,7 @@ export class CoreService implements OnDestroy {
     /**
      * Initialization module
      */
-    public Init() {
+    public async Init() {
         if (!this.config.environment.production) {
             console.log(`${new Date().toISOString()} => CoreService`);
         }
@@ -59,7 +59,8 @@ export class CoreService implements OnDestroy {
 
         this.cookieService.Init(this.config.environment, this.config.cookiesExp);
         this.httpService.Init(this.config.environment);
-        this.langService.Init(this.config.environment, this.config);
+        await this.langService.Init(this.config.environment, this.config);
+        this.seoService.Init(this.langService);
         this.pageService.Init(this.config.environment, this.config.pages);
     }
 
@@ -366,6 +367,8 @@ export class CoreService implements OnDestroy {
      * @param value - page id
      */
     public updatePage(value: string) {
+        console.log("updatePage", value);
+
         const pageItem = this.pageService.getItemById(value);
         if (pageItem) {
             this.seoService.pipe = pageItem.pipe || false;

@@ -18,9 +18,20 @@ export class SEOService {
     private _originalKeywords: string = "";
 
     constructor(private bodyTitle: Title, private metaService: Meta, private langService: LangService) {
+        // this._originalTitle = this.langService.get("seoTitle");
+        // this._originalDesk = this.langService.get("seoDesk");
+        // this._originalKeywords = this.langService.get("seoKeywords");
+        // console.log(this.langService);
+    }
+
+    public Init(langService?: LangService) {
+        console.log("INIT");
+
         this._originalTitle = this.langService.get("seoTitle");
         this._originalDesk = this.langService.get("seoDesk");
         this._originalKeywords = this.langService.get("seoKeywords");
+
+        console.log(this._originalTitle);
     }
 
     get title(): string {
@@ -28,6 +39,8 @@ export class SEOService {
     }
 
     set title(title: string) {
+        console.log("title", title);
+
         this._title = title;
         if (title === "") {
             title = this._originalTitle;
