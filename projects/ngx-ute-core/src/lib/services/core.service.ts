@@ -29,7 +29,9 @@ export class CoreService implements OnDestroy {
         private seoService: SEOService,
         private breakpoints: BreakpointObserver
     ) {
-        this.Init();
+        if (!this.config.standalone) {
+            this.Init();
+        }
     }
 
     ngOnDestroy(): void {
@@ -39,29 +41,38 @@ export class CoreService implements OnDestroy {
     /**
      * Initialization module
      */
-    public async Init() {
-        if (!this.config.environment.production) {
-            console.log(`${new Date().toISOString()} => CoreService`);
-        }
-
-        if (this.config) {
-            if (this.config.environment) {
-                let platform: string = Capacitor.getPlatform();
-                if (platform === "web") {
-                    platform = this.isWebBrowser(platform);
+    public Init() {
+        return new Promise(async (resolve) => {
+            try {
+                if (!this.config.environment.production) {
+                    console.log(`${new Date().toISOString()} => CoreService`);
                 }
 
-                this.config.environment.platform = platform;
-                this.checkOnline();
-                this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
-            }
-        }
+                if (this.config) {
+                    if (this.config.environment) {
+                        let platform: string = Capacitor.getPlatform();
+                        if (platform === "web") {
+                            platform = this.isWebBrowser(platform);
+                        }
 
-        this.cookieService.Init(this.config.environment, this.config.cookiesExp);
-        this.httpService.Init(this.config.environment);
-        await this.langService.Init(this.config.environment, this.config);
-        this.seoService.Init(this.langService);
-        this.pageService.Init(this.config.environment, this.config.pages);
+                        this.config.environment.platform = platform;
+                        this.checkOnline();
+                        this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
+                    }
+                }
+
+                this.cookieService.Init(this.config.environment, this.config.cookiesExp);
+                this.httpService.Init(this.config.environment);
+                await this.langService.Init(this.config.environment, this.config);
+                if (this.config.pages?.length) {
+                    await this.pageService.Init(this.config.environment, this.config.pages);
+                    this.seoService.Init(this.config.environment, this.langService, this.pageService);
+                }
+                resolve(true);
+            } catch (error) {
+                throw Error(`App Load Error: ${error}`);
+            }
+        });
     }
 
     /**
@@ -362,19 +373,19 @@ export class CoreService implements OnDestroy {
         return outlet && outlet.activatedRouteData && outlet.activatedRouteData["animationState"];
     }
 
-    /**
-     * Update SEO data for page
-     * @param value - page id
-     */
-    public updatePage(value: string) {
-        console.log("updatePage", value);
+    // /**
+    //  * Update SEO data for page
+    //  * @param value - page id
+    //  */
+    // public updatePage(value: string) {
+    //     console.log("updatePage", value);
 
-        const pageItem = this.pageService.getItemById(value);
-        if (pageItem) {
-            this.seoService.pipe = pageItem.pipe || false;
-            this.seoService.title = pageItem.name;
-            this.seoService.desk = pageItem.desc;
-            this.seoService.keys = pageItem.keys || "";
-        }
-    }
+    //     const pageItem = this.pageService.getItemById(value);
+    //     if (pageItem) {
+    //         this.seoService.pipe = pageItem.pipe || false;
+    //         this.seoService.title = pageItem.name;
+    //         this.seoService.desk = pageItem.desc;
+    //         this.seoService.keys = pageItem.keys || "";
+    //     }
+    // }
 }

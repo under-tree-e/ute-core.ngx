@@ -1,7 +1,8 @@
 import { APP_INITIALIZER, LOCALE_ID } from "@angular/core";
+import { provideHttpClient, withFetch } from "@angular/common/http";
+
 import { UteCoreConfigs } from "./interfaces/config";
 import { CoreService } from "./services/core.service";
-import { provideHttpClient, withFetch } from "@angular/common/http";
 import { NumberStringPipe } from "./pipes/number-string.pipe";
 import { StringFloatPipe } from "./pipes/string-float.pipe";
 import { StringIntegerPipe } from "./pipes/string-int.pipe";
@@ -31,6 +32,7 @@ import { LangService } from "./services/lang.service";
  * ```
  */
 export function provideNgxUteCore(config: UteCoreConfigs) {
+    config.standalone = true;
     return [
         provideHttpClient(withFetch()),
         // Services
@@ -58,7 +60,7 @@ export function provideNgxUteCore(config: UteCoreConfigs) {
         SwipeDirective,
         {
             provide: APP_INITIALIZER,
-            useFactory: (config: CoreService) => () => config,
+            useFactory: (config: CoreService) => () => config.Init(),
             multi: true,
             deps: [CoreService],
         },
