@@ -1,4 +1,4 @@
-import { afterNextRender, Directive, ElementRef, EventEmitter, HostListener, Input, NgZone, Output } from "@angular/core";
+import { afterNextRender, Directive, ElementRef, EventEmitter, HostListener, Input, Output } from "@angular/core";
 
 @Directive({
     selector: "[uteView]",
