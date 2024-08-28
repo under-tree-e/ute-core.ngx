@@ -7,7 +7,7 @@ import { afterNextRender, Directive, ElementRef, EventEmitter, HostListener, Inp
 export class ViewDirective {
     private percent: number = -1;
 
-    @Input() public viewClass: string = "";
+    @Input() public viewClass: string = "view";
     @Input() public leaveClass: string = "";
     @Input() public useScroll: boolean = false;
     @Input() public viewPercent: number = 0;
@@ -56,14 +56,14 @@ export class ViewDirective {
     private handleIntersection(intersect: boolean): void {
         if (intersect) {
             if (this.viewClass) {
-                this.elementRef.nativeElement.classList.addClass(this.viewClass);
+                this.elementRef.nativeElement.classList.add(this.viewClass);
             }
         } else {
             if (this.leaveClass) {
-                this.elementRef.nativeElement.classList.addClass(this.leaveClass);
+                this.elementRef.nativeElement.classList.add(this.leaveClass);
             }
             if (this.viewClass) {
-                this.elementRef.nativeElement.classList.removeClass(this.viewClass);
+                this.elementRef.nativeElement.classList.remove(this.viewClass);
             }
         }
         this.callback.emit({ element: this.elementRef, intersect: intersect });
