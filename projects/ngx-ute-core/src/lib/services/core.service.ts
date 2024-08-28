@@ -343,21 +343,20 @@ export class CoreService implements OnDestroy {
      * @returns New format string
      */
     public dateFormat(format: string, type: "date" | "time" | "shortdate" | "shorttime"): string {
-        const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
+        const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})|(m{1,5}\W{0,1}d{1,2}\W{0,1}y{1,4})|(y{1,4}\W{0,1}m{1,5}\W{0,1}d{1,2})/gi;
         let value: string = JSON.parse(JSON.stringify(format));
+        let match = value.match(dateRegx);
         if (value) {
             switch (type) {
                 case "date":
-                    let match = value.match(dateRegx);
-                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : "";
+                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : value;
                 case "time":
                     return value.replace(/y{2,4}/gi, value.includes("Y") ? "YYYY" : "yyyy");
                 case "shorttime":
                     value = value.replace(/m{2,5}/gi, value.includes("M") ? "MM" : "mm");
                     return value.replace(/y{2,4}/gi, value.includes("Y") ? "YY" : "yy");
                 case "shortdate":
-                    match = value.match(dateRegx);
-                    return match ? match[0] : "";
+                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YY" : "yy") : value;
             }
         } else {
             return format;
