@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnDestroy } from "@angular/core";
+import { afterNextRender, afterRender, Inject, Injectable, OnDestroy, runInInjectionContext } from "@angular/core";
 import { UteCoreConfigs } from "../interfaces/config";
 import { UteObjects } from "../interfaces/object";
 import { UteFileFormats, UteFileOptions } from "../interfaces/file";
@@ -58,6 +58,7 @@ export class CoreService implements OnDestroy {
                         this.config.environment.platform = platform;
                         this.checkOnline();
                         this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
+                        this.detectOS();
                     }
                 }
 
@@ -372,19 +373,23 @@ export class CoreService implements OnDestroy {
         return outlet && outlet.activatedRouteData && outlet.activatedRouteData["animationState"];
     }
 
-    // /**
-    //  * Update SEO data for page
-    //  * @param value - page id
-    //  */
-    // public updatePage(value: string) {
-    //     console.log("updatePage", value);
-
-    //     const pageItem = this.pageService.getItemById(value);
-    //     if (pageItem) {
-    //         this.seoService.pipe = pageItem.pipe || false;
-    //         this.seoService.title = pageItem.name;
-    //         this.seoService.desk = pageItem.desc;
-    //         this.seoService.keys = pageItem.keys || "";
-    //     }
-    // }
+    /**
+     * Return machine OS
+     * @param value - OS string
+     */
+    public detectOS() {
+        if (typeof navigator === "object" && typeof navigator.userAgent === "string") {
+            if (/android/i.test(navigator.userAgent)) {
+                this.config.environment.os = "android";
+            } else if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                this.config.environment.os = "ios";
+            } else if (/X11|Linux/.test(navigator.userAgent)) {
+                this.config.environment.os = "linux";
+            } else if (/Macintosh|MacIntel|MacPPC|Mac68K|Mac/.test(navigator.userAgent)) {
+                this.config.environment.os = "macos";
+            } else if (/Win32|Win64|Windows|WinCE/.test(navigator.userAgent)) {
+                this.config.environment.os = "windows";
+            }
+        }
+    }
 }

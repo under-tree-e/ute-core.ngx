@@ -26,6 +26,10 @@ export interface UteEnvironment {
      */
     platform?: string;
     /**
+     * Operation System Name;
+     */
+    os?: string;
+    /**
      * Application ID
      * @template "com.domain.app"
      */
