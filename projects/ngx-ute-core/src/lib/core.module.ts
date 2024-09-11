@@ -1,13 +1,11 @@
-import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
-import { HttpClientModule, provideHttpClient, withFetch } from "@angular/common/http";
+import { APP_INITIALIZER, LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
+import { provideHttpClient, withFetch } from "@angular/common/http";
 
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
 import { HttpService } from "./services/http.service";
 import { LangService } from "./services/lang.service";
-
 import { UteCoreConfigs } from "./interfaces/config";
-
 import { NumberStringPipe } from "./pipes/number-string.pipe";
 import { StringFloatPipe } from "./pipes/string-float.pipe";
 import { StringIntegerPipe } from "./pipes/string-int.pipe";
@@ -79,7 +77,17 @@ export class NgxUteCoreModule {
     static forRoot(config: UteCoreConfigs): ModuleWithProviders<NgxUteCoreModule> {
         return {
             ngModule: NgxUteCoreModule,
-            providers: [CoreService, { provide: "UteCoreConfig", useValue: config }],
+            providers: [
+                CoreService,
+                { provide: "UteCoreConfig", useValue: config },
+                // { provide: "UteCoreConfig", useFactory: (config: CoreService) => () => config.Init() },
+                // {
+                //     provide: APP_INITIALIZER,
+                //     useFactory: (config: CoreService) => () => config.Init(),
+                //     multi: true,
+                //     deps: [CoreService],
+                // },
+            ],
         };
     }
 }

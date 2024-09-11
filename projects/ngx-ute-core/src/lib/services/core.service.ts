@@ -1,4 +1,4 @@
-import { Inject, Injectable, OnDestroy } from "@angular/core";
+import { afterNextRender, afterRender, Inject, Injectable, OnDestroy, runInInjectionContext } from "@angular/core";
 import { UteCoreConfigs } from "../interfaces/config";
 import { UteObjects } from "../interfaces/object";
 import { UteFileFormats, UteFileOptions } from "../interfaces/file";
@@ -29,7 +29,9 @@ export class CoreService implements OnDestroy {
         private seoService: SEOService,
         private breakpoints: BreakpointObserver
     ) {
-        this.Init();
+        if (!this.config.standalone) {
+            this.Init();
+        }
     }
 
     ngOnDestroy(): void {
@@ -40,27 +42,38 @@ export class CoreService implements OnDestroy {
      * Initialization module
      */
     public Init() {
-        if (!this.config.environment.production) {
-            console.log(`${new Date().toISOString()} => CoreService`);
-        }
-
-        if (this.config) {
-            if (this.config.environment) {
-                let platform: string = Capacitor.getPlatform();
-                if (platform === "web") {
-                    platform = this.isWebBrowser(platform);
+        return new Promise(async (resolve) => {
+            try {
+                if (!this.config.environment.production) {
+                    console.log(`${new Date().toISOString()} => CoreService`);
                 }
 
-                this.config.environment.platform = platform;
-                this.checkOnline();
-                this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
-            }
-        }
+                if (this.config) {
+                    if (this.config.environment) {
+                        let platform: string = Capacitor.getPlatform();
+                        if (platform === "web") {
+                            platform = this.isWebBrowser(platform);
+                        }
 
-        this.cookieService.Init(this.config.environment, this.config.cookiesExp);
-        this.httpService.Init(this.config.environment);
-        this.langService.Init(this.config.environment, this.config);
-        this.pageService.Init(this.config.environment, this.config.pages);
+                        this.config.environment.platform = platform;
+                        this.checkOnline();
+                        this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
+                        this.detectOS();
+                    }
+                }
+
+                this.cookieService.Init(this.config.environment, this.config.cookiesExp);
+                this.httpService.Init(this.config.environment);
+                await this.langService.Init(this.config.environment, this.config);
+                if (this.config.pages?.length) {
+                    await this.pageService.Init(this.config.environment, this.config.pages);
+                    this.seoService.Init(this.config.environment, this.langService, this.pageService);
+                }
+                resolve(true);
+            } catch (error) {
+                throw Error(`App Load Error: ${error}`);
+            }
+        });
     }
 
     /**
@@ -331,21 +344,20 @@ export class CoreService implements OnDestroy {
      * @returns New format string
      */
     public dateFormat(format: string, type: "date" | "time" | "shortdate" | "shorttime"): string {
-        const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})/gi;
+        const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})|(m{1,5}\W{0,1}d{1,2}\W{0,1}y{1,4})|(y{1,4}\W{0,1}m{1,5}\W{0,1}d{1,2})/gi;
         let value: string = JSON.parse(JSON.stringify(format));
+        let match = value.match(dateRegx);
         if (value) {
             switch (type) {
                 case "date":
-                    let match = value.match(dateRegx);
-                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : "";
+                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : value;
                 case "time":
                     return value.replace(/y{2,4}/gi, value.includes("Y") ? "YYYY" : "yyyy");
                 case "shorttime":
                     value = value.replace(/m{2,5}/gi, value.includes("M") ? "MM" : "mm");
                     return value.replace(/y{2,4}/gi, value.includes("Y") ? "YY" : "yy");
                 case "shortdate":
-                    match = value.match(dateRegx);
-                    return match ? match[0] : "";
+                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YY" : "yy") : value;
             }
         } else {
             return format;
@@ -362,16 +374,22 @@ export class CoreService implements OnDestroy {
     }
 
     /**
-     * Update SEO data for page
-     * @param value - page id
+     * Return machine OS
+     * @param value - OS string
      */
-    public updatePage(value: string) {
-        const pageItem = this.pageService.getItemById(value);
-        if (pageItem) {
-            this.seoService.pipe = pageItem.pipe || false;
-            this.seoService.title = pageItem.name;
-            this.seoService.desk = pageItem.desc;
-            this.seoService.keys = pageItem.keys || "";
+    public detectOS() {
+        if (typeof navigator === "object" && typeof navigator.userAgent === "string") {
+            if (/android/i.test(navigator.userAgent)) {
+                this.config.environment.os = "android";
+            } else if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+                this.config.environment.os = "ios";
+            } else if (/X11|Linux/.test(navigator.userAgent)) {
+                this.config.environment.os = "linux";
+            } else if (/Macintosh|MacIntel|MacPPC|Mac68K|Mac/.test(navigator.userAgent)) {
+                this.config.environment.os = "macos";
+            } else if (/Win32|Win64|Windows|WinCE/.test(navigator.userAgent)) {
+                this.config.environment.os = "windows";
+            }
         }
     }
 }

@@ -18,5 +18,5 @@ export interface UteFileResult {
 export const UteFileFormats = {
     images: ["bmp", "gif", "ico", "jpeg", "jpg", "svg", "png", "webp", "tga"],
     docs: ["txt", "pdf", "doc", "rtf", "docx", "xls", "xlsx", "odt"],
-    files: ["zip", "rar", "back", "json", "xml", "html", "file"],
+    files: ["zip", "rar", "psd", "ai", "back", "json", "xml", "html", "file"],
 };

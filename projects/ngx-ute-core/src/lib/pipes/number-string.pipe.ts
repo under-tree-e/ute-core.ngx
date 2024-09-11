@@ -34,6 +34,7 @@ export class NumberStringPipe implements PipeTransform {
             });
 
         if (item && digits) {
+            value = parseInt(value.toFixed(0));
             if (item && value.toString().length > digits) {
                 return this.decimalPipe.transform((value / item.value).toFixed(1).replace(rx, "$1")) + item.symbol;
             } else {

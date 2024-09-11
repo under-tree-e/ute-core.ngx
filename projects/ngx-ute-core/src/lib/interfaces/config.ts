@@ -49,4 +49,8 @@ export interface UteCoreConfigs {
      * List of static pages
      */
     pages?: PageData[];
+    /**
+     * Set if app is standalone and use provider for init
+     */
+    standalone?: boolean;
 }

@@ -60,7 +60,7 @@ export class HttpService {
      *
      * @returns
      */
-    private httpAddress(option?: HttpOptions): string {
+    public httpAddress(option?: HttpOptions): string {
         if (this.environment.session?.authToken) {
             this.options.headers = this.options.headers?.set("Authorization", `Bearer ${this.environment.session?.authToken}`);
         }
@@ -125,9 +125,6 @@ export class HttpService {
             try {
                 sqlMethod = sqlMethod.toUpperCase();
 
-                // Check if Server is online
-                // this.environment.online = await this.checkOnline();
-
                 // Declare base parameters
                 let jsonConvert: UteObjects = { body: [] };
                 let jsonMethods: UteApis<T>[] = json.filter((js: UteApis<T>) => js.method);
@@ -161,39 +158,50 @@ export class HttpService {
                 }
 
                 if (!this.environment.storage || httpOptions?.online || httpOptions?.global) {
-                    if (this.environment.online) {
-                        let rp: any = {
-                            u: `${this.httpAddress(httpOptions)}${reqMethod}`,
-                            b: jsonConvert["body"],
-                            o: this.options,
-                        };
+                    let rp: any = {
+                        u: `${this.httpAddress(httpOptions)}${reqMethod}`,
+                        b: jsonConvert["body"],
+                        o: { ...this.options },
+                    };
 
-                        // Convert method to function
-                        let httpMethod: any = null;
-                        switch (sqlMethod) {
-                            case "GET":
-                                let jsonString = qs.stringify(jsonConvert);
-                                if (jsonString.length > 5000) {
-                                    throw "GET request too long!";
-                                }
-                                httpMethod = this.http.get<T>(`${this.httpAddress(httpOptions)}${reqMethod}${jsonString ? "?" + jsonString : ""}`, this.options);
-                                break;
-                            case "POST":
-                                httpMethod = this.http.post<T>(rp.u, rp.b, rp.o);
-                                break;
-                            case "PUT":
-                                httpMethod = this.http.put<T>(rp.u, rp.b, rp.o);
-                                break;
-                            case "DELETE":
-                                (this.options.body = JSON.stringify(json)), (httpMethod = this.http.delete<T>(rp.u, rp.o));
-                                break;
-                        }
+                    // Convert method to function
+                    let httpMethod: any = null;
+                    switch (sqlMethod) {
+                        case "GET":
+                            function g() {
+                                const s = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+                                return s.charAt(Math.floor(Math.random() * s.length));
+                            }
+                            function a(o: string) {
+                                return g() + g() + o + g() + g();
+                            }
 
-                        // Send request
-                        response = await lastValueFrom(httpMethod);
-                    } else {
-                        throw "502 Bad Gateway - No internet connection";
+                            let jsonString = btoa(encodeURIComponent(JSON.stringify(jsonConvert["body"])));
+                            jsonString = jsonString.replaceAll("=", "");
+                            jsonString = a(jsonString);
+                            jsonString = `body=${jsonString}`;
+
+                            if (jsonString.length > 5000) {
+                                throw "GET request too long!";
+                            }
+
+                            httpMethod = this.http.get<T>(`${this.httpAddress(httpOptions)}${reqMethod}${jsonString ? "?" + jsonString : ""}`, this.options);
+
+                            break;
+                        case "POST":
+                            httpMethod = this.http.post<T>(rp.u, rp.b, rp.o);
+                            break;
+                        case "PUT":
+                            httpMethod = this.http.put<T>(rp.u, rp.b, rp.o);
+                            break;
+                        case "DELETE":
+                            rp.o.body = JSON.stringify(json);
+                            httpMethod = this.http.delete<T>(rp.u, rp.o);
+                            break;
                     }
+
+                    // Send request
+                    response = await lastValueFrom(httpMethod);
                 } else if (this.environment.storage) {
                     if (reqMethod === "http") {
                         // Send request
