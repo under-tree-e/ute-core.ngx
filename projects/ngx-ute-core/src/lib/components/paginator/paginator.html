@@ -1,12 +1,28 @@
-<div class="paginator-container">
+<div class="paginator-container" [ngClass]="{hide: pageList.length <= 1}">
     <div class="pages">
-        <div class="page" [ngClass]="{ active: page === pi }" *ngFor="let pi of pageList" (click)="change(pi)">{{ pi + 1 }}</div>
+        <div class="arrow pre" [ngClass]="{disabled: pageList[0] === page}" (click)="change(page-1)">
+            <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                <path d="M0 0h24v24H0z" fill="none" />
+                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+            </svg>
+        </div>
+        <div class="page first" *ngIf="pageList[0] + 2 < page" (click)="change(0)">{{ pageList[0] +1}}</div>
+        <div class="page dot" *ngIf="pageList[0] + 2 < page">...</div>
+        <div class="page" [ngClass]="{ active: page === pi }" *ngFor="let pi of displayList" (click)="change(pi)">{{ pi + 1 }}</div>
+        <div class="page dot" *ngIf="pageList[pageList.length -1] - 2 > page">...</div>
+        <div class="page last" *ngIf="pageList[pageList.length -1] - 2 > page" (click)="change(pageList[pageList.length -1])">{{pageList[pageList.length -1] + 1}}</div>
+        <div class="arrow next" [ngClass]="{disabled: pageList[pageList.length -1] === page}" (click)="change(page+1)">
+            <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                <path d="M0 0h24v24H0z" fill="none" />
+                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+            </svg>
+        </div>
     </div>
     <div class="resizer" [ngClass]="{ active: resizerOpen }">
-        <div class="size big" (click)="resize(numberItems)" [ngClass]="{ active: pageSize === numberItems }">{{ "all" | lang }}</div>
-        <div class="size" (click)="resize(100)" [ngClass]="{ active: pageSize === 100 }">100</div>
-        <div class="size" (click)="resize(50)" [ngClass]="{ active: pageSize === 50 }">50</div>
         <div class="size" (click)="resize(20)" [ngClass]="{ active: pageSize === 20 }">20</div>
-        <div class="size" (click)="resize(10)" [ngClass]="{ active: pageSize === 10 }">10</div>
+        <div class="size" (click)="resize(40)" [ngClass]="{ active: pageSize === 40 }">40</div>
+        <div class="size" (click)="resize(80)" [ngClass]="{ active: pageSize === 80 }">80</div>
+        <div class="size" (click)="resize(120)" [ngClass]="{ active: pageSize === 120 }">120</div>
+        <div class="size big" (click)="resize(itemsCount)" [ngClass]="{ active: pageSize === itemsCount }">{{ "all" | lang }}</div>
     </div>
 </div>

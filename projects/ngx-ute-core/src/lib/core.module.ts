@@ -15,7 +15,7 @@ import { DelayIf } from "./pipes/delay-if.pipe";
 import { HoldDirective } from "./directives/hold";
 import { LengthCutPipe } from "./pipes/leng-cut.pipe";
 import { SwipeDirective } from "./directives/swipe";
-import { Paginator } from "./components/paginator/paginator";
+import { UtePaginator } from "./components/paginator/paginator";
 import { SEOService } from "./services/seo.service";
 
 /**
@@ -37,8 +37,8 @@ import { SEOService } from "./services/seo.service";
  */
 @NgModule({
     declarations: [],
-    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, Paginator],
-    imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
+    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, UtePaginator],
+    imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, UtePaginator],
     providers: [
         provideHttpClient(withFetch()),
         // Services

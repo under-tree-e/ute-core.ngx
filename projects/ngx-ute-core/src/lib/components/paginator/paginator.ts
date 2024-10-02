@@ -1,32 +1,30 @@
-import { NgClass, NgFor } from "@angular/common";
-import { Component, EventEmitter, OnDestroy, Output } from "@angular/core";
+import { NgClass, NgFor, NgIf } from "@angular/common";
+import { Component, EventEmitter, Input, OnDestroy, Output, SimpleChanges } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
 import { PaginationData } from "../../interfaces/pagination";
 import { LangPipe } from "../../pipes/lang.pipe";
-import { HttpService } from "../../services/http.service";
-import { UteApis } from "../../interfaces/api";
-import { UteObjects } from "../../interfaces/object";
 
 @Component({
     selector: "ute-paginator",
     standalone: true,
-    imports: [NgClass, LangPipe, NgFor],
+    imports: [NgClass, LangPipe, NgFor, NgIf],
     templateUrl: "paginator.html",
-    styleUrl: "paginator.scss",
+    // styleUrl: "paginator.scss",
 })
-export class Paginator implements OnDestroy {
+export class UtePaginator implements OnDestroy {
     public page: number = 0;
     public pageList: number[] = [];
-    public pageSize: number = 10;
+    public displayList: number[] = [];
     public resizerOpen: boolean = false;
-    public numberItems: number = 0;
 
     private subscriptions = new Subscription();
 
+    @Input() public itemsCount: number = 0;
+    @Input() public pageSize: number = 10;
     @Output() public changePage: EventEmitter<PaginationData> = new EventEmitter<PaginationData>();
 
-    constructor(private httpService: HttpService, private activatedRoute: ActivatedRoute, private router: Router) {
+    constructor(private activatedRoute: ActivatedRoute, private router: Router) {
         this.subscriptions.add(
             activatedRoute.queryParams.subscribe((p: any) => {
                 if (Object.keys(p).length) {
@@ -37,33 +35,18 @@ export class Paginator implements OnDestroy {
         );
     }
 
-    ngOnDestroy(): void {
-        this.subscriptions.unsubscribe();
+    ngOnInit() {
+        this.changePage.emit({ page: this.page, pageSize: this.pageSize });
     }
 
-    public async update(table: string, filter?: any[]) {
-        try {
-            const json: UteApis<any>[] = [
-                {
-                    table: table,
-                    select: "COUNT",
-                },
-            ];
-            if (filter && filter.length) {
-                json[0].where = {
-                    AND: filter,
-                };
-            }
-
-            const result: UteObjects<any[]> = await this.httpService.httpRequest<any[]>("GET", json);
-            this.numberItems = result[`${table}Count`] as any;
-            this.page = 0;
-
-            this.change(this.page);
-        } catch (error) {
-            console.error(error);
-            throw error;
+    ngOnChanges(changes: SimpleChanges) {
+        if (changes["itemsCount"].currentValue != changes["itemsCount"].previousValue) {
+            this.change(0, true);
         }
+    }
+
+    ngOnDestroy(): void {
+        this.subscriptions.unsubscribe();
     }
 
     public resize(value: number) {
@@ -76,16 +59,19 @@ export class Paginator implements OnDestroy {
         }
     }
 
-    public change(page: number) {
+    public change(page: number, init: boolean = false) {
         try {
             this.page = page;
-            const pages: number = Math.ceil(this.numberItems / this.pageSize) || 1;
+            const pages: number = Math.ceil(this.itemsCount / this.pageSize) || 1;
 
             this.pageList = Array(pages)
                 .fill(1)
                 .map((x, i) => i);
 
-            this.pageList = this.getValues(this.pageList, page);
+            this.displayList = this.getValues([...this.pageList], page);
+
+            console.log(this.pageList);
+            console.log(this.displayList);
 
             this.router.navigate([], {
                 relativeTo: this.activatedRoute,
@@ -93,7 +79,9 @@ export class Paginator implements OnDestroy {
                 queryParamsHandling: "merge",
             });
 
-            this.changePage.emit({ page: this.page, pageSize: this.pageSize });
+            if (!init) {
+                this.changePage.emit({ page: this.page, pageSize: this.pageSize });
+            }
         } catch (error) {
             console.error(error);
             throw error;
@@ -108,25 +96,18 @@ export class Paginator implements OnDestroy {
         let index = array.indexOf(currentValue);
         let result = [];
 
-        if (index <= 1) {
-            result = array.slice(0, 4);
-            result.push(array[array.length - 1]);
+        if (index <= 2) {
+            result = array.slice(0, 5);
+            // result.push(array[array.length - 1]);
         } else if (index >= array.length - 2) {
-            result = array.slice(-4);
-            result.unshift(array[0]);
+            result = array.slice(-5);
+            // result.unshift(array[0]);
         } else {
-            result = array.slice(index - 1, index + 2);
-            result.unshift(array[0]);
-            result.push(array[array.length - 1]);
+            result = array.slice(index - 2, index + 3);
+            // result.unshift(array[0]);
+            // result.push(array[array.length - 1]);
         }
 
         return result;
     }
 }
-
-// @NgModule({
-//     declarations: [Paginator],
-//     exports: [Paginator],
-//     imports: [CommonModule, NgxUteCoreModule],
-// })
-// export class CrossModule {}

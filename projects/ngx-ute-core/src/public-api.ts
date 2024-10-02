@@ -23,6 +23,7 @@ export * from "./lib/interfaces/session";
 export * from "./lib/interfaces/control";
 export * from "./lib/interfaces/page";
 export { SwipeEvent as UTESwipeEvent } from "./lib/interfaces/swipe";
+export * from "./lib/interfaces/pagination";
 
 export * from "./lib/constantes/http-method";
 
