@@ -10,7 +10,6 @@ import { LangPipe } from "../../pipes/lang.pipe";
     standalone: true,
     imports: [NgClass, LangPipe, NgFor, NgIf],
     templateUrl: "paginator.html",
-    // styleUrl: "paginator.scss",
 })
 export class UtePaginator implements OnDestroy {
     public page: number = 0;
@@ -20,6 +19,7 @@ export class UtePaginator implements OnDestroy {
 
     private subscriptions = new Subscription();
 
+    @Input() public all: string = "all";
     @Input() public itemsCount: number = 0;
     @Input() public pageSize: number = 10;
     @Output() public changePage: EventEmitter<PaginationData> = new EventEmitter<PaginationData>();
@@ -50,9 +50,9 @@ export class UtePaginator implements OnDestroy {
     }
 
     public resize(value: number) {
-        if (this.pageSize === value) {
-            this.resizerOpen = !this.resizerOpen;
-        } else {
+        if (this.pageSize === value && !this.resizerOpen) {
+            this.resizerOpen = true;
+        } else if (this.resizerOpen) {
             this.pageSize = value;
             this.resizerOpen = false;
             this.change(0);
@@ -69,9 +69,6 @@ export class UtePaginator implements OnDestroy {
                 .map((x, i) => i);
 
             this.displayList = this.getValues([...this.pageList], page);
-
-            console.log(this.pageList);
-            console.log(this.displayList);
 
             this.router.navigate([], {
                 relativeTo: this.activatedRoute,
@@ -98,14 +95,10 @@ export class UtePaginator implements OnDestroy {
 
         if (index <= 2) {
             result = array.slice(0, 5);
-            // result.push(array[array.length - 1]);
         } else if (index >= array.length - 2) {
             result = array.slice(-5);
-            // result.unshift(array[0]);
         } else {
             result = array.slice(index - 2, index + 3);
-            // result.unshift(array[0]);
-            // result.push(array[array.length - 1]);
         }
 
         return result;
