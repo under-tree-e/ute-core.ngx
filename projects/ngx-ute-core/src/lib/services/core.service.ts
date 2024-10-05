@@ -13,6 +13,7 @@ import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
 import { RouterOutlet } from "@angular/router";
 import { SEOService } from "./seo.service";
+import { StringOptions } from "../interfaces/generator";
 
 @Injectable({
     providedIn: "root",
@@ -390,6 +391,56 @@ export class CoreService implements OnDestroy {
             } else if (/Win32|Win64|Windows|WinCE/.test(navigator.userAgent)) {
                 this.config.environment.os = "windows";
             }
+        }
+    }
+
+    /**
+     * Generate random string with nessesary upper & lower case, number & pecial symbol
+     * @returns generated string
+     */
+    public generateString(options?: StringOptions): string {
+        if (options && options.uuid) {
+            return v4();
+        } else {
+            const numberChars: string = "0123456789";
+            const upperChars: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            const lowerChars: string = "abcdefghijklmnopqrstuvwxyz";
+            const symbolChars: string = "!@#$%^&*";
+            let allChars: string = "";
+            let randCodeArray: string[] = Array((options && options.lengthChars) || 10);
+            let index: number = 0;
+
+            if ((options && !options.numberDisable) || !options) {
+                allChars += numberChars;
+                randCodeArray[index] = numberChars;
+                index++;
+            }
+            if ((options && !options.upperDisable) || !options) {
+                allChars += upperChars;
+                randCodeArray[index] = upperChars;
+                index++;
+            }
+            if ((options && !options.lowerDisable) || !options) {
+                allChars += lowerChars;
+                randCodeArray[index] = lowerChars;
+                index++;
+            }
+            if ((options && !options.symbolDisable) || !options) {
+                allChars += symbolChars;
+                randCodeArray[index] = symbolChars;
+                index++;
+            }
+
+            randCodeArray = randCodeArray.fill(allChars, index);
+
+            let genArray: string[] = randCodeArray.map((x: any) => x[Math.floor(Math.random() * x.length)]);
+            genArray.map((x: string, ix: number) => {
+                let j = Math.floor(Math.random() * (ix + 1));
+                x = genArray[j];
+                genArray[j] = x;
+            });
+
+            return genArray.join("");
         }
     }
 }
