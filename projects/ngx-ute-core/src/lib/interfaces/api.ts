@@ -68,4 +68,8 @@ export interface UteApis<T> {
      * Children (one to many) references
      */
     refs?: boolean | UteObjects;
+    /**
+     * Return name of values (replace table name)
+     */
+    as?: string;
 }

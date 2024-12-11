@@ -12,6 +12,7 @@ export * from "./lib/services/lang.service";
 export * from "./lib/services/control.service";
 export * from "./lib/services/seo.service";
 export * from "./lib/services/page.service";
+export * from "./lib/services/resolve.service";
 
 export * from "./lib/interfaces/config";
 export * from "./lib/interfaces/object";

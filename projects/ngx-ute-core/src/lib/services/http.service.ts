@@ -197,6 +197,7 @@ export class HttpService {
                         case "DELETE":
                             rp.o.body = JSON.stringify(json);
                             httpMethod = this.http.delete<T>(rp.u, rp.o);
+                            // delete rp.o.body;
                             break;
                     }
 
