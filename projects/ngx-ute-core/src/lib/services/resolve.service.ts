@@ -11,6 +11,7 @@ export class ResolveService {
 
     public resolve(route: ActivatedRouteSnapshot): Promise<any> {
         let page: string = route.queryParams["page"];
+        console.log(page);
 
         if (page !== undefined) {
             return new Promise(async (resolve, reject) => {
@@ -38,50 +39,60 @@ export class ResolveService {
                 }
             });
         } else {
-            let table: string = route.url[route.url.length - 2].path;
-            if (route.data && (route.data as any).path) table = (route.data as any).path;
-            let id: any = route.params["id"];
-            if (route.params["item"]) {
-                id = route.params["item"];
-            }
-            let uuid: boolean = false;
-            if (id.includes("-")) {
-                uuid = true;
-            } else {
-                id = parseInt(id);
-            }
+            console.log(111);
+            console.log(route.url);
+
+            let jsons: UteApis<any>[] = [];
 
             return new Promise(async (resolve, reject) => {
-                if (id === 0) {
-                    resolve(false);
-                } else {
-                    try {
-                        let jsons: UteApis<any>[] = [
-                            {
+                if (route.url.length) {
+                    let table: string = route.url[route.url.length - 2].path;
+
+                    if (route.data && (route.data as any).path) table = (route.data as any).path;
+                    let id: any = route.params["id"];
+                    if (route.params["item"]) {
+                        id = route.params["item"];
+                    }
+                    let uuid: boolean = false;
+                    if (id.includes("-")) {
+                        uuid = true;
+                    } else {
+                        id = parseInt(id);
+                    }
+
+                    if (id === 0) {
+                        resolve(false);
+                    } else {
+                        try {
+                            jsons.push({
                                 table: (route.data as any).table ? (route.data as any).table : table,
                                 where: {
                                     [uuid ? "uuid" : "id"]: id,
                                 },
-                            },
-                        ];
+                            });
 
-                        if ((route.data as any).refs) {
-                            jsons[0].refs = true;
+                            if ((route.data as any).refs) {
+                                jsons[0].refs = true;
+                            }
+
+                            if ((route.data as any).noref) {
+                                jsons[0].noref = true;
+                            }
+                        } catch (error) {
+                            reject(error);
                         }
-
-                        if ((route.data as any).noref) {
-                            jsons[0].noref = true;
-                        }
-
-                        if ((route.data as any).jsons) {
-                            jsons = [...jsons, ...(route.data as any).jsons];
-                        }
-
-                        const result: any = await this.httpService.httpRequest("GET", jsons);
-                        resolve(result);
-                    } catch (error) {
-                        reject(error);
                     }
+                }
+
+                try {
+                    if ((route.data as any).jsons) {
+                        jsons = [...jsons, ...(route.data as any).jsons];
+                    }
+
+                    const result: any = await this.httpService.httpRequest("GET", jsons);
+                    resolve(result);
+                } catch (error) {
+                    reject(error);
                 }
             });
         }
