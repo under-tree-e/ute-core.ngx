@@ -27,9 +27,9 @@ export class PageService {
         let pages = this.pages;
         if (include) {
             if (Array.isArray(include)) {
-                pages = pages.filter((p: PageData) => include.some((ic: string) => ic === p.id));
+                pages = pages.filter((p: PageData) => include.some((ic: string) => ic === p.id || ic === p.group));
             } else {
-                pages = pages.filter((p: PageData) => p.id.includes(include));
+                pages = pages.filter((p: PageData) => p.id.includes(include) || p.group === include);
             }
         }
 
