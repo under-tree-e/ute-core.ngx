@@ -22,6 +22,7 @@ export class UtePaginator implements OnDestroy {
     @Input() public all: string = "all";
     @Input() public itemsCount: number = 0;
     @Input() public pageSize: number = 10;
+    @Input() public showSingle: boolean = false;
     @Output() public changePage: EventEmitter<PaginationData> = new EventEmitter<PaginationData>();
 
     constructor(private activatedRoute: ActivatedRoute, private router: Router) {

@@ -1,4 +1,4 @@
-<div class="paginator-container" *ngIf="itemsCount > 0">
+<div class="paginator-container" *ngIf="(itemsCount / pageSize) > 1 || showSingle">
     <div class="pages">
         <div class="arrow pre" [ngClass]="{disabled: pageList[0] === page}" (click)="change(page-1)">
             <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
