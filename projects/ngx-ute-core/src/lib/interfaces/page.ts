@@ -14,3 +14,8 @@ export interface PageGroupsData {
     code: string;
     name: string;
 }
+
+export interface PageLimitItems {
+    step: number;
+    start: number;
+}
