@@ -119,6 +119,8 @@ export class HttpService {
      * @returns
      */
     public httpRequest<T>(sqlMethod: string, json: UteApis<T>[], httpOptions?: HttpOptions): Promise<UteObjects<T>> {
+        console.log("httpRequest");
+
         return new Promise(async (resolve, reject) => {
             let response: any = {};
             let reqMethod: string = "http";
@@ -233,6 +235,7 @@ export class HttpService {
         return new Promise(async (resolve) => {
             try {
                 await this.httpRequest("POST", [{ method: "online" }]);
+                this.environment.online = true;
                 resolve(true);
             } catch {
                 resolve(false);
