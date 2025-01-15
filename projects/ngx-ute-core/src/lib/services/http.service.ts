@@ -79,7 +79,7 @@ export class HttpService {
 
         let link: string = `http://localhost:8080`;
 
-        if ((option?.online && this.environment.appServer) || (!option?.global && this.environment.appServer)) {
+        if ((option?.online && this.environment.appServer) || (!option?.global && this.environment.appServer) || (this.environment.ssr && this.environment.appServer)) {
             link = this.environment.appServer;
         } else if (option?.global && this.environment.globalServer) {
             link = this.environment.globalServer;
@@ -90,6 +90,10 @@ export class HttpService {
         if (this.apiSubDomain) link = link.replace("://", `://${this.apiSubDomain}`);
         if (!link.endsWith("/")) link += "/";
         if (this.apiPath) link += `${this.apiPath}/`;
+
+        console.log("link", link);
+        // console.log("option", option);
+        // console.log("environment", this.environment);
 
         return link;
     }

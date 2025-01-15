@@ -66,4 +66,8 @@ export interface UteEnvironment {
      * App api token for Bearer API Authorization
      */
     apiToken?: string;
+    /**
+     * SSR Angular activation
+     */
+    ssr?: boolean;
 }
