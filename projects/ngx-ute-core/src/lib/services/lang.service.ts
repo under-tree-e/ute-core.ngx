@@ -102,22 +102,22 @@ export class LangService {
                 }
 
                 // Load library
-                // if (this.environment.ssr) {
-                this.environment.localeList.map(async (x: string) => {
-                    let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
-                    registerLocaleData(locale.default);
-                });
-                // } else {
-                //     this.environment.localeList.map(async (x: string) => {
-                //         let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
-                //         registerLocaleData(locale.default);
-                //     });
-                // }
+                if (this.environment.ssr) {
+                    this.environment.localeList.forEach(async (x: string) => {
+                        let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                        registerLocaleData(locale.default);
+                    });
+                } else {
+                    this.environment.localeList.forEach(async (x: string) => {
+                        let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                        registerLocaleData(locale.default);
+                    });
+                }
 
                 await this.loadLocale();
 
                 resolve(true);
-            } catch (error) {
+            } catch (error: any) {
                 reject(error);
             }
         });
