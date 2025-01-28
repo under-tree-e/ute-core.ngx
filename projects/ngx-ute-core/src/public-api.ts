@@ -34,6 +34,7 @@ export * from "./lib/pipes/string-int.pipe";
 export * from "./lib/pipes/lang.pipe";
 export * from "./lib/pipes/delay-if.pipe";
 export * from "./lib/pipes/leng-cut.pipe";
+export * from "./lib/pipes/phone.pipe";
 
 export * from "./lib/directives/hold";
 export * from "./lib/directives/swipe";
