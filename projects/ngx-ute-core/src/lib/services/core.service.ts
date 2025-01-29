@@ -14,6 +14,7 @@ import { PageService } from "./page.service";
 import { RouterOutlet } from "@angular/router";
 import { SEOService } from "./seo.service";
 import { StringOptions } from "../interfaces/generator";
+import { AnalyticsService } from "./analytics.service";
 
 @Injectable({
     providedIn: "root",
@@ -23,12 +24,13 @@ export class CoreService implements OnDestroy {
 
     constructor(
         @Inject("UteCoreConfig") private config: UteCoreConfigs,
-        private cookieService: CookieService,
+        private readonly cookieService: CookieService,
         private httpService: HttpService,
         private langService: LangService,
         private pageService: PageService,
         private seoService: SEOService,
-        private breakpoints: BreakpointObserver
+        private breakpoints: BreakpointObserver,
+        private analyticsService: AnalyticsService
     ) {
         if (!this.config.standalone) {
             this.Init();
@@ -54,6 +56,10 @@ export class CoreService implements OnDestroy {
                         let platform: string = Capacitor.getPlatform();
                         if (platform === "web") {
                             platform = this.isWebBrowser(platform);
+                        }
+
+                        if (this.config.environment.gtag) {
+                            this.analyticsService.Init(this.config.environment.gtag);
                         }
 
                         this.config.environment.platform = platform;
