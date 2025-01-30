@@ -1,100 +1,166 @@
+/* Module imports */
 import { Injectable } from "@angular/core";
 import { ActivatedRouteSnapshot } from "@angular/router";
+
+/* Project imports */
 import { HttpService } from "./http.service";
 import { UteApis } from "../interfaces/api";
+import { ErrorsData, UteObjects } from "../interfaces/object";
 
 @Injectable({
     providedIn: "root",
 })
 export class ResolveService {
-    constructor(private httpService: HttpService) {}
+    constructor(private readonly httpService: HttpService) {}
 
+    /**
+     * Resolve data based on route configuration.
+     *
+     * @param route - The activated route snapshot containing route information.
+     *
+     * @returns A promise resolving to the requested data or false if not found.
+     */
     public resolve(route: ActivatedRouteSnapshot): Promise<any> {
         let page: string = route.queryParams["page"];
-        console.log(page);
 
         if (page !== undefined) {
-            return new Promise(async (resolve, reject) => {
-                if (!page) {
-                    page = "home";
-                }
-
-                try {
-                    const result: any = await this.httpService.httpRequest("GET", [
-                        {
-                            table: (route.data as any).table || "pages",
-                            where: {
-                                template: page,
-                            },
-                            refs: true,
-                        },
-                    ]);
-                    try {
-                        resolve(result[(route.data as any).table || "pages"][0]);
-                    } catch {
-                        resolve(false);
+            return new Promise((resolve, reject) => {
+                (async () => {
+                    if (!page) {
+                        page = "home";
                     }
-                } catch (error) {
-                    reject(error);
-                }
+
+                    try {
+                        const result: any = await this.httpService.httpRequest("GET", [
+                            {
+                                table: (route.data as any).table || "pages",
+                                where: {
+                                    template: page,
+                                },
+                                refs: true,
+                            },
+                        ]);
+                        try {
+                            resolve(result[(route.data as any).table || "pages"][0]);
+                        } catch {
+                            resolve(false);
+                        }
+                    } catch (error: any) {
+                        reject(error as ErrorsData);
+                    }
+                })();
             });
         } else {
-            console.log(111);
-            console.log(route.url);
-
             let jsons: UteApis<any>[] = [];
+            const data: any = route.data;
 
-            return new Promise(async (resolve, reject) => {
-                if (route.url.length) {
-                    let table: string = route.url[route.url.length - 2].path;
+            return new Promise((resolve, reject) => {
+                (async () => {
+                    if (route.url.length) {
+                        const table: string = this.getTable(route.url, data);
+                        const id: UteObjects | null = this.getId(route.params);
 
-                    if (route.data && (route.data as any).path) table = (route.data as any).path;
-                    let id: any = route.params["id"];
-                    if (route.params["item"]) {
-                        id = route.params["item"];
-                    }
-                    let uuid: boolean = false;
-                    if (id.includes("-")) {
-                        uuid = true;
-                    } else {
-                        id = parseInt(id);
-                    }
-
-                    if (id === 0) {
-                        resolve(false);
-                    } else {
-                        try {
-                            jsons.push({
-                                table: (route.data as any).table ? (route.data as any).table : table,
-                                where: {
-                                    [uuid ? "uuid" : "id"]: id,
-                                },
-                            });
-
-                            if ((route.data as any).refs) {
-                                jsons[0].refs = true;
-                            }
-
-                            if ((route.data as any).noref) {
-                                jsons[0].noref = true;
-                            }
-                        } catch (error) {
-                            reject(error);
+                        if (!table) {
+                            resolve(false);
+                        } else {
+                            jsons.push(this.buildObject(data, table, id));
                         }
                     }
-                }
 
-                try {
-                    if ((route.data as any).jsons) {
-                        jsons = [...jsons, ...(route.data as any).jsons];
+                    try {
+                        const result: any = await this.httpService.httpRequest("GET", jsons);
+                        resolve(result);
+                    } catch (error: any) {
+                        reject(error as ErrorsData);
                     }
+                })();
+            });
+        }
+    }
 
-                    const result: any = await this.httpService.httpRequest("GET", jsons);
-                    resolve(result);
-                } catch (error) {
-                    reject(error);
+    /**
+     * Extracts table name from route URL.
+     *
+     * @param url - Route URL parts.
+     * @param data - Route data.
+     *
+     * @returns Table name.
+     */
+    private getTable(url: any[], data: any): string {
+        let table: string =
+            url.length > 1
+                ? url
+                      .map((u) => u.path)
+                      .slice(0, -1)
+                      .join("/")
+                : url[0]?.path || "";
+        table = table.split("?")[0].split("#")[0];
+
+        return data?.path ? data.path : table;
+    }
+
+    /**
+     * Extracts id from route parameters.
+     *
+     * @param params - Route parameters object.
+     *
+     * @returns Id object or null.
+     */
+    private getId(params: any): UteObjects | null {
+        let id: any = params["id"];
+        if (params["item"]) {
+            id = params["item"];
+        }
+
+        let uuid: boolean = false;
+        if (id) {
+            if (id.includes("-")) {
+                uuid = true;
+            } else {
+                id = parseInt(id);
+            }
+
+            return { [uuid ? "uuid" : "id"]: id };
+        }
+        return null;
+    }
+
+    /**
+     * Constructs an API object for a query.
+     *
+     * @param data - Route data containing table and reference information.
+     * @param table - Default table name if not provided in data.
+     * @param id - Object representing the ID condition for the query.
+     *
+     * @returns An UteApis object configured with table, where, refs, and noref properties.
+     */
+    private buildObject(data: any, table: string, id: UteObjects | null): UteApis<any> {
+        let api: UteApis<any> = {
+            table: data.table ?? table,
+        };
+
+        if (id) {
+            api.where = id;
+        }
+
+        if (data.refs) {
+            api.refs = true;
+        }
+
+        if (data.noref) {
+            api.noref = true;
+        }
+
+        if (data.jsons) {
+            data.jsons.map((j: UteApis<any>) => {
+                const original = api.table === j.table && (api.as ? api.as === j.as : !j.as);
+                if (original) {
+                    api = j;
+                    data.jsons.splice(data.jsons.indexOf(j), 1);
                 }
             });
         }
+
+        return api;
     }
 }
