@@ -449,4 +449,24 @@ export class CoreService implements OnDestroy {
             return genArray.join("");
         }
     }
+
+    /**
+     * Convert a number to its Roman numeral representation.
+     *
+     * @param num - The number to convert to Roman numerals.
+     *
+     * @returns The Roman numeral representation of the input number.
+     */
+    public romanNumbers(num: number): string {
+        const digits: number[] = [1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1];
+        const letters: string[] = ["M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"];
+        let result: string = "";
+        for (let i: number = 0; i < digits.length; i++) {
+            while (num >= digits[i]) {
+                result += letters[i];
+                num -= digits[i];
+            }
+        }
+        return result;
+    }
 }

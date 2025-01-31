@@ -1,38 +1,57 @@
-<div class="paginator-container" *ngIf="(itemsCount / pageSize) > 1 || showSingle">
-    <div class="pages">
-        <div class="arrow pre" [ngClass]="{disabled: pageList[0] === page}" (click)="change(page-1)">
-            <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                <path d="M0 0h24v24H0z" fill="none" />
-                <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
-            </svg>
+@if((itemsCount / pageSize) > 1 || showSingle){
+<div class="paginator-container">
+    @if((loaderOnly || loader) && page !== pageList.length -1){
+    <div class="loader">
+        <button class="button" (click)="load()">
+            <div class="text">{{ loaderText }}</div>
+        </button>
+    </div>
+    <div class="diviner"></div>
+    } @if(!loaderOnly){
+    <div class="paginator">
+        <div class="pages">
+            <button class="arrow pre" [ngClass]="{disabled: pageList[0] === page}" (click)="change(page-1)">
+                <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
+                </svg>
+            </button>
+            @if(pageList[0] + 2 < page){
+            <button class="page first" [ngClass]="{ active: pageRange.includes(0) }" (click)="change(0)">{{ pageList[0] +1}}</button>
+            } @if(pageList[0] + 3 < page){
+            <div class="page dot">...</div>
+            } @for(pi of displayList; track pi){
+            <button class="page" [ngClass]="{ active: page === pi || pageRange.includes(pi+1) }" (click)="change(pi)">{{ pi + 1 }}</button>
+            } @if(pageList[pageList.length -1] - 3 > page){
+            <div class="page dot">...</div>
+            } @if(pageList[pageList.length -1] - 2 > page){
+            <button class="page last" (click)="change(pageList[pageList.length -1])">{{pageList[pageList.length -1] + 1}}</button>
+            }
+            <button class="arrow next" [ngClass]="{disabled: pageList[pageList.length -1] === page}" (click)="change(page+1)">
+                <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
+                </svg>
+            </button>
         </div>
-        <div class="page first" *ngIf="pageList[0] + 2 < page" (click)="change(0)">{{ pageList[0] +1}}</div>
-        <div class="page dot" *ngIf="pageList[0] + 2 < page">...</div>
-        <div class="page" [ngClass]="{ active: page === pi }" *ngFor="let pi of displayList" (click)="change(pi)">{{ pi + 1 }}</div>
-        <div class="page dot" *ngIf="pageList[pageList.length -1] - 2 > page">...</div>
-        <div class="page last" *ngIf="pageList[pageList.length -1] - 2 > page" (click)="change(pageList[pageList.length -1])">{{pageList[pageList.length -1] + 1}}</div>
-        <div class="arrow next" [ngClass]="{disabled: pageList[pageList.length -1] === page}" (click)="change(page+1)">
-            <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                <path d="M0 0h24v24H0z" fill="none" />
-                <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
-            </svg>
+        <div class="resizer-block" [ngClass]="{ active: resizerOpen }">
+            <button class="resize-icon" (click)="resize(pageSize)">
+                <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
+                    <path d="M0 0h24v24H0z" fill="none" />
+                    <path
+                        d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
+                    />
+                </svg>
+            </button>
+            <div class="resizer">
+                <button class="size" (click)="resize(initPageSize)" [ngClass]="{ active: pageSize === initPageSize }">{{initPageSize}}</button>
+                <button class="size" (click)="resize(initPageSize * 2)" [ngClass]="{ active: pageSize === initPageSize * 2 }">{{initPageSize * 2}}</button>
+                <button class="size" (click)="resize(initPageSize * 4)" [ngClass]="{ active: pageSize === initPageSize * 4 }">{{initPageSize * 4}}</button>
+                <button class="size" (click)="resize(initPageSize * 6)" [ngClass]="{ active: pageSize === initPageSize * 6 }">{{initPageSize * 6}}</button>
+                <button class="size big" (click)="resize(itemsCount)" [ngClass]="{ active: pageSize === itemsCount }">{{ all }}</button>
+            </div>
         </div>
     </div>
-    <div class="resizer-block" [ngClass]="{ active: resizerOpen }">
-        <div class="resize-icon" (click)="resize(pageSize)">
-            <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
-                <path d="M0 0h24v24H0z" fill="none" />
-                <path
-                    d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"
-                />
-            </svg>
-        </div>
-        <div class="resizer">
-            <div class="size" (click)="resize(20)" [ngClass]="{ active: pageSize === 20 }">20</div>
-            <div class="size" (click)="resize(40)" [ngClass]="{ active: pageSize === 40 }">40</div>
-            <div class="size" (click)="resize(80)" [ngClass]="{ active: pageSize === 80 }">80</div>
-            <div class="size" (click)="resize(120)" [ngClass]="{ active: pageSize === 120 }">120</div>
-            <div class="size big" (click)="resize(itemsCount)" [ngClass]="{ active: pageSize === itemsCount }">{{ all }}</div>
-        </div>
-    </div>
+    }
 </div>
+}

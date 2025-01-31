@@ -65,7 +65,7 @@ export class PageService {
 
         let result: any = {};
 
-        data = this.buildHierarchy(data, true);
+        data = this.buildHierarchy(data, { simple: true });
         data.map((f1: any) => {
             if (f1.children && f1.children.length) {
                 result[f1.code] = [];
@@ -107,10 +107,10 @@ export class PageService {
         }
     }
 
-    public buildHierarchy(data: any[], simple: boolean = false) {
+    public buildHierarchy(data: any[], options?: { simple?: boolean; key?: string }) {
         const map = new Map();
 
-        if (!simple) {
+        if (!options?.simple) {
             if (data.length) {
                 data.map((cd: any) => {
                     if (cd.media) {
@@ -126,6 +126,7 @@ export class PageService {
         });
 
         let root: any[] = [];
+        const keyName: string = options?.key ?? "children";
 
         // Assign children to parents
         data.forEach((item) => {
@@ -136,18 +137,24 @@ export class PageService {
                 if (parent) {
                     if (parent.type === "copy" && !parent.parent) {
                         if (item.type === "copy") {
-                            if (!parent.children || (parent.children && !parent.children.length)) {
-                                parent.children = [];
+                            if (!parent[keyName] || (parent[keyName] && !parent[keyName].length)) {
+                                parent[keyName] = [];
                             }
-                            parent.children.push(map.get(item.uid));
-                            parent.children.sort((a: any, b: any) => a.position - b.position);
+                            parent[keyName].push(map.get(item.uid));
+                            if (item.position) {
+                                parent[keyName].sort((a: any, b: any) => a.position - b.position);
+                            }
                         } else {
-                            parent.contents.push(map.get(item.uid));
-                            parent.contents.sort((a: any, b: any) => a.position - b.position);
+                            parent[keyName].push(map.get(item.uid));
+                            if (item.position) {
+                                parent[keyName].sort((a: any, b: any) => a.position - b.position);
+                            }
                         }
                     } else {
-                        parent.contents.push(map.get(item.uid));
-                        parent.contents.sort((a: any, b: any) => a.position - b.position);
+                        parent[keyName].push(map.get(item.uid));
+                        if (item.position) {
+                            parent[keyName].sort((a: any, b: any) => a.position - b.position);
+                        }
                     }
                 }
             }
