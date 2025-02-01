@@ -1,6 +1,6 @@
 /* Module imports */
 import { NgClass } from "@angular/common";
-import { afterNextRender, afterRender, Component, EventEmitter, Input, OnDestroy, Output, SimpleChanges } from "@angular/core";
+import { Component, EventEmitter, Input, OnDestroy, Output, SimpleChanges } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
 
@@ -15,16 +15,18 @@ import { PaginationData } from "../../interfaces/pagination";
 })
 export class UtePaginator implements OnDestroy {
     public page: number = 0;
-    public pageRange: number[] = [this.page];
+    public pageRange: number[] = [];
     public pageList: number[] = [];
     public displayList: number[] = [];
     public resizerOpen: boolean = false;
     public initPageSize: number = 0;
 
     private lastPageHeight: number = 0;
+    private scrollChecker: any = null;
 
     private readonly subscriptions = new Subscription();
 
+    @Input() public displayText: boolean = true;
     @Input() public all: string = "all";
     @Input() public itemsCount: number = 0;
     @Input() public pageSize: number = 10;
@@ -32,6 +34,7 @@ export class UtePaginator implements OnDestroy {
     @Input() public loader: boolean = true;
     @Input() public loaderText: string = "Load more";
     @Input() public loaderOnly: boolean = false;
+    @Input() public itemsList: any[] = [];
     @Output() public changePage: EventEmitter<PaginationData> = new EventEmitter<PaginationData>();
 
     /**
@@ -43,9 +46,12 @@ export class UtePaginator implements OnDestroy {
     constructor(private readonly activatedRoute: ActivatedRoute, private readonly router: Router) {
         this.subscriptions.add(
             activatedRoute.queryParams.subscribe((p: any) => {
+                console.log("queryParams", p);
+
                 if (Object.keys(p).length) {
                     this.page = parseInt(p.p);
                     this.pageSize = parseInt(p.s);
+                    this.initPageSize = this.pageSize;
                 }
             })
         );
@@ -55,8 +61,9 @@ export class UtePaginator implements OnDestroy {
      * Emitted when page changes
      */
     ngOnInit() {
+        this.pageRange = [this.page];
         this.initPageSize = this.pageSize;
-        this.lastPageHeight = document.body.scrollHeight;
+        this.lastPageHeight = window.scrollY;
         this.changePage.emit({ page: this.page, pageSize: this.pageSize });
     }
 
@@ -66,8 +73,10 @@ export class UtePaginator implements OnDestroy {
      * @param changes - An object of changes to the component's input properties.
      */
     ngOnChanges(changes: SimpleChanges) {
-        if (changes["itemsCount"].currentValue != changes["itemsCount"].previousValue) {
-            this.change(0, { init: true });
+        if (changes["itemsCount"]?.currentValue != changes["itemsCount"]?.previousValue) {
+            this.change(this.page ?? 0, { init: true });
+        } else if (changes["itemsList"]) {
+            this.stopScrollChecking();
         }
     }
 
@@ -101,10 +110,11 @@ export class UtePaginator implements OnDestroy {
      */
     public change(page: number, options?: { init?: boolean; load?: boolean }) {
         try {
-            // const ph: number = document.body.offsetHeight;
-            console.log(this.lastPageHeight);
+            this.lastPageHeight = window.scrollY;
+            if (!options?.load) {
+                this.pageRange = [page];
+            }
 
-            this.page = page;
             const pages: number = Math.ceil(this.itemsCount / this.pageSize) || 1;
 
             this.pageList = Array(pages)
@@ -113,40 +123,24 @@ export class UtePaginator implements OnDestroy {
 
             this.displayList = this.getValues([...this.pageList], page);
 
-            this.router
-                .navigate([], {
-                    relativeTo: this.activatedRoute,
-                    queryParams: { p: page, s: this.pageSize },
-                    queryParamsHandling: "merge",
-                    skipLocationChange: true,
-                })
-                .then(() => {
-                    // afterRender(() => {
-                    // console.log(111);
+            if (page !== this.page || this.pageSize !== this.initPageSize) {
+                this.router
+                    .navigate([], {
+                        relativeTo: this.activatedRoute,
+                        queryParams: { p: page, s: this.pageSize },
+                        queryParamsHandling: "merge",
+                        skipLocationChange: true,
+                    })
+                    .then(() => {
+                        this.startScrollChecking();
+                    });
+            }
 
-                    setTimeout(() => {
-                        window.scrollTo({
-                            top: this.lastPageHeight,
-                            // behavior: "smooth",
-                        });
-                    }, 0);
-                    // });
-                });
+            this.page = page;
 
             if (!options?.init) {
                 this.changePage.emit({ page: this.page, pageSize: this.pageSize, load: options?.load ?? false });
             }
-
-            setTimeout(() => {
-                this.lastPageHeight = document.body.scrollHeight;
-            }, 500);
-
-            // setTimeout(() => {
-            //     window.scrollTo({
-            //         top: document.body.scrollHeight,
-            //         // behavior: "smooth",
-            //     });
-            // }, 5);
         } catch (error) {
             console.error(error);
             throw error;
@@ -192,5 +186,47 @@ export class UtePaginator implements OnDestroy {
         }
 
         return result;
+    }
+
+    /**
+     * Starts the scroll checking process that ensures the page remains at the last known
+     * scroll position after changing pages. This helps prevent unwanted scrolling behaviors.
+     *
+     * If the page was previously scrolled to a non-zero position, we immediately scroll to
+     * that position. Then, we start a 5ms interval that checks if the page has been scrolled
+     * away from the last known position. If it has, we scroll it back to the last known position.
+     *
+     * The interval is cleared when the component is destroyed or when the page is changed.
+     */
+    private startScrollChecking() {
+        if (this.lastPageHeight !== 0) {
+            setTimeout(() => {
+                window.scrollTo({
+                    top: this.lastPageHeight,
+                });
+            }, 0);
+
+            this.scrollChecker = setInterval(() => {
+                if (this.lastPageHeight !== window.scrollY) {
+                    window.scrollTo({
+                        top: this.lastPageHeight,
+                    });
+                }
+            }, 5);
+        }
+    }
+
+    /**
+     * Stops the scroll checking process by clearing the interval that checks
+     * for changes in the page scroll position. This helps prevent unwanted
+     * scrolling behaviors. The interval is cleared after a 200ms delay to ensure
+     * any pending scroll actions are completed.
+     */
+
+    private stopScrollChecking() {
+        setTimeout(() => {
+            clearInterval(this.scrollChecker);
+            this.scrollChecker = null;
+        }, 200);
     }
 }

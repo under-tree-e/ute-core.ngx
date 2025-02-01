@@ -3,7 +3,9 @@
     @if((loaderOnly || loader) && page !== pageList.length -1){
     <div class="loader">
         <button class="button" (click)="load()">
+            @if(displayText){
             <div class="text">{{ loaderText }}</div>
+            }
         </button>
     </div>
     <div class="diviner"></div>
@@ -21,7 +23,7 @@
             } @if(pageList[0] + 3 < page){
             <div class="page dot">...</div>
             } @for(pi of displayList; track pi){
-            <button class="page" [ngClass]="{ active: page === pi || pageRange.includes(pi+1) }" (click)="change(pi)">{{ pi + 1 }}</button>
+            <button class="page" [ngClass]="{ active: page === pi || pageRange.includes(pi) }" (click)="change(pi)">{{ pi + 1 }}</button>
             } @if(pageList[pageList.length -1] - 3 > page){
             <div class="page dot">...</div>
             } @if(pageList[pageList.length -1] - 2 > page){

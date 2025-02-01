@@ -132,7 +132,7 @@
                 border: none;
                 &.active {
                     background-color: #c9cce8;
-                    pointer-events: none;
+                    // pointer-events: none;
                 }
                 &.disabled {
                     pointer-events: none;
