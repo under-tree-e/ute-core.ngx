@@ -1,8 +1,9 @@
 /* Module imports */
-import { NgClass } from "@angular/common";
+import { NgClass, NgTemplateOutlet } from "@angular/common";
 import { Component, EventEmitter, Input, OnDestroy, Output, SimpleChanges } from "@angular/core";
 import { ActivatedRoute, Router } from "@angular/router";
 import { Subscription } from "rxjs";
+import { TemplatePortal, PortalModule } from "@angular/cdk/portal";
 
 /* Project imports */
 import { PaginationData } from "../../interfaces/pagination";
@@ -10,7 +11,7 @@ import { PaginationData } from "../../interfaces/pagination";
 @Component({
     selector: "ute-paginator",
     standalone: true,
-    imports: [NgClass],
+    imports: [NgClass, PortalModule, NgTemplateOutlet],
     templateUrl: "paginator.html",
 })
 export class UtePaginator implements OnDestroy {
@@ -20,6 +21,10 @@ export class UtePaginator implements OnDestroy {
     public displayList: number[] = [];
     public resizerOpen: boolean = false;
     public initPageSize: number = 0;
+    public arrowLeft: any = null;
+    public arrowRight: any = null;
+    public resizerPortal: TemplatePortal = null!;
+    public loaderPortal: TemplatePortal = null!;
 
     private lastPageHeight: number = 0;
     private scrollChecker: any = null;
@@ -46,8 +51,6 @@ export class UtePaginator implements OnDestroy {
     constructor(private readonly activatedRoute: ActivatedRoute, private readonly router: Router) {
         this.subscriptions.add(
             activatedRoute.queryParams.subscribe((p: any) => {
-                console.log("queryParams", p);
-
                 if (Object.keys(p).length) {
                     this.page = parseInt(p.p);
                     this.pageSize = parseInt(p.s);

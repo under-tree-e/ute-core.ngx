@@ -41,3 +41,6 @@ export * from "./lib/directives/swipe";
 export * from "./lib/directives/view";
 
 export * from "./lib/components/paginator/paginator";
+export * from "./lib/components/paginator/paginator-arrows";
+export * from "./lib/components/paginator/paginator-resizer";
+export * from "./lib/components/paginator/paginator-loader";
