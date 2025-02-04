@@ -17,9 +17,9 @@
     <div class="paginator">
         <div class="pages">
             @if(arrowLeft){
-            <button class="arrow pre" [ngClass]="{disabled: pageList[0] === page}" (click)="change(page-1)" [innerHTML]="arrowLeft"></button>
+            <button class="arrow pre" [disabled]="pageList[0] === page" (click)="change(page-1)" [innerHTML]="arrowLeft"></button>
             }@else {
-            <button class="arrow pre" [ngClass]="{disabled: pageList[0] === page}" (click)="change(page-1)">
+            <button class="arrow pre" [disabled]="pageList[0] === page" (click)="change(page-1)">
                 <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
                     <path d="M0 0h24v24H0z" fill="none" />
                     <path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z" />
@@ -36,9 +36,9 @@
             } @if(pageList[pageList.length -1] - 2 > page){
             <button class="page last" (click)="change(pageList[pageList.length -1])">{{pageList[pageList.length -1] + 1}}</button>
             } @if(arrowRight){
-            <button class="arrow next" [ngClass]="{disabled: pageList[pageList.length -1] === page}" (click)="change(page+1)" [innerHTML]="arrowRight"></button>
+            <button class="arrow next" [disabled]="pageList[pageList.length -1] === page" (click)="change(page+1)" [innerHTML]="arrowRight"></button>
             }@else {
-            <button class="arrow next" [ngClass]="{disabled: pageList[pageList.length -1] === page}" (click)="change(page+1)">
+            <button class="arrow next" [disabled]="pageList[pageList.length -1] === page" (click)="change(page+1)">
                 <svg height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
                     <path d="M0 0h24v24H0z" fill="none" />
                     <path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z" />
