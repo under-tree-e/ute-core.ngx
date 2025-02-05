@@ -90,6 +90,11 @@ export class UtePaginator implements OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
+    public resetPage() {
+        this.pageRange = [0];
+        this.change(0);
+    }
+
     /**
      * Resizes the paginator page size.
      *
