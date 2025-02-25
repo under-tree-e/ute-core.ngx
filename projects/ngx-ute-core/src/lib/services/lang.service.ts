@@ -58,6 +58,22 @@ export class LangService {
     }
 
     /**
+     * Get the default locale
+     * @returns The default locale string
+     */
+    public default(): string {
+        return this.environment.defLocale || "en-EN";
+    }
+
+    /**
+     * Get list of available locales
+     * @returns List of locales
+     */
+    public localList(): string[] {
+        return this.environment.localeList || ["en-EN"];
+    }
+
+    /**
      * Get current Locale code
      * @returns Locale code
      */
@@ -71,10 +87,10 @@ export class LangService {
      * @param rewrite - Ignore link tag and use `locale`
      * @returns
      */
-    public setLocale(locale: string, rewrite: boolean = false): Promise<string> {
+    public setLocale(locale: string): Promise<string> {
         return new Promise(async (resolve, reject) => {
             try {
-                this.getTag(locale, rewrite);
+                this.getTag(locale, true);
                 await this.loadLocale();
                 resolve(this.locale);
             } catch (error) {
@@ -100,6 +116,7 @@ export class LangService {
                 if (!this.locale) {
                     this.locale = this.environment.defLocale;
                 }
+                this.getTag(this.locale);
 
                 // Load library
                 // if (this.environment.ssr) {
@@ -170,6 +187,8 @@ export class LangService {
             ];
         }
 
+        console.log(this.router.config);
+
         let url: string = this.updateUrl(this.location.path());
 
         let interval = setInterval(() => {
@@ -200,7 +219,6 @@ export class LangService {
      */
     private getTag(locale: string, rewrite: boolean = false) {
         let urlTag = this.urlToTag();
-
         if (this.config.alwaysLocale) {
             if (rewrite) {
                 this.tag = this.locale = locale;
@@ -230,7 +248,7 @@ export class LangService {
      * Convert Lang tag from url to Locale code
      * @returns Tag code
      */
-    private urlToTag(): string {
+    public urlToTag(): string {
         return (this.environment.localeList || ["en-EN"]).find((lang: string) => this.location.path().includes(this.localeToTag(lang))) || this.environment.defLocale || "en-EN";
     }
 

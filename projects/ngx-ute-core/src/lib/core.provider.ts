@@ -16,6 +16,8 @@ import { HttpService } from "./services/http.service";
 import { SwipeDirective } from "./directives/swipe";
 import { SEOService } from "./services/seo.service";
 import { LangService } from "./services/lang.service";
+import { DataLangPipe } from "./pipes/datalang.pipe";
+import { SliderDirective } from "../public-api";
 
 /**
  * The provider configuration for standalone Angular app.
@@ -54,10 +56,12 @@ export function provideNgxUteCore(config: UteCoreConfigs) {
         DateStringPipe,
         LengthCutPipe,
         LangPipe,
+        DataLangPipe,
         DelayIf,
         // Directives
         HoldDirective,
         SwipeDirective,
+        SliderDirective,
         {
             provide: APP_INITIALIZER,
             useFactory: (config: CoreService) => () => config.Init(),

@@ -4,6 +4,7 @@ import { LangService } from "./lang.service";
 import { NavigationStart, Router } from "@angular/router";
 import { PageService } from "./page.service";
 import { UteEnvironment } from "../interfaces/environment";
+import { DataLangPipe } from "../pipes/datalang.pipe";
 
 /**
  * Service responsible for setting the title that appears above the components and guide pages.
@@ -24,7 +25,7 @@ export class SEOService {
     private langService: LangService = null!;
     private url: string = "";
 
-    constructor(private router: Router, private bodyTitle: Title, private metaService: Meta) {
+    constructor(private router: Router, private bodyTitle: Title, private metaService: Meta, private dataLang: DataLangPipe) {
         this.router.events.subscribe((event) => {
             if (event instanceof NavigationStart) {
                 if (this.pageService && this.langService) {
@@ -71,6 +72,7 @@ export class SEOService {
         } else {
             title = `${this._pipe ? this.langService.get(title) : title} | ${this._originalTitle}`;
         }
+        title = this.dataLang.transform(title);
         this.bodyTitle.setTitle(title);
         this.metaService.updateTag({ name: "twitter:title", content: title });
         this.metaService.updateTag({ property: "og:title", content: title });
@@ -87,6 +89,7 @@ export class SEOService {
         } else {
             desk = `${this._pipe ? this.langService.get(desk) : desk}`;
         }
+        desk = this.dataLang.transform(desk);
         this.metaService.updateTag({ name: "description", content: desk });
         this.metaService.updateTag({ name: "twitter:description", content: desk });
         this.metaService.updateTag({ property: "og:description", content: desk });
@@ -103,6 +106,7 @@ export class SEOService {
         } else {
             keys = `${this._pipe ? this.langService.get(keys) : keys}`;
         }
+        keys = this.dataLang.transform(keys);
         this.metaService.updateTag({ name: "keywords", content: keys });
     }
 

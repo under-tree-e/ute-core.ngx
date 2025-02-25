@@ -11,10 +11,16 @@ export class DateStringPipe implements PipeTransform {
     private datePipe: DatePipe = new DatePipe("en-US");
 
     constructor(private coreService: CoreService) {}
+
     /**
+     * Transform a date to a string based on a given format.
+     * Automatically apply timezone offset from date object.
      *
-     * @param value
-     * @returns
+     * @param value - Date object or date string to transform
+     * @param format - Format string to use
+     * @param locale - Optional locale to use
+     *
+     * @returns The transformed string
      */
     public transform(value: Date | string, format: string, locale?: string): string {
         let dateZone: string = this.coreService.toIsoZone(value);

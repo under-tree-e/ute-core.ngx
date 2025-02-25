@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
+import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
 import { provideHttpClient, withFetch } from "@angular/common/http";
 
 import { CoreService } from "./services/core.service";
@@ -17,6 +17,8 @@ import { LengthCutPipe } from "./pipes/leng-cut.pipe";
 import { SwipeDirective } from "./directives/swipe";
 import { UtePaginator } from "./components/paginator/paginator";
 import { SEOService } from "./services/seo.service";
+import { DataLangPipe } from "./pipes/datalang.pipe";
+import { SliderDirective } from "../public-api";
 
 /**
  * The main module of Core library. Example usage:
@@ -37,8 +39,8 @@ import { SEOService } from "./services/seo.service";
  */
 @NgModule({
     declarations: [],
-    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, UtePaginator],
-    imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, UtePaginator],
+    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, UtePaginator, DataLangPipe],
+    imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, UtePaginator, DataLangPipe],
     providers: [
         provideHttpClient(withFetch()),
         // Services
@@ -58,10 +60,12 @@ import { SEOService } from "./services/seo.service";
         DateStringPipe,
         LengthCutPipe,
         LangPipe,
+        DataLangPipe,
         DelayIf,
         // Directives
         HoldDirective,
         SwipeDirective,
+        SliderDirective,
     ],
 })
 export class NgxUteCoreModule {

@@ -35,10 +35,12 @@ export * from "./lib/pipes/lang.pipe";
 export * from "./lib/pipes/delay-if.pipe";
 export * from "./lib/pipes/leng-cut.pipe";
 export * from "./lib/pipes/phone.pipe";
+export * from "./lib/pipes/datalang.pipe";
 
 export * from "./lib/directives/hold";
 export * from "./lib/directives/swipe";
 export * from "./lib/directives/view";
+export * from "./lib/directives/slide";
 
 export * from "./lib/components/paginator/paginator";
 export * from "./lib/components/paginator/paginator-arrows";

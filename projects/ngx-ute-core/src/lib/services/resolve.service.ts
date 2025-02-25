@@ -63,7 +63,7 @@ export class ResolveService {
                         if (!table) {
                             resolve(false);
                         } else {
-                            jsons.push(this.buildObject(data, table, id));
+                            jsons = this.buildObject(data, table, id);
                         }
                     }
 
@@ -134,7 +134,7 @@ export class ResolveService {
      *
      * @returns An UteApis object configured with table, where, refs, and noref properties.
      */
-    private buildObject(data: any, table: string, id: UteObjects | null): UteApis<any> {
+    private buildObject(data: any, table: string, id: UteObjects | null): UteApis<any>[] {
         let api: UteApis<any> = {
             table: data.table ?? table,
         };
@@ -151,16 +151,23 @@ export class ResolveService {
             api.noref = true;
         }
 
+        let apiArray: UteApis<any>[] = [];
+
         if (data.jsons) {
-            data.jsons.map((j: UteApis<any>) => {
+            apiArray = data.jsons.map((j: UteApis<any>) => {
                 const original = api.table === j.table && (api.as ? api.as === j.as : !j.as);
-                if (original) {
-                    api = j;
-                    data.jsons.splice(data.jsons.indexOf(j), 1);
+
+                if (!original) {
+                    return j;
                 }
+                return null;
             });
+
+            apiArray = apiArray.filter((a) => a !== null);
         }
 
-        return api;
+        apiArray.push(api);
+
+        return apiArray;
     }
 }
