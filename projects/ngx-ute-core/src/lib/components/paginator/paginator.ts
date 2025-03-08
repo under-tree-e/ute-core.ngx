@@ -90,9 +90,21 @@ export class UtePaginator implements OnDestroy {
         this.subscriptions.unsubscribe();
     }
 
+    /**
+     * Resets the paginator to the first page and updates the page range.
+     * This method sets the page range to start at 0 and triggers a page change.
+     */
     public resetPage() {
         this.pageRange = [0];
         this.change(0);
+    }
+
+    /**
+     * Emits a page change event with the current page and page size.
+     * This can be used to reload the page without changing the page number.
+     */
+    public reloadPage() {
+        this.changePage.emit({ page: this.page, pageSize: this.pageSize });
     }
 
     /**

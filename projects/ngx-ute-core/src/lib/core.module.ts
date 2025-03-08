@@ -19,6 +19,7 @@ import { UtePaginator } from "./components/paginator/paginator";
 import { SEOService } from "./services/seo.service";
 import { DataLangPipe } from "./pipes/datalang.pipe";
 import { SliderDirective } from "../public-api";
+import { LangRouterPrefixDirective } from "./directives/langlink";
 
 /**
  * The main module of Core library. Example usage:
@@ -40,7 +41,20 @@ import { SliderDirective } from "../public-api";
 @NgModule({
     declarations: [],
     exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, UtePaginator, DataLangPipe],
-    imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, UtePaginator, DataLangPipe],
+    imports: [
+        LangPipe,
+        NumberStringPipe,
+        StringFloatPipe,
+        StringIntegerPipe,
+        DateStringPipe,
+        DelayIf,
+        LengthCutPipe,
+        HoldDirective,
+        SwipeDirective,
+        UtePaginator,
+        DataLangPipe,
+        LangRouterPrefixDirective,
+    ],
     providers: [
         provideHttpClient(withFetch()),
         // Services

@@ -91,10 +91,6 @@ export class HttpService {
         if (!link.endsWith("/")) link += "/";
         if (this.apiPath) link += `${this.apiPath}/`;
 
-        console.log("link", link);
-        // console.log("option", option);
-        // console.log("environment", this.environment);
-
         return link;
     }
 
@@ -123,8 +119,6 @@ export class HttpService {
      * @returns
      */
     public httpRequest<T>(sqlMethod: string, json: UteApis<T>[], httpOptions?: HttpOptions): Promise<UteObjects<T>> {
-        console.log("httpRequest");
-
         return new Promise(async (resolve, reject) => {
             let response: any = {};
             let reqMethod: string = "http";

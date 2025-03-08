@@ -15,6 +15,8 @@ export class SwipeDirective implements OnInit, OnDestroy {
 
     @Input() swipeAxis: SwipeScroll = SwipeScroll.both;
     @Input() touchEndTrigger: boolean = true;
+    @Input() moveSize: number = 50;
+    @Input() allMoves: boolean = false;
     @Output() swipe: EventEmitter<SwipeEvent> = new EventEmitter<SwipeEvent>();
 
     constructor(private elementRef: ElementRef, private ngZone: NgZone) {}
@@ -119,10 +121,17 @@ export class SwipeDirective implements OnInit, OnDestroy {
     }
 
     private getDistance(startCoordinates: SwipeCoordinates, moveCoordinates: SwipeCoordinates): SwipeCoordinates {
-        return {
-            x: moveCoordinates.x - startCoordinates.x,
-            y: moveCoordinates.y - startCoordinates.y,
-        };
+        if (this.allMoves) {
+            return {
+                x: moveCoordinates.x - startCoordinates.x,
+                y: moveCoordinates.y - startCoordinates.y,
+            };
+        } else {
+            return {
+                x: Math.abs(moveCoordinates.x - startCoordinates.x) < this.moveSize ? 0 : moveCoordinates.x - startCoordinates.x,
+                y: Math.abs(moveCoordinates.y - startCoordinates.y) < this.moveSize ? 0 : moveCoordinates.y - startCoordinates.y,
+            };
+        }
     }
 
     private getDirection(startCoordinates: SwipeCoordinates, moveCoordinates: SwipeCoordinates): SwipeDirection {
@@ -135,10 +144,17 @@ export class SwipeDirective implements OnInit, OnDestroy {
     }
 
     private getSwipeEvent(phase: SwipePhase, touchStartEvent: SwipeStartEvent | null, coordinates: SwipeCoordinates): SwipeEvent {
+        if (!touchStartEvent) return { phase: phase, direction: null, distance: 0 };
+        const distance: number = coordinates[this.swipeDirection[touchStartEvent!.direction] as "x" | "y"];
+
+        if (!this.allMoves && Math.abs(distance) < this.moveSize) {
+            return { phase: SwipePhase.cancel, direction: null, distance: 0 };
+        }
+
         return {
             phase: phase,
-            direction: touchStartEvent ? touchStartEvent.direction : null,
-            distance: touchStartEvent ? coordinates[this.swipeDirection[touchStartEvent.direction] as "x" | "y"] : 0,
+            direction: touchStartEvent.direction,
+            distance: distance,
         };
     }
 }

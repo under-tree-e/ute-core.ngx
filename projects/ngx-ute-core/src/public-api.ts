@@ -2,6 +2,8 @@
  * Public API Surface of ngx-ute-core
  */
 
+import { LangRouterPrefixDirective } from "./lib/directives/langlink";
+
 export * from "./lib/core.module";
 export * from "./lib/core.provider";
 
@@ -41,6 +43,7 @@ export * from "./lib/directives/hold";
 export * from "./lib/directives/swipe";
 export * from "./lib/directives/view";
 export * from "./lib/directives/slide";
+export { LangRouterPrefixDirective as LangRouter } from "./lib/directives/langlink";
 
 export * from "./lib/components/paginator/paginator";
 export * from "./lib/components/paginator/paginator-arrows";

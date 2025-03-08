@@ -54,6 +54,7 @@ export class CoreService implements OnDestroy {
                 if (this.config) {
                     if (this.config.environment) {
                         let platform: string = Capacitor.getPlatform();
+
                         if (platform === "web") {
                             platform = this.isWebBrowser(platform);
                         }
@@ -89,13 +90,13 @@ export class CoreService implements OnDestroy {
      */
     private isWebBrowser(platform: string): string {
         if (typeof navigator === "object" && typeof navigator.userAgent === "string") {
-            if (/android/i.test(navigator.userAgent)) {
-                return "android";
-            }
+            // if (/android/i.test(navigator.userAgent)) {
+            //     return "android";
+            // }
 
-            if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-                return "ios";
-            }
+            // if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
+            //     return "ios";
+            // }
 
             if (/Electron/.test(navigator.userAgent)) {
                 return "electron";
@@ -468,5 +469,25 @@ export class CoreService implements OnDestroy {
             }
         }
         return result;
+    }
+
+    /**
+     * Returns a random number between the given min and max values.
+     * Uses the browser's built-in crypto.getRandomValues() to generate a random number.
+     * If the generated number is outside of the range, it will recursively call itself until a number within the range is generated.
+     *
+     * @param min - The minimum number to generate.
+     * @param max - The maximum number to generate.
+     *
+     * @returns A random number between min and max.
+     */
+    public random(min: number = 0, max: number = 1): number {
+        var byteArray = new Uint8Array(1);
+        window.crypto.getRandomValues(byteArray);
+
+        var range = max - min + 1;
+        var max_range = 256;
+        if (byteArray[0] >= Math.floor(max_range / range) * range) return this.random(min, max);
+        return min + (byteArray[0] % range);
     }
 }

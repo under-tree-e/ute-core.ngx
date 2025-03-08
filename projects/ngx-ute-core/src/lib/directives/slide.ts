@@ -1,4 +1,4 @@
-import { Directive, ElementRef, EventEmitter, HostListener, Input, Output } from "@angular/core";
+import { Directive, ElementRef, Input } from "@angular/core";
 import { SliderData, SliderDefault } from "../interfaces/slider";
 import KeenSlider from "keen-slider";
 
@@ -7,12 +7,12 @@ import KeenSlider from "keen-slider";
     standalone: true,
 })
 export class SliderDirective {
-    private sliderItem: SliderData = { ...SliderDefault };
+    private readonly sliderItem: SliderData = { ...SliderDefault };
 
     @Input() public viewSlides: number = 1;
     @Input() public hideDots: boolean = false;
 
-    constructor(private elementRef: ElementRef) {}
+    constructor(private readonly elementRef: ElementRef) {}
 
     ngAfterViewInit() {
         const sliderBlock = this.elementRef.nativeElement;
@@ -31,6 +31,7 @@ export class SliderDirective {
             for (let i = 0; i < sliderChildren.length; i++) {
                 const dot = document.createElement("button");
                 dot.classList.add("dot");
+                dot.title = "slider dot";
                 if (i === 0) dot.classList.add("active");
                 dot.addEventListener("click", () => {
                     this.sliderItem.slider.moveToIdx(i);
@@ -41,7 +42,9 @@ export class SliderDirective {
             sliderBlock.appendChild(dotsContainer);
         }
 
-        this.slide();
+        if (sliderChildren.length > 1) {
+            this.slide();
+        }
     }
 
     private slide() {

@@ -119,17 +119,17 @@ export class LangService {
                 this.getTag(this.locale);
 
                 // Load library
-                // if (this.environment.ssr) {
-                //     this.environment.localeList.forEach(async (x: string) => {
-                //         let locale = await import(`/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
-                //         registerLocaleData(locale.default);
-                //     });
-                // } else {
-                this.environment.localeList.forEach(async (x: string) => {
-                    let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
-                    registerLocaleData(locale.default);
-                });
-                // }
+                if (this.environment.ssr === true) {
+                    this.environment.localeList.forEach(async (x: string) => {
+                        let locale = await import(/* @vite-ignore */ `/node_modules/@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                        registerLocaleData(locale.default);
+                    });
+                } else {
+                    this.environment.localeList.forEach(async (x: string) => {
+                        let locale = await import(`../../@angular/common/locales/${this.localeToTag(x)}.mjs`);
+                        registerLocaleData(locale.default);
+                    });
+                }
 
                 await this.loadLocale();
 
@@ -182,21 +182,20 @@ export class LangService {
                 },
                 {
                     path: "**",
-                    redirectTo: ``,
+                    redirectTo: `${this.localeToTag(this.tag)}/**`,
                 },
             ];
         }
 
-        console.log(this.router.config);
-
         let url: string = this.updateUrl(this.location.path());
+        this.router.navigateByUrl(url);
 
-        let interval = setInterval(() => {
-            if (!this.isNav) {
-                clearInterval(interval);
-                this.location.go(url);
-            }
-        }, 50);
+        // let interval = setInterval(() => {
+        //     if (!this.isNav) {
+        //         clearInterval(interval);
+        //         this.location.go(url);
+        //     }
+        // }, 50);
     }
 
     /**
@@ -204,7 +203,7 @@ export class LangService {
      * @param locale - Locale code
      * @returns Lang tag
      */
-    private localeToTag(locale?: string): string {
+    public localeToTag(locale?: string): string {
         if (locale) {
             return locale.split("-")[0];
         } else {
