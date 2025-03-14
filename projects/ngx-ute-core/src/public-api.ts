@@ -2,8 +2,6 @@
  * Public API Surface of ngx-ute-core
  */
 
-import { LangRouterPrefixDirective } from "./lib/directives/langlink";
-
 export * from "./lib/core.module";
 export * from "./lib/core.provider";
 

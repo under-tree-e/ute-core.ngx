@@ -1,7 +1,7 @@
 {
   "name": "ute-core.ngx",
   "title": "UTE Core",
-  "version": "0.5.3-dev.22",
+  "version": "0.5.3-dev.23",
   "description": "UTE Core module includes simple packs of function for base Angular app usage",
   "author": {
     "name": "Under Tree Entertainment",
@@ -45,6 +45,7 @@
     "npm-publish": "cd dist/ngx-ute-core/ && npm publish"
   },
   "dependencies": {
+    "@agentepsilon/decko": "^2.0.1",
     "@angular/cdk": "^18.1.0",
     "@angular/common": "^18.1.0",
     "@angular/compiler": "^18.1.0",
