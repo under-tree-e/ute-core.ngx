@@ -5,17 +5,19 @@ import { afterNextRender, Directive, ElementRef, EventEmitter, HostListener, Inp
     standalone: true,
 })
 export class ViewDirective {
-    private percent: number = -1;
+    private readonly percent: number = -1;
 
     @Input() public viewClass: string = "view";
     @Input() public leaveClass: string = "";
     @Input() public useScroll: boolean = false;
     @Input() public viewPercent: number = 0;
     @Input() public useVariable: string = "view";
+    @Input() public invertScroll: boolean = false;
+    @Input() public heightPercent: number = 100;
 
     @Output() public callback: EventEmitter<any> = new EventEmitter<any>();
 
-    constructor(private elementRef: ElementRef) {
+    constructor(private readonly elementRef: ElementRef) {
         afterNextRender(() => {
             if ("IntersectionObserver" in window && !this.useScroll) {
                 let options: IntersectionObserverInit = {
@@ -29,7 +31,6 @@ export class ViewDirective {
                     });
                 }, options);
                 observer.observe(this.elementRef.nativeElement);
-                return;
             }
         });
     }
@@ -37,16 +38,22 @@ export class ViewDirective {
     @HostListener("window:scroll", ["$event"])
     private onScroll(event: Event) {
         if (this.useScroll) {
-            const height: number = document.documentElement.clientHeight;
+            let height: number = document.documentElement.clientHeight;
+            let elementHeight: number = this.elementRef.nativeElement.getBoundingClientRect().height;
             let top: number = this.elementRef.nativeElement.getBoundingClientRect().top - height;
-            const percentage = Math.max(
-                0,
-                Math.min(
-                    1,
+            let percentage: number = 0;
+            if (this.invertScroll) {
+                percentage = Math.max(0, Math.min(1, 1 - (top * -1 - elementHeight) / (height * (this.heightPercent / 100))));
+            } else {
+                percentage = Math.max(
+                    0,
+                    Math.min(
+                        1,
 
-                    Math.round(((top * -1) / this.elementRef.nativeElement.getBoundingClientRect().height) * 100) / 100
-                )
-            );
+                        Math.round(((top * -1) / elementHeight) * 100) / 100
+                    )
+                );
+            }
             if (this.percent !== percentage) {
                 this.elementRef.nativeElement.style.setProperty(`--${this.useVariable}`, percentage);
             }
