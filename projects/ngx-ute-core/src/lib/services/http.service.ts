@@ -6,7 +6,6 @@ import { lastValueFrom } from "rxjs";
 import { UteObjects } from "../interfaces/object";
 import { UteApis } from "../interfaces/api";
 import { CustomHeaderData, HttpOptions } from "../interfaces/http-opt";
-import * as qs from "qs";
 import { ApiConst } from "../constantes/api";
 
 @Injectable({
@@ -18,12 +17,12 @@ export class HttpService {
         body?: any;
         headers?: HttpHeaders | undefined;
     } = {};
-    private apiPath: string = "api";
-    private apiSubDomain: string = "";
+    private readonly apiPath: string = "api";
+    private readonly apiSubDomain: string = "";
     private serverTimer: any = null;
-    private locationDom: Location;
+    private readonly locationDom: Location;
 
-    constructor(private http: HttpClient, @Inject(APP_BASE_HREF) @Optional() private baseHref: string, @Inject(DOCUMENT) private document: Document) {
+    constructor(private readonly http: HttpClient, @Inject(APP_BASE_HREF) @Optional() private readonly baseHref: string, @Inject(DOCUMENT) private readonly document: Document) {
         this.locationDom = this.document.defaultView?.location!;
     }
 
@@ -69,15 +68,15 @@ export class HttpService {
             this.options.headers = this.options.headers?.set("x-api-key", `Bearer ${this.environment.apiToken}`);
         }
 
-        if (option && option.headers) {
-            option.headers.map((h: CustomHeaderData) => {
+        if (option?.headers) {
+            option.headers.forEach((h: CustomHeaderData) => {
                 let name: string = Object.keys(h)[0];
                 let value: string = Object.values(h)[0];
                 this.options.headers = this.options.headers?.set(name, value);
             });
         }
 
-        let link: string = `http://localhost:8080`;
+        let link: string = "";
 
         if ((option?.online && this.environment.appServer) || (!option?.global && this.environment.appServer) || (this.environment.ssr && this.environment.appServer)) {
             link = this.environment.appServer;
@@ -105,7 +104,7 @@ export class HttpService {
                 .then((response: any) => {
                     resolve(response);
                 })
-                .catch((error: any) => {
+                .catch((error: Error) => {
                     reject(error);
                 });
         });
@@ -141,7 +140,7 @@ export class HttpService {
                     jsonConvert["body"] = json.map((rq: any) => {
                         let newObject = Object.entries(rq).map(([key, value]) => {
                             let newKey: string = key;
-                            Object.keys(ApiConst).map((apiKey: string, i: number) => {
+                            Object.keys(ApiConst).forEach((apiKey: string, i: number) => {
                                 if (apiKey === key) {
                                     newKey = Object.values(ApiConst)[i];
                                 }

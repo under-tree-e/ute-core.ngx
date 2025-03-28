@@ -77,11 +77,26 @@ export class CoreService implements OnDestroy {
                     await this.pageService.Init(this.config.environment, this.config.pages);
                     this.seoService.Init(this.config.environment, this.langService, this.pageService);
                 }
+                this.loadSession();
                 resolve(true);
             } catch (error) {
                 throw Error(`App Load Error: ${error}`);
             }
         });
+    }
+
+    private loadSession() {
+        if (!this.config.environment.session?.locale) {
+            const session = this.cookieService.get("SS");
+            if (session) {
+                this.config.environment.session = session;
+            } else {
+                this.config.environment.session = {
+                    locale: this.config.environment.defLocale,
+                };
+                this.cookieService.set("SS", this.config.environment.session);
+            }
+        }
     }
 
     /**
@@ -378,7 +393,7 @@ export class CoreService implements OnDestroy {
      * @returns boolean status
      */
     public prepareRoute(outlet: RouterOutlet | any) {
-        return outlet && outlet.activatedRouteData && outlet.activatedRouteData["animationState"];
+        return outlet?.activatedRouteData["animationState"] ?? false;
     }
 
     /**

@@ -12,6 +12,7 @@ export class PageService {
 
     public Init(environment: UteEnvironment, pages?: PageData[]) {
         this.environment = environment;
+
         this.serverLink = this.environment.appServer ? this.environment.appServer : "";
         if (!this.serverLink.endsWith("/")) {
             this.serverLink += "/";
@@ -25,6 +26,7 @@ export class PageService {
 
     public getItems(include?: string | string[]): PageData[] {
         let pages = this.pages;
+
         if (include) {
             if (Array.isArray(include)) {
                 pages = pages.filter((p: PageData) => include.some((ic: string) => ic === p.id || ic === p.group));
@@ -34,7 +36,7 @@ export class PageService {
         }
 
         if (this.environment.session?.role) {
-            return pages.filter((p: PageData) => p.roles.some((r: string) => r === this.environment.session?.role));
+            return pages.filter((p: PageData) => p.roles.length === 0 || p.roles.some((r: string) => r === this.environment.session?.role));
         } else {
             return pages;
         }
@@ -67,7 +69,7 @@ export class PageService {
 
         data = this.buildHierarchy(data, { simple: true });
         data.map((f1: any) => {
-            if (f1.children && f1.children.length) {
+            if (f1?.children?.length) {
                 result[f1.code] = [];
                 f1.children.map((fc: any) => {
                     let elem: any = {};
@@ -76,7 +78,7 @@ export class PageService {
                     });
                     result[f1.code].push(elem);
                 });
-            } else if (f1.contents && f1.contents.length) {
+            } else if (f1?.contents?.length) {
                 result[f1.code] = {};
                 f1.contents.map((f2: any) => {
                     result[f1.code][f2.code] = this.getData(f2);
@@ -92,6 +94,7 @@ export class PageService {
         try {
             switch (data.type) {
                 case "input":
+                case "text":
                 case "textarea":
                 case "editor":
                 case "link":
@@ -112,9 +115,18 @@ export class PageService {
 
         if (!options?.simple) {
             if (data.length) {
-                data.map((cd: any) => {
+                data.forEach((cd: any) => {
+                    console.log(cd);
                     if (cd.media) {
                         cd.media.thumb = cd.media.thumbnail ? `${this.serverLink}api/media/${cd.media.thumbnail}.${cd.media.ex}` : cd.media.image;
+                    }
+                    if (cd.image) {
+                        cd.imageRef.image = `${this.serverLink}api/media/${cd.imageRef.name}.${cd.imageRef.ex}`;
+                        cd.imageRef.thumb = cd.imageRef.thumbnail ? `${this.serverLink}api/media/${cd.imageRef.thumbnail}.${cd.imageRef.ex}` : cd.imageRef.image;
+                    }
+                    if (cd.icon) {
+                        cd.imageRef.image = `${this.serverLink}api/media/${cd.imageRef.name}.${cd.imageRef.ex}`;
+                        cd.imageRef.thumb = cd.imageRef.thumbnail ? `${this.serverLink}api/media/${cd.imageRef.thumbnail}.${cd.imageRef.ex}` : cd.imageRef.image;
                     }
                 });
             }
