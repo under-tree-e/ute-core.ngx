@@ -1,7 +1,7 @@
 {
   "name": "ute-core.ngx",
   "title": "UTE Core",
-  "version": "0.5.3-dev.25",
+  "version": "0.5.3-dev.26",
   "description": "UTE Core module includes simple packs of function for base Angular app usage",
   "author": {
     "name": "Under Tree Entertainment",
