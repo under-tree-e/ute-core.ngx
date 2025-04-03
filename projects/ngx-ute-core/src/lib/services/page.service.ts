@@ -152,13 +152,18 @@ export class PageService {
                     return data.content;
                 case "image":
                     try {
-                        return `${this.serverLink}api/media/${data.media.thumbnail}.${data.media.ex}`;
+                        return {
+                            orig: `${this.serverLink}api/media/${data.imageRef.name}.${data.imageRef.ex}`,
+                            thumb: data.imageRef.thumbnail
+                                ? `${this.serverLink}api/media/${data.imageRef.thumbnail}.${data.imageRef.ex}`
+                                : `${this.serverLink}api/media/${data.imageRef.name}.${data.imageRef.ex}`,
+                        };
                     } catch {
                         return "";
                     }
                 case "video":
                     try {
-                        return `${this.serverLink}api/media/${data.media.name}.${data.media.ex}`;
+                        return `${this.serverLink}api/media/${data.imageRef.name}.${data.imageRef.ex}`;
                     } catch {
                         return "";
                     }

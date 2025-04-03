@@ -85,6 +85,29 @@ export class CoreService implements OnDestroy {
         });
     }
 
+    /**
+     * Create full path to image or thumbnail
+     * @param file - File data object
+     * @param options - Options for image generation
+     * @param options.all - Generate both image and thumbnail
+     * @param options.thumb - Generate thumbnail
+     * @param options.image - Generate image
+     */
+    public getImage(file: any, options: { all: boolean; thumb: boolean; image: boolean } = { all: true, thumb: false, image: false }) {
+        let server: string = this.config.environment.appServer ? this.config.environment.appServer : "";
+        if (!server.endsWith("/")) server += "/";
+        if (options.all || options.image) {
+            file.image = `${server}api/media/${file.name}.${file.ex}`;
+        }
+        if (options.all || options.thumb) {
+            file.thumb = file.thumbnail ? `${server}api/media/${file.thumbnail}.${file.ex}` : file.image;
+        }
+    }
+
+    /**
+     * Loads session data from cookies or initializes it if it's not exist.
+     * @returns void
+     */
     private loadSession() {
         if (!this.config.environment.session?.locale) {
             const session = this.cookieService.get("SS");
@@ -217,14 +240,18 @@ export class CoreService implements OnDestroy {
      * @returns file object
      */
     public getFile(file: any, options?: UteFileOptions): Promise<any> {
+        const imageIgnor: string[] = ["svg", "ico"];
+
         if (!options) {
             options = {} as UteFileOptions;
         }
 
-        !options?.quality ? (options!.quality = 0.65) : null;
-        !options?.maxHeight ? (options!.maxHeight = 512) : null;
-        !options?.maxWidth ? (options!.maxWidth = 512) : null;
-        !options?.checkOrientation ? (options!.checkOrientation = true) : null;
+        if (!options?.full) {
+            !options?.quality ? (options!.quality = 0.65) : null;
+            !options?.maxHeight ? (options!.maxHeight = 1024) : null;
+            !options?.maxWidth ? (options!.maxWidth = 1024) : null;
+            !options?.checkOrientation ? (options!.checkOrientation = true) : null;
+        }
         !options?.multiple ? (options!.multiple = false) : null;
         !options?.uniqName ? (options!.uniqName = false) : null;
 
@@ -249,29 +276,44 @@ export class CoreService implements OnDestroy {
                             type = "doc";
                         }
                         if (type === "image") {
-                            new Compressor(fileData, {
-                                quality: options?.quality,
-                                maxHeight: options?.maxHeight,
-                                maxWidth: options?.maxWidth,
-                                checkOrientation: options?.checkOrientation,
-                                success(result) {
-                                    let fileReader: FileReader = new FileReader();
-                                    fileReader.onload = () => {
-                                        files.push({
-                                            uid: uid,
-                                            type: type,
-                                            name: name,
-                                            ex: ex,
-                                            base64: fileReader.result,
-                                        });
-                                        resolve(true);
-                                    };
-                                    fileReader.readAsDataURL(result);
-                                },
-                                error(error) {
-                                    reject(error);
-                                },
-                            });
+                            if (imageIgnor.some((img: string) => ex === img)) {
+                                let fileReader: FileReader = new FileReader();
+                                fileReader.onload = () => {
+                                    files.push({
+                                        uid: uid,
+                                        type: type,
+                                        name: name,
+                                        ex: ex,
+                                        base64: fileReader.result,
+                                    });
+                                    resolve(true);
+                                };
+                                fileReader.readAsDataURL(fileData);
+                            } else {
+                                new Compressor(fileData, {
+                                    quality: options?.quality,
+                                    maxHeight: options?.maxHeight,
+                                    maxWidth: options?.maxWidth,
+                                    checkOrientation: options?.checkOrientation,
+                                    success(result) {
+                                        let fileReader: FileReader = new FileReader();
+                                        fileReader.onload = () => {
+                                            files.push({
+                                                uid: uid,
+                                                type: type,
+                                                name: name,
+                                                ex: ex,
+                                                base64: fileReader.result,
+                                            });
+                                            resolve(true);
+                                        };
+                                        fileReader.readAsDataURL(result);
+                                    },
+                                    error(error) {
+                                        reject(error);
+                                    },
+                                });
+                            }
                         } else {
                             let fileReader: FileReader = new FileReader();
                             fileReader.onload = () => {

@@ -5,6 +5,7 @@ export interface UteFileOptions {
     checkOrientation?: boolean;
     multiple?: boolean;
     uniqName?: boolean;
+    full?: boolean;
 }
 
 export interface UteFileResult {
