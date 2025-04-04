@@ -163,7 +163,10 @@ export class PageService {
                     }
                 case "video":
                     try {
-                        return `${this.serverLink}api/media/${data.imageRef.name}.${data.imageRef.ex}`;
+                        return {
+                            orig: `${this.serverLink}api/media/${data.imageRef.name}.${data.imageRef.ex}`,
+                            thumb: `${this.serverLink}api/media/${data.imageRef.thumbnail}.png`,
+                        };
                     } catch {
                         return "";
                     }

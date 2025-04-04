@@ -93,14 +93,18 @@ export class CoreService implements OnDestroy {
      * @param options.thumb - Generate thumbnail
      * @param options.image - Generate image
      */
-    public getImage(file: any, options: { all: boolean; thumb: boolean; image: boolean } = { all: true, thumb: false, image: false }) {
+    public getMedia(file: any, options: { all: boolean; thumb: boolean; orig: boolean } = { all: true, thumb: false, orig: false }) {
         let server: string = this.config.environment.appServer ? this.config.environment.appServer : "";
         if (!server.endsWith("/")) server += "/";
-        if (options.all || options.image) {
-            file.image = `${server}api/media/${file.name}.${file.ex}`;
+        if (options.all || options.orig) {
+            file.orig = `${server}api/media/${file.name}.${file.ex}`;
         }
         if (options.all || options.thumb) {
-            file.thumb = file.thumbnail ? `${server}api/media/${file.thumbnail}.${file.ex}` : file.image;
+            if (file.type === "video") {
+                file.thumb = `${server}api/media/${file.thumbnail}.png`;
+            } else {
+                file.thumb = file.thumbnail ? `${server}api/media/${file.thumbnail}.${file.ex}` : file.orig;
+            }
         }
     }
 
@@ -240,8 +244,6 @@ export class CoreService implements OnDestroy {
      * @returns file object
      */
     public getFile(file: any, options?: UteFileOptions): Promise<any> {
-        const imageIgnor: string[] = ["svg", "ico"];
-
         if (!options) {
             options = {} as UteFileOptions;
         }
@@ -274,9 +276,11 @@ export class CoreService implements OnDestroy {
                             type = "image";
                         } else if (UteFileFormats.docs.some((format: string) => format === ex)) {
                             type = "doc";
+                        } else if (UteFileFormats.videos.some((format: string) => format === ex)) {
+                            type = "video";
                         }
                         if (type === "image") {
-                            if (imageIgnor.some((img: string) => ex === img)) {
+                            if (UteFileFormats.imageIgnor.some((img: string) => ex === img)) {
                                 let fileReader: FileReader = new FileReader();
                                 fileReader.onload = () => {
                                     files.push({
