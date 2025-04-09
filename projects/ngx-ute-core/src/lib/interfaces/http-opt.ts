@@ -27,6 +27,7 @@ export interface HttpOptions {
      * Custom header for request
      */
     headers?: CustomHeaderData[];
+    multipart?: boolean;
 }
 
 /**

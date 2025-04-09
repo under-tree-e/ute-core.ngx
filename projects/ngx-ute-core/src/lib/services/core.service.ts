@@ -265,11 +265,12 @@ export class CoreService implements OnDestroy {
                 const fileReadingPromises = fileArray.map((fileData: any) => {
                     return new Promise((resolve) => {
                         let array: string[] = fileData.name.split(".");
-                        let ex: string = array[array.length - 1];
+                        const ex: string = array[array.length - 1];
                         array.splice(-1, 1);
                         let name: string = array.join(".");
                         let uid: string = v4();
                         options?.uniqName ? (name = `${name}-${uid}`) : null;
+                        const mimetype: string = fileData.type;
 
                         let type: string = "file";
                         if (UteFileFormats.images.some((format: string) => format === ex)) {
@@ -283,12 +284,19 @@ export class CoreService implements OnDestroy {
                             if (UteFileFormats.imageIgnor.some((img: string) => ex === img)) {
                                 let fileReader: FileReader = new FileReader();
                                 fileReader.onload = () => {
+                                    const fileData: any = fileReader.result;
+                                    const byteCharacters = atob(fileData.split(",")[1]);
+                                    const byteNumbers = new Uint8Array(byteCharacters.length);
+                                    for (let i = 0; i < byteCharacters.length; i++) {
+                                        byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                    }
+
                                     files.push({
                                         uid: uid,
                                         type: type,
                                         name: name,
                                         ex: ex,
-                                        base64: fileReader.result,
+                                        base64: new Blob([byteNumbers], { type: mimetype }),
                                     });
                                     resolve(true);
                                 };
@@ -302,12 +310,19 @@ export class CoreService implements OnDestroy {
                                     success(result) {
                                         let fileReader: FileReader = new FileReader();
                                         fileReader.onload = () => {
+                                            const fileData: any = fileReader.result;
+                                            const byteCharacters = atob(fileData.split(",")[1]);
+                                            const byteNumbers = new Uint8Array(byteCharacters.length);
+                                            for (let i = 0; i < byteCharacters.length; i++) {
+                                                byteNumbers[i] = byteCharacters.charCodeAt(i);
+                                            }
+
                                             files.push({
                                                 uid: uid,
                                                 type: type,
                                                 name: name,
                                                 ex: ex,
-                                                base64: fileReader.result,
+                                                data: new Blob([byteNumbers], { type: mimetype }),
                                             });
                                             resolve(true);
                                         };

@@ -42,7 +42,7 @@ export class HttpService {
         } catch {}
         this.options = {
             headers: new HttpHeaders({
-                "Content-Type": "application/json",
+                // "Content-Type": "application/json",
                 Session: btoa(
                     JSON.stringify({
                         appId: this.environment.appId || "---",
@@ -60,6 +60,18 @@ export class HttpService {
      * @returns
      */
     public httpAddress(option?: HttpOptions): string {
+        console.log(option);
+
+        if (option?.multipart !== true) {
+            console.log(111);
+
+            this.options.headers = this.options.headers?.set("Content-Type", `application/json`);
+        } else if (this.options.headers) {
+            console.log(222);
+
+            this.options.headers = this.options.headers.delete("Content-Type");
+        }
+
         if (this.environment.session?.authToken) {
             this.options.headers = this.options.headers?.set("Authorization", `Bearer ${this.environment.session?.authToken}`);
         }
@@ -159,7 +171,7 @@ export class HttpService {
                 if (!this.environment.storage || httpOptions?.online || httpOptions?.global) {
                     let rp: any = {
                         u: `${this.httpAddress(httpOptions)}${reqMethod}`,
-                        b: jsonConvert["body"],
+                        b: httpOptions?.multipart ? jsonConvert["body"][0] : jsonConvert["body"],
                         o: { ...this.options },
                     };
 
