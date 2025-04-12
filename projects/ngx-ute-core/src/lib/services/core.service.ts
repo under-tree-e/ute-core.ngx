@@ -296,7 +296,7 @@ export class CoreService implements OnDestroy {
                                         type: type,
                                         name: name,
                                         ex: ex,
-                                        base64: new Blob([byteNumbers], { type: mimetype }),
+                                        data: new Blob([byteNumbers], { type: mimetype }),
                                     });
                                     resolve(true);
                                 };

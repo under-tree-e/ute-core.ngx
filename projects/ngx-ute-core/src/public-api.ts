@@ -42,6 +42,7 @@ export * from "./lib/directives/swipe";
 export * from "./lib/directives/view";
 export * from "./lib/directives/slide";
 export { LangRouterPrefixDirective as LangRouter } from "./lib/directives/langlink";
+export * from "./lib/directives/lang";
 
 export * from "./lib/components/paginator/paginator";
 export * from "./lib/components/paginator/paginator-arrows";

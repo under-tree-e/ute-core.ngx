@@ -7,7 +7,7 @@ import { LangService } from "../services/lang.service";
     standalone: true,
 })
 export class LangPipe implements PipeTransform {
-    constructor(private langService: LangService) {}
+    constructor(private readonly langService: LangService) {}
     /**
      * Get localized text
      * @param code - uid code to search

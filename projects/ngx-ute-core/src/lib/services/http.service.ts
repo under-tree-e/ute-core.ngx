@@ -60,15 +60,9 @@ export class HttpService {
      * @returns
      */
     public httpAddress(option?: HttpOptions): string {
-        console.log(option);
-
         if (option?.multipart !== true) {
-            console.log(111);
-
             this.options.headers = this.options.headers?.set("Content-Type", `application/json`);
         } else if (this.options.headers) {
-            console.log(222);
-
             this.options.headers = this.options.headers.delete("Content-Type");
         }
 
