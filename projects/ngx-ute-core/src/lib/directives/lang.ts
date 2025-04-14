@@ -4,6 +4,7 @@ import { LangService } from "../services/lang.service";
 
 @Directive({
     selector: "[uteLangInput]",
+    standalone: true,
     providers: [
         {
             provide: NG_VALUE_ACCESSOR,
@@ -17,17 +18,16 @@ export class MultilangInputDirective implements ControlValueAccessor {
     private onChange = (value: any) => {};
     private onTouched = () => {};
     private readonly langCode: string = this.langService.current();
+    private readonly langDefCode: string = this.langService.default();
 
     constructor(private readonly el: ElementRef<HTMLInputElement>, private readonly langService: LangService) {}
 
-    // Called by Angular when model -> view
     writeValue(value: string): void {
         this.fullValue = value || "";
-        const extracted = this.extractLangText(this.fullValue, this.langCode);
+        let extracted = this.extractLangText(this.fullValue, this.langCode);
         this.el.nativeElement.value = extracted;
     }
 
-    // Called by Angular to register view -> model change
     registerOnChange(fn: any): void {
         this.onChange = fn;
     }
@@ -44,7 +44,7 @@ export class MultilangInputDirective implements ControlValueAccessor {
     onInput(value: string): void {
         const updated = this.updateLangText(this.fullValue, this.langCode, value);
         this.fullValue = updated;
-        this.onChange(updated); // Notify Angular
+        this.onChange(updated);
     }
 
     @HostListener("blur")
@@ -52,10 +52,19 @@ export class MultilangInputDirective implements ControlValueAccessor {
         this.onTouched();
     }
 
-    private extractLangText(value: string, lang: string): string {
+    private extractLangText(value: string, lang: string, def: boolean = false): string {
         const regex = new RegExp(`\\[${lang}\\](.*?)(?=\\[|$)`);
         const match = value.match(regex);
-        return match ? match[1].trim() : "";
+        let text = match ? match[1].trim() : "";
+        if (!text && !def) {
+            const defaultValue = this.extractLangText(value, this.langDefCode, true);
+            text = defaultValue;
+        } else if (!text && def) {
+            this.fullValue = `[${this.langDefCode}]${value}`;
+            text = value;
+            this.onChange(this.fullValue);
+        }
+        return text || value;
     }
 
     private updateLangText(value: string, lang: string, newText: string): string {
