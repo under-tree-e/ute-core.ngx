@@ -11,7 +11,7 @@ import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
-import { RouterOutlet } from "@angular/router";
+import { Router, RouterOutlet } from "@angular/router";
 import { SEOService } from "./seo.service";
 import { StringOptions } from "../interfaces/generator";
 import { AnalyticsService } from "./analytics.service";
@@ -20,17 +20,18 @@ import { AnalyticsService } from "./analytics.service";
     providedIn: "root",
 })
 export class CoreService implements OnDestroy {
-    private subscriptions = new Subscription();
+    private readonly subscriptions = new Subscription();
 
     constructor(
-        @Inject("UteCoreConfig") private config: UteCoreConfigs,
+        @Inject("UteCoreConfig") private readonly config: UteCoreConfigs,
         private readonly cookieService: CookieService,
-        private httpService: HttpService,
-        private langService: LangService,
-        private pageService: PageService,
-        private seoService: SEOService,
-        private breakpoints: BreakpointObserver,
-        private analyticsService: AnalyticsService
+        private readonly httpService: HttpService,
+        private readonly langService: LangService,
+        private readonly pageService: PageService,
+        private readonly seoService: SEOService,
+        private readonly breakpoints: BreakpointObserver,
+        private readonly analyticsService: AnalyticsService,
+        private readonly router: Router
     ) {
         if (!this.config.standalone) {
             this.Init();
@@ -50,6 +51,10 @@ export class CoreService implements OnDestroy {
                 if (!this.config.environment.production) {
                     console.log(`${new Date().toISOString()} => CoreService`);
                 }
+
+                // this.router.events.subscribe((event) => {
+                //     console.log(event);
+                // });
 
                 if (this.config) {
                     if (this.config.environment) {

@@ -21,62 +21,112 @@ export class ResolveService {
      * @returns A promise resolving to the requested data or false if not found.
      */
     public resolve(route: ActivatedRouteSnapshot): Promise<any> {
-        let page: string = route.queryParams["page"];
+        console.log("resolve");
 
-        if (page !== undefined) {
-            return new Promise((resolve, reject) => {
-                (async () => {
-                    if (!page) {
-                        page = "home";
-                    }
+        console.log(route.url);
+        console.log(route.data);
+        console.log(route);
+        console.log(route.fragment);
 
-                    try {
-                        const result: any = await this.httpService.httpRequest("GET", [
-                            {
-                                table: (route.data as any).table || "pages",
-                                where: {
-                                    template: page,
-                                },
-                                refs: true,
-                            },
-                        ]);
-                        try {
-                            resolve(result[(route.data as any).table || "pages"][0]);
-                        } catch {
-                            resolve(false);
-                        }
-                    } catch (error: any) {
-                        reject(error as ErrorsData);
-                    }
-                })();
-            });
-        } else {
-            let jsons: UteApis<any>[] = [];
-            const data: any = route.data;
+        const fragment = route.fragment;
+        console.log("fragment", fragment);
 
-            return new Promise((resolve, reject) => {
-                (async () => {
-                    if (route.url.length) {
-                        const table: string = this.getTable(route.url, data);
-                        const id: UteObjects | null = this.getId(route.params);
+        // if (route.data["customResolve"]) {
+        //     console.log(111);
 
-                        if (!table) {
-                            resolve(false);
-                        } else {
-                            jsons = this.buildObject(data, table, id);
-                        }
-                    }
+        //     let jsons: UteApis<any>[] = route.data["jsons"];
+        //     jsons.forEach((j: UteApis<any>) => {
+        //         if (j.as === "page") {
+        //             j.where = {
+        //                 code: route.url.join("/"),
+        //             };
+        //         }
+        //     });
+        //     console.log(jsons);
 
-                    try {
-                        const result: any = await this.httpService.httpRequest("GET", jsons);
-                        resolve(result);
-                    } catch (error: any) {
-                        reject(error as ErrorsData);
-                    }
-                })();
-            });
-        }
+        //     return new Promise((resolve, reject) => {
+        //         (async () => {
+        //             try {
+        //                 const result: any = await this.httpService.httpRequest("GET", jsons);
+        //                 resolve(result);
+        //             } catch (error: any) {
+        //                 reject(error as ErrorsData);
+        //             }
+        //         })();
+        //     });
+        // }
+        // let page: string = route.queryParams["page"];
+
+        // console.log(route.data);
+        // console.log("page", page);
+
+        // if (page !== undefined) {
+        //     return new Promise((resolve, reject) => {
+        //         (async () => {
+        //             if (!page) {
+        //                 page = "home";
+        //             }
+
+        //             try {
+        //                 const result: any = await this.httpService.httpRequest("GET", [
+        //                     {
+        //                         table: (route.data as any).table || "pages",
+        //                         where: {
+        //                             template: page,
+        //                         },
+        //                         refs: true,
+        //                     },
+        //                 ]);
+        //                 try {
+        //                     resolve(result[(route.data as any).table || "pages"][0]);
+        //                 } catch {
+        //                     resolve(false);
+        //                 }
+        //             } catch (error: any) {
+        //                 reject(error as ErrorsData);
+        //             }
+        //         })();
+        //     });
+        // } else {
+        let jsons: UteApis<any>[] = [];
+        const data: any = route.data;
+
+        return new Promise((resolve, reject) => {
+            (async () => {
+                // if (route.url.length) {
+                const table: string = this.getTable(route.url, data);
+                const id: UteObjects | null = this.getId(route.params);
+
+                console.log("table", table);
+                console.log("id", id);
+
+                if (!table && route.data["jsons"]) {
+                }
+
+                // if (!table) {
+                //     resolve(false);
+                // } else {
+                jsons = this.buildObject(data, table, id, route);
+                // }
+                // }else{
+
+                // }
+
+                console.log("jsons", jsons);
+
+                try {
+                    const result: any = await this.httpService.httpRequest("GET", jsons);
+                    if (result["page"]?.length) result["page"][0].fragment = fragment ?? null;
+                    console.log(result);
+
+                    resolve(result);
+                } catch (error: any) {
+                    reject(error as ErrorsData);
+                }
+            })();
+        });
     }
+    // }
 
     /**
      * Extracts table name from route URL.
@@ -134,21 +184,25 @@ export class ResolveService {
      *
      * @returns An UteApis object configured with table, where, refs, and noref properties.
      */
-    private buildObject(data: any, table: string, id: UteObjects | null): UteApis<any>[] {
-        let api: UteApis<any> = {
-            table: data.table ?? table,
-        };
+    private buildObject(data: any, table: string, id: UteObjects | null, route: ActivatedRouteSnapshot): UteApis<any>[] {
+        let api: UteApis<any> = {};
 
-        if (id) {
-            api.where = id;
-        }
+        if (!route.data["custom"]) {
+            if (data.table || table) {
+                api.table = data.table ?? table;
+            }
 
-        if (data.refs) {
-            api.refs = true;
-        }
+            if (id) {
+                api.where = id;
+            }
 
-        if (data.noref) {
-            api.noref = true;
+            if (data.refs) {
+                api.refs = true;
+            }
+
+            if (data.noref) {
+                api.noref = true;
+            }
         }
 
         let apiArray: UteApis<any>[] = [];
@@ -156,6 +210,12 @@ export class ResolveService {
         if (data.jsons) {
             apiArray = data.jsons.map((j: UteApis<any>) => {
                 const original = api.table === j.table && (api.as ? api.as === j.as : !j.as);
+
+                if (j.as === "page") {
+                    j.where = {
+                        code: route.url.length ? route.url.join("/") : "home",
+                    };
+                }
 
                 if (!original) {
                     return j;
@@ -166,7 +226,7 @@ export class ResolveService {
             apiArray = apiArray.filter((a) => a !== null);
         }
 
-        apiArray.push(api);
+        if (api.table) apiArray.push(api);
 
         return apiArray;
     }
