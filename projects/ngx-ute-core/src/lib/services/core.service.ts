@@ -1,4 +1,4 @@
-import { afterNextRender, afterRender, Inject, Injectable, OnDestroy, runInInjectionContext } from "@angular/core";
+import { Inject, Injectable, OnDestroy } from "@angular/core";
 import { UteCoreConfigs } from "../interfaces/config";
 import { UteObjects } from "../interfaces/object";
 import { UteFileFormats, UteFileOptions } from "../interfaces/file";
@@ -11,10 +11,11 @@ import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
 import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
-import { Router, RouterOutlet } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet } from "@angular/router";
 import { SEOService } from "./seo.service";
 import { StringOptions } from "../interfaces/generator";
 import { AnalyticsService } from "./analytics.service";
+import { DOCUMENT } from "@angular/common";
 
 @Injectable({
     providedIn: "root",
@@ -31,7 +32,9 @@ export class CoreService implements OnDestroy {
         private readonly seoService: SEOService,
         private readonly breakpoints: BreakpointObserver,
         private readonly analyticsService: AnalyticsService,
-        private readonly router: Router
+        private readonly router: Router,
+        private readonly activatedRoute: ActivatedRoute,
+        @Inject(DOCUMENT) private readonly document: Document
     ) {
         if (!this.config.standalone) {
             this.Init();
@@ -52,9 +55,33 @@ export class CoreService implements OnDestroy {
                     console.log(`${new Date().toISOString()} => CoreService`);
                 }
 
-                // this.router.events.subscribe((event) => {
-                //     console.log(event);
-                // });
+                let location = "";
+
+                this.router.events.subscribe((event) => {
+                    if (event instanceof NavigationStart) {
+                        if (event.url === this.document.location.pathname) {
+                            location = this.document.location.href;
+                        } else {
+                            location = "";
+                        }
+                    }
+
+                    if (event instanceof NavigationEnd) {
+                        if (location) {
+                            this.activatedRoute.fragment.subscribe((fragment) => {
+                                const hash: string = location?.split("#")[1];
+                                location = "";
+
+                                if (hash && !fragment) {
+                                    this.router.navigate([], {
+                                        relativeTo: this.activatedRoute,
+                                        fragment: hash,
+                                    });
+                                }
+                            });
+                        }
+                    }
+                });
 
                 if (this.config) {
                     if (this.config.environment) {

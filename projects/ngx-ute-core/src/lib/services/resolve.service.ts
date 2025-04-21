@@ -21,15 +21,15 @@ export class ResolveService {
      * @returns A promise resolving to the requested data or false if not found.
      */
     public resolve(route: ActivatedRouteSnapshot): Promise<any> {
-        console.log("resolve");
+        // console.log("resolve");
 
-        console.log(route.url);
-        console.log(route.data);
-        console.log(route);
-        console.log(route.fragment);
+        // console.log(route.url);
+        // console.log(route.data);
+        // console.log(route);
+        // console.log(route.fragment);
 
-        const fragment = route.fragment;
-        console.log("fragment", fragment);
+        // const fragment = route.fragment;
+        // console.log("fragment", fragment);
 
         // if (route.data["customResolve"]) {
         //     console.log(111);
@@ -97,8 +97,8 @@ export class ResolveService {
                 const table: string = this.getTable(route.url, data);
                 const id: UteObjects | null = this.getId(route.params);
 
-                console.log("table", table);
-                console.log("id", id);
+                // console.log("table", table);
+                // console.log("id", id);
 
                 if (!table && route.data["jsons"]) {
                 }
@@ -112,12 +112,16 @@ export class ResolveService {
 
                 // }
 
-                console.log("jsons", jsons);
+                // console.log("jsons", jsons);
 
                 try {
+                    console.log(111);
+
                     const result: any = await this.httpService.httpRequest("GET", jsons);
-                    if (result["page"]?.length) result["page"][0].fragment = fragment ?? null;
-                    console.log(result);
+                    console.log(222, result);
+
+                    // if (result["page"]?.length) result["page"][0].fragment = fragment ?? null;
+                    // console.log(result);
 
                     resolve(result);
                 } catch (error: any) {
