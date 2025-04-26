@@ -1,5 +1,8 @@
+/* Module imports */
 import { Pipe, PipeTransform } from "@angular/core";
 import { DecimalPipe } from "@angular/common";
+
+/* Project imports */
 
 @Pipe({
     name: "uteNumber",
@@ -7,7 +10,7 @@ import { DecimalPipe } from "@angular/common";
     standalone: true,
 })
 export class NumberStringPipe implements PipeTransform {
-    private lookup: any[] = [
+    private readonly lookup: any[] = [
         { value: 1, symbol: "" },
         { value: 1e3, symbol: "k" },
         { value: 1e6, symbol: "M" },
@@ -16,7 +19,7 @@ export class NumberStringPipe implements PipeTransform {
         { value: 1e15, symbol: "P" },
         { value: 1e18, symbol: "E" },
     ];
-    private decimalPipe: DecimalPipe = new DecimalPipe("en-US");
+    private readonly decimalPipe: DecimalPipe = new DecimalPipe("en-US");
 
     /**
      * Covert number to small string like `"2k"`
@@ -25,7 +28,7 @@ export class NumberStringPipe implements PipeTransform {
      * @returns `string` value
      */
     public transform(value: number, digits?: number): string {
-        let rx: RegExp = /\.0+$|(\.[0-9]*[1-9])0+$/;
+        let rx: RegExp = /\.0+$|(\.\d*[1-9])0+$/;
         let item = this.lookup
             .slice()
             .reverse()
@@ -35,13 +38,13 @@ export class NumberStringPipe implements PipeTransform {
 
         if (item && digits) {
             value = parseInt(value.toFixed(0));
-            if (item && value.toString().length > digits) {
+            if (value.toString().length > digits) {
                 return this.decimalPipe.transform((value / item.value).toFixed(1).replace(rx, "$1")) + item.symbol;
             } else {
-                return this.decimalPipe.transform(value)?.toString() || "0";
+                return this.decimalPipe.transform(value)?.toString() ?? "0";
             }
         } else {
-            return this.decimalPipe.transform(value)?.toString() || "0";
+            return this.decimalPipe.transform(value)?.toString() ?? "0";
         }
     }
 }

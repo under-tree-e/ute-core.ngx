@@ -9,7 +9,6 @@
             align-items: center;
             justify-content: center;
             position: relative;
-            cursor: pointer;
             min-width: 10rem;
             background: none;
             border: none;
@@ -28,6 +27,7 @@
                 height: 100%;
             }
             &:hover {
+                cursor: pointer;
                 &::before {
                     transition-delay: 0s;
                     opacity: 0;
@@ -109,8 +109,10 @@
                 justify-content: center;
                 border-radius: 100%;
                 background-color: #dadada;
-                cursor: pointer;
                 border: none;
+                &:hover {
+                    cursor: pointer;
+                }
                 &.disabled {
                     pointer-events: none;
                     background-color: transparent;
@@ -128,11 +130,12 @@
                 justify-content: center;
                 border-radius: 100%;
                 background-color: #dadada;
-                cursor: pointer;
                 border: none;
+                &:hover {
+                    cursor: pointer;
+                }
                 &.active {
                     background-color: #c9cce8;
-                    // pointer-events: none;
                 }
                 &.disabled {
                     pointer-events: none;
@@ -150,7 +153,9 @@
             position: relative;
             border-radius: 18px;
             box-shadow: inset 0px 0px 0px 2px #dadada;
-            cursor: pointer;
+            &:hover {
+                cursor: pointer;
+            }
             &.active {
                 .resizer {
                     .size {

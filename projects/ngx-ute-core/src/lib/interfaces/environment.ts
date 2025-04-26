@@ -1,5 +1,3 @@
-import { SessionData } from "./session";
-
 /**
  * Additional parameters for Angular environment
  * @prop {@link UteEnvironment.online | online}?: `boolean` - App online status
@@ -65,7 +63,7 @@ export interface UteEnvironment {
     /**
      * User session data
      */
-    session: SessionData & any;
+    session: any;
     /**
      * App api token for Bearer API Authorization
      */

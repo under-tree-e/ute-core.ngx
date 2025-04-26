@@ -1,7 +1,10 @@
+/* Module imports */
 import { Directive, inject, Input } from "@angular/core";
 import { RouterLink } from "@angular/router";
-import { LangService } from "../services/lang.service";
 import { PlatformLocation } from "@angular/common";
+
+/* Project imports */
+import { LangService } from "../services/lang.service";
 
 @Directive({
     selector: "[routerLink]",
@@ -13,6 +16,15 @@ export class LangRouterPrefixDirective extends RouterLink {
     private localRouterLink!: string | any[];
 
     @Input()
+    /**
+     * Overrides the `routerLink` input property to update the local router link value.
+     *
+     * This setter removes the leading slash from the input value if present, and
+     * assigns the processed value to `localRouterLink`. This ensures that the
+     * local router link is correctly formatted for locale prefixing.
+     *
+     * @param value - The input router link value which can be a string or an array.
+     */
     override set routerLink(value: string | any[]) {
         this.localRouterLink = value[0] === "/" ? value.slice(1) : value;
     }

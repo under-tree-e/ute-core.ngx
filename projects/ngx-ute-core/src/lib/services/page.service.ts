@@ -1,4 +1,7 @@
+/* Module imports */
 import { Injectable } from "@angular/core";
+
+/* Project imports */
 import { PageData } from "../interfaces/page";
 import { UteEnvironment } from "../interfaces/environment";
 
@@ -22,7 +25,7 @@ export class PageService {
     public Init(environment: UteEnvironment, pages?: PageData[]) {
         this.environment = environment;
 
-        this.serverLink = this.environment.appServer ? this.environment.appServer : "";
+        this.serverLink = this.environment.appServer ?? "";
         if (!this.serverLink.endsWith("/")) {
             this.serverLink += "/";
         }
@@ -207,7 +210,6 @@ export class PageService {
             }
         }
 
-        // Initialize map with all nodes
         data.forEach((item) => {
             map.set(item.uid, { ...item, contents: [] });
         });
@@ -216,37 +218,38 @@ export class PageService {
         const keyName: string = options?.key ?? "children";
         const keyNameCopy: string = "children";
 
-        // Assign children to parents
+        /**
+         * Add an item to the given parent object in the given key.
+         * @param parent - The parent object.
+         * @param item - The item to be added.
+         * @param key - The key to add the item to.
+         * @description
+         * If the parent does not have a key with the given name or if it is not an array,
+         * it will be created as an empty array.
+         * If the item has a position, the array will be sorted by position.
+         */
+        function setItem(parent: any, item: any, key: string) {
+            if (!Array.isArray(parent[key])) parent[key] = [];
+            parent[key].push(map.get(item.uid));
+            if (item.position) {
+                parent[key].sort((a: any, b: any) => a.position - b.position);
+            }
+        }
+
         data.forEach((item) => {
             if (item.parent === null) {
                 root.push(map.get(item.uid));
             } else {
                 const parent = map.get(item.parent);
                 if (parent) {
-                    if (!parent[keyName] || (parent[keyName] && !parent[keyName].length)) {
-                        parent[keyName] = [];
-                    }
                     if (parent.type === "copy" && !parent.parent) {
                         if (item.type === "copy") {
-                            if (!parent[keyNameCopy] || (parent[keyNameCopy] && !parent[keyNameCopy].length)) {
-                                parent[keyNameCopy] = [];
-                            }
-
-                            parent[keyNameCopy].push(map.get(item.uid));
-                            if (item.position) {
-                                parent[keyNameCopy].sort((a: any, b: any) => a.position - b.position);
-                            }
+                            setItem(parent, item, keyNameCopy);
                         } else {
-                            parent[keyName].push(map.get(item.uid));
-                            if (item.position) {
-                                parent[keyName].sort((a: any, b: any) => a.position - b.position);
-                            }
+                            setItem(parent, item, keyName);
                         }
                     } else {
-                        parent[keyName].push(map.get(item.uid));
-                        if (item.position) {
-                            parent[keyName].sort((a: any, b: any) => a.position - b.position);
-                        }
+                        setItem(parent, item, keyName);
                     }
                 }
             }

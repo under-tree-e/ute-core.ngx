@@ -1,10 +1,10 @@
 /* Module imports */
 import { ChangeDetectionStrategy, Component, ElementRef, ViewChild, ViewEncapsulation } from "@angular/core";
 import { NgTemplateOutlet } from "@angular/common";
+import { DomSanitizer } from "@angular/platform-browser";
 
 /* Project imports */
 import { UtePaginator } from "./paginator";
-import { DomSanitizer } from "@angular/platform-browser";
 
 @Component({
     selector: "ute-paginator-arrows",

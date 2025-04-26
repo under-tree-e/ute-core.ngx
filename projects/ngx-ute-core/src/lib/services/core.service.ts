@@ -1,21 +1,24 @@
+/* Module imports */
 import { Inject, Injectable, OnDestroy } from "@angular/core";
+import { DOCUMENT } from "@angular/common";
+import { BreakpointObserver } from "@angular/cdk/layout";
+import { v4 } from "uuid";
+import Compressor from "compressorjs";
+import { Capacitor } from "@capacitor/core";
+import { Observable, Subscription, map } from "rxjs";
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet } from "@angular/router";
+
+/* Project imports */
 import { UteCoreConfigs } from "../interfaces/config";
 import { UteObjects } from "../interfaces/object";
 import { UteFileFormats, UteFileOptions } from "../interfaces/file";
-import { v4 } from "uuid";
-import Compressor from "compressorjs";
 import { CookieService } from "./cookie.service";
-import { Capacitor } from "@capacitor/core";
 import { HttpService } from "./http.service";
-import { Observable, Subscription, map } from "rxjs";
 import { LangService } from "./lang.service";
-import { BreakpointObserver } from "@angular/cdk/layout";
 import { PageService } from "./page.service";
-import { ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet } from "@angular/router";
 import { SEOService } from "./seo.service";
 import { StringOptions } from "../interfaces/generator";
 import { AnalyticsService } from "./analytics.service";
-import { DOCUMENT } from "@angular/common";
 
 @Injectable({
     providedIn: "root",
@@ -23,6 +26,20 @@ import { DOCUMENT } from "@angular/common";
 export class CoreService implements OnDestroy {
     private readonly subscriptions = new Subscription();
 
+    /**
+     * Constructs a CoreService object.
+     * @param config - The Ute Core configuration settings.
+     * @param cookieService - The cookie service to use.
+     * @param httpService - The HTTP service to use.
+     * @param langService - The language service to use.
+     * @param pageService - The page service to use.
+     * @param seoService - The SEO service to use.
+     * @param breakpoints - The breakpoint observer to use.
+     * @param analyticsService - The analytics service to use.
+     * @param router - The router to use.
+     * @param activatedRoute - The activated route to use.
+     * @param document - The document to use.
+     */
     constructor(
         @Inject("UteCoreConfig") private readonly config: UteCoreConfigs,
         private readonly cookieService: CookieService,
@@ -37,82 +54,111 @@ export class CoreService implements OnDestroy {
         @Inject(DOCUMENT) private readonly document: Document
     ) {
         if (!this.config.standalone) {
-            this.Init();
+            this.localInit();
         }
     }
 
+    /**
+     * Calls the Init method only in standalone mode.
+     *
+     * @internal
+     */
+    private localInit() {
+        this.Init();
+    }
+
+    /**
+     * Cleans up all subscriptions when the component is destroyed.
+     */
     ngOnDestroy(): void {
         this.subscriptions.unsubscribe();
     }
 
     /**
-     * Initialization module
+     * Initializes the application.
+     *
+     * This method sets up the environment variables and then calls the Init methods of the
+     * other services. It also sets up the event listeners for the router events.
+     *
+     * @returns A promise that resolves when the application is initialized.
+     * @throws An error if the application fails to initialize.
      */
     public Init() {
-        return new Promise(async (resolve) => {
-            try {
-                if (!this.config.environment.production) {
-                    console.log(`${new Date().toISOString()} => CoreService`);
-                }
+        return new Promise((resolve) => {
+            (async () => {
+                try {
+                    if (!this.config.environment.production) {
+                        console.log(`${new Date().toISOString()} => CoreService`);
+                    }
 
-                let location = "";
+                    this.fragmentGenerator();
 
-                this.router.events.subscribe((event) => {
-                    if (event instanceof NavigationStart) {
-                        if (event.url === this.document.location.pathname) {
-                            location = this.document.location.href;
-                        } else {
-                            location = "";
+                    if (this.config) {
+                        if (this.config.environment) {
+                            let platform: string = Capacitor.getPlatform();
+
+                            if (platform === "web") {
+                                platform = this.isWebBrowser(platform);
+                            }
+
+                            if (this.config.environment.gtag) {
+                                this.analyticsService.Init(this.config.environment.gtag);
+                            }
+
+                            this.config.environment.platform = platform;
+                            this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
+                            this.detectOS();
                         }
                     }
 
-                    if (event instanceof NavigationEnd) {
-                        if (location) {
-                            this.activatedRoute.fragment.subscribe((fragment) => {
-                                const hash: string = location?.split("#")[1];
-                                location = "";
+                    this.cookieService.Init(this.config.environment, this.config.cookiesExp);
+                    this.httpService.Init(this.config.environment);
+                    await this.langService.Init(this.config.environment, this.config);
+                    if (this.config.pages?.length) {
+                        this.pageService.Init(this.config.environment, this.config.pages);
+                        this.seoService.Init(this.config.environment, this.langService, this.pageService);
+                    }
+                    this.loadSession();
+                    resolve(true);
+                } catch (error) {
+                    throw Error(`App Load Error: ${error}`);
+                }
+            })();
+        });
+    }
 
-                                if (hash && !fragment) {
-                                    this.router.navigate([], {
-                                        relativeTo: this.activatedRoute,
-                                        fragment: hash,
-                                    });
-                                }
+    /**
+     * When the user navigates to a URL with a fragment, the fragment is lost.
+     * This function listens to NavigationStart and NavigationEnd events and
+     * if the URL has changed, it checks if the fragment is present. If it is not,
+     * it navigates to the same URL with the fragment.
+     */
+    private fragmentGenerator() {
+        let location = "";
+
+        this.router.events.subscribe((event) => {
+            if (event instanceof NavigationStart) {
+                if (event.url === this.document.location.pathname) {
+                    location = this.document.location.href;
+                } else {
+                    location = "";
+                }
+            }
+
+            if (event instanceof NavigationEnd) {
+                if (location) {
+                    this.activatedRoute.fragment.subscribe((fragment) => {
+                        const hash: string = location?.split("#")[1];
+                        location = "";
+
+                        if (hash && !fragment) {
+                            this.router.navigate([], {
+                                relativeTo: this.activatedRoute,
+                                fragment: hash,
                             });
                         }
-                    }
-                });
-
-                if (this.config) {
-                    if (this.config.environment) {
-                        let platform: string = Capacitor.getPlatform();
-
-                        if (platform === "web") {
-                            platform = this.isWebBrowser(platform);
-                        }
-
-                        if (this.config.environment.gtag) {
-                            this.analyticsService.Init(this.config.environment.gtag);
-                        }
-
-                        this.config.environment.platform = platform;
-                        this.checkOnline();
-                        this.subscriptions.add(this.isMobile().subscribe((status: boolean) => (this.config.environment.mobile = status)));
-                        this.detectOS();
-                    }
+                    });
                 }
-
-                this.cookieService.Init(this.config.environment, this.config.cookiesExp);
-                this.httpService.Init(this.config.environment);
-                await this.langService.Init(this.config.environment, this.config);
-                if (this.config.pages?.length) {
-                    await this.pageService.Init(this.config.environment, this.config.pages);
-                    this.seoService.Init(this.config.environment, this.langService, this.pageService);
-                }
-                this.loadSession();
-                resolve(true);
-            } catch (error) {
-                throw Error(`App Load Error: ${error}`);
             }
         });
     }
@@ -126,7 +172,7 @@ export class CoreService implements OnDestroy {
      * @param options.image - Generate image
      */
     public getMedia(file: any, options: { all: boolean; thumb: boolean; orig: boolean } = { all: true, thumb: false, orig: false }) {
-        let server: string = this.config.environment.appServer ? this.config.environment.appServer : "";
+        let server: string = this.config.environment.appServer ?? "";
         if (!server.endsWith("/")) server += "/";
         if (options.all || options.orig) {
             file.orig = `${server}api/media/${file.name}.${file.ex}`;
@@ -164,14 +210,6 @@ export class CoreService implements OnDestroy {
      */
     private isWebBrowser(platform: string): string {
         if (typeof navigator === "object" && typeof navigator.userAgent === "string") {
-            // if (/android/i.test(navigator.userAgent)) {
-            //     return "android";
-            // }
-
-            // if (/iPad|iPhone|iPod/.test(navigator.userAgent)) {
-            //     return "ios";
-            // }
-
             if (/Electron/.test(navigator.userAgent)) {
                 return "electron";
             }
@@ -199,54 +237,75 @@ export class CoreService implements OnDestroy {
             cut?: UteObjects;
         }
     ): T {
-        // Dublicate source to prevert original changes
-        let resource: T = JSON.parse(JSON.stringify(source));
+        const clone = (obj: any) => JSON.parse(JSON.stringify(obj));
+
+        /**
+         * Updates the `sourceObj` with values from `updateObj`.
+         *
+         * The function iterates over each key in the `updateObj`. If the `sourceObj`
+         * has the same key or if the `resize` option is enabled, it updates the value.
+         * For nested objects, the function recursively updates the object values.
+         *
+         * If the `noEmpty` option is set, it only updates values from `updateObj` that
+         * are not `null` or `undefined`.
+         *
+         * @param sourceObj - The object to be updated.
+         * @param updateObj - The object containing the new values.
+         * @returns The updated `sourceObj`.
+         */
+        const updateObject = (sourceObj: any, updateObj: UteObjects): any => {
+            for (const key in updateObj) {
+                if (sourceObj?.hasOwnProperty(key) || options?.resize) {
+                    const sourceValue = sourceObj[key];
+                    const updateValue = updateObj[key];
+
+                    if (sourceValue && typeof sourceValue === "object" && !Array.isArray(sourceValue)) {
+                        sourceObj[key] = updateObject(sourceValue, updateValue);
+                    } else if (options?.noEmpty) {
+                        if (updateValue !== null && updateValue !== undefined) {
+                            sourceObj[key] = updateValue;
+                        }
+                    } else {
+                        sourceObj[key] = updateValue;
+                    }
+                }
+            }
+            return sourceObj;
+        };
 
         try {
-            let updater = (s: any, u: UteObjects) => {
-                for (const k in u) {
-                    if ((s && s.hasOwnProperty(k)) || options?.resize) {
-                        if (s[k] && typeof s[k] === "object" && !Array.isArray(s[k])) {
-                            s[k] = updater(s[k], u[k]);
-                        } else {
-                            if (options?.noEmpty) {
-                                if (u[k] !== null && u[k] !== undefined) {
-                                    s[k] = u[k];
-                                }
-                            } else {
-                                s[k] = u[k];
-                            }
-                        }
-                    }
-                }
-                return s;
-            };
+            let resource: any = clone(source);
 
             if (Array.isArray(resource)) {
-                if (options?.key) {
-                    let index: number = resource.map((x: any) => (options?.key ? x[options?.key] : x["id"])).indexOf(options?.key ? target[options?.key] : target["id"]);
-                    if (index !== -1) {
-                        resource[index] = updater(resource[index], target);
-                    } else {
-                        resource.push(target);
-                        index = resource.length - 1;
-                    }
-                    if (options?.cut) {
-                        resource[index] = this.toInterface(resource[index], options?.cut);
-                    }
+                if (!options?.key) {
+                    throw new Error("Missing 'key' option for array resources.");
+                }
+
+                const findKey = options.key;
+                const findValue = target[findKey];
+                let index = resource.findIndex((item: any) => item?.[findKey] === findValue);
+
+                if (index !== -1) {
+                    resource[index] = updateObject(resource[index], target);
                 } else {
-                    throw "Empty 'key' param";
+                    resource.push(target);
+                    index = resource.length - 1;
+                }
+
+                if (options?.cut) {
+                    resource[index] = this.toInterface(resource[index], options.cut);
                 }
             } else {
-                resource = updater(resource, target);
+                resource = updateObject(resource, target);
+
                 if (options?.cut) {
-                    resource = this.toInterface(resource, options?.cut);
+                    resource = this.toInterface(resource, options.cut);
                 }
             }
 
             return resource;
         } catch (error) {
-            console.error(error);
+            console.error("Error in toObject:", error);
             return source;
         }
     }
@@ -262,7 +321,7 @@ export class CoreService implements OnDestroy {
 
         let removeKeys: string[] = Object.keys(resource).filter((k: string) => !Object.keys(interfaceConst).some((p: any) => p === k));
 
-        removeKeys.map((k: string) => {
+        removeKeys.forEach((k: string) => {
             delete resource[k];
         });
 
@@ -270,136 +329,149 @@ export class CoreService implements OnDestroy {
     }
 
     /**
-     * Load file from File Input
-     * @param file - input
-     * @param options - settings
-     * @returns file object
+     * Processes the given file(s) and returns a promise with processed file data.
+     *
+     * The function handles various file types such as images, documents, and videos.
+     * For images, it applies compression based on provided options. Supports processing
+     * multiple files if the `multiple` option is enabled.
+     *
+     * @param file - The file or files to process.
+     * @param options - Optional parameters for file processing.
+     * @param options.quality - The compression quality for images, default is 0.65.
+     * @param options.maxHeight - The maximum height for image compression, default is 1024.
+     * @param options.maxWidth - The maximum width for image compression, default is 1024.
+     * @param options.checkOrientation - Whether to check and adjust image orientation, default is true.
+     * @param options.multiple - Whether to process multiple files, default is false.
+     * @param options.uniqName - Whether to generate a unique name for the file, default is false.
+     * @returns A promise that resolves with the processed file data, either a single file or an array of files.
      */
     public getFile(file: any, options?: UteFileOptions): Promise<any> {
-        if (!options) {
-            options = {} as UteFileOptions;
-        }
+        options ??= {} as UteFileOptions;
 
         if (!options?.full) {
-            !options?.quality ? (options!.quality = 0.65) : null;
-            !options?.maxHeight ? (options!.maxHeight = 1024) : null;
-            !options?.maxWidth ? (options!.maxWidth = 1024) : null;
-            !options?.checkOrientation ? (options!.checkOrientation = true) : null;
+            options.quality ??= 0.65;
+            options.maxHeight ??= 1024;
+            options.maxWidth ??= 1024;
+            options.checkOrientation ??= true;
         }
-        !options?.multiple ? (options!.multiple = false) : null;
-        !options?.uniqName ? (options!.uniqName = false) : null;
+        options.multiple ??= false;
+        options.uniqName ??= false;
 
-        return new Promise(async (resolve, reject) => {
-            try {
-                let files: any[] = [];
-                let fileArray: any[] = Array.from(file.files);
+        return new Promise((resolve, reject) => {
+            (async () => {
+                try {
+                    let files: any[] = [];
+                    let fileArray: any[] = Array.from(file.files);
 
-                const fileReadingPromises = fileArray.map((fileData: any) => {
-                    return new Promise((resolve) => {
-                        let array: string[] = fileData.name.split(".");
-                        const ex: string = array[array.length - 1];
-                        array.splice(-1, 1);
-                        let name: string = array.join(".");
-                        let uid: string = v4();
-                        options?.uniqName ? (name = `${name}-${uid}`) : null;
-                        const mimetype: string = fileData.type;
-
-                        let type: string = "file";
-                        if (UteFileFormats.images.some((format: string) => format === ex)) {
-                            type = "image";
-                        } else if (UteFileFormats.docs.some((format: string) => format === ex)) {
-                            type = "doc";
-                        } else if (UteFileFormats.videos.some((format: string) => format === ex)) {
-                            type = "video";
-                        }
-                        if (type === "image") {
-                            if (UteFileFormats.imageIgnor.some((img: string) => ex === img)) {
-                                let fileReader: FileReader = new FileReader();
-                                fileReader.onload = () => {
-                                    const fileData: any = fileReader.result;
-                                    const byteCharacters = atob(fileData.split(",")[1]);
-                                    const byteNumbers = new Uint8Array(byteCharacters.length);
-                                    for (let i = 0; i < byteCharacters.length; i++) {
-                                        byteNumbers[i] = byteCharacters.charCodeAt(i);
-                                    }
-
-                                    files.push({
-                                        uid: uid,
-                                        type: type,
-                                        name: name,
-                                        ex: ex,
-                                        data: new Blob([byteNumbers], { type: mimetype }),
-                                    });
-                                    resolve(true);
-                                };
-                                fileReader.readAsDataURL(fileData);
-                            } else {
-                                new Compressor(fileData, {
-                                    quality: options?.quality,
-                                    maxHeight: options?.maxHeight,
-                                    maxWidth: options?.maxWidth,
-                                    checkOrientation: options?.checkOrientation,
-                                    success(result) {
-                                        let fileReader: FileReader = new FileReader();
-                                        fileReader.onload = () => {
-                                            const fileData: any = fileReader.result;
-                                            const byteCharacters = atob(fileData.split(",")[1]);
-                                            const byteNumbers = new Uint8Array(byteCharacters.length);
-                                            for (let i = 0; i < byteCharacters.length; i++) {
-                                                byteNumbers[i] = byteCharacters.charCodeAt(i);
-                                            }
-
-                                            files.push({
-                                                uid: uid,
-                                                type: type,
-                                                name: name,
-                                                ex: ex,
-                                                data: new Blob([byteNumbers], { type: mimetype }),
-                                            });
-                                            resolve(true);
-                                        };
-                                        fileReader.readAsDataURL(result);
-                                    },
-                                    error(error) {
-                                        reject(error);
-                                    },
-                                });
-                            }
-                        } else {
-                            let fileReader: FileReader = new FileReader();
-                            fileReader.onload = () => {
-                                files.push({
-                                    uid: uid,
-                                    type: type,
-                                    name: name,
-                                    ex: ex,
-                                    base64: fileReader.result,
-                                });
-                                resolve(true);
-                            };
-                            fileReader.readAsDataURL(fileData);
-                        }
+                    const fileReadingPromises = fileArray.map((fileData: any) => {
+                        return this.readFile(fileData, options);
                     });
-                });
 
-                await Promise.all(fileReadingPromises);
+                    await Promise.all(fileReadingPromises);
 
-                if (options?.multiple) {
-                    resolve(files);
-                } else {
-                    resolve(files[0]);
+                    if (options?.multiple) {
+                        resolve(files);
+                    } else {
+                        resolve(files[0]);
+                    }
+                } catch (error) {
+                    reject(error as Error);
                 }
-            } catch (error) {
-                reject(error);
+            })();
+        });
+    }
+
+    private readFile(fileData: any, options?: UteFileOptions): Promise<any> {
+        return new Promise((resolve, reject) => {
+            let array: string[] = fileData.name.split(".");
+            const ex: string = array[array.length - 1];
+            array.splice(-1, 1);
+            let name: string = array.join(".");
+            let uid: string = v4();
+            if (options?.uniqName) name = `${name}-${uid}`;
+            const mimetype: string = fileData.type;
+
+            let type: string = "file";
+            if (UteFileFormats.images.some((format: string) => format === ex)) {
+                type = "image";
+            } else if (UteFileFormats.docs.some((format: string) => format === ex)) {
+                type = "doc";
+            } else if (UteFileFormats.videos.some((format: string) => format === ex)) {
+                type = "video";
+            }
+            if (type === "image" && !UteFileFormats.imageIgnor.some((img: string) => ex === img)) {
+                const fileReaderFunc = this.fileReaderFunc.bind(this);
+                const res = new Compressor(fileData, {
+                    quality: options?.quality,
+                    maxHeight: options?.maxHeight,
+                    maxWidth: options?.maxWidth,
+                    checkOrientation: options?.checkOrientation,
+                    success(result) {
+                        const res = fileReaderFunc(uid, type, name, ex, mimetype, result);
+                        return res;
+                    },
+                    error(error) {
+                        reject(error);
+                    },
+                });
+                resolve(res);
+            } else {
+                const res = this.fileReaderFunc(uid, type, name, ex, mimetype, fileData);
+                resolve(res);
             }
         });
     }
 
     /**
+     * Reads file data and returns a promise with file information.
      *
-     * @param eventDate
-     * @param returnDay
-     * @returns
+     * This function utilizes a FileReader to read the provided file data and
+     * converts it into a Blob object. The resulting file information is then
+     * resolved as an array containing an object with the file's unique identifier,
+     * type, name, extension, and data.
+     *
+     * @param uid - Unique identifier for the file.
+     * @param type - Type of the file (e.g., image, doc, video).
+     * @param name - Name of the file without extension.
+     * @param ex - File extension.
+     * @param mimetype - MIME type of the file.
+     * @param fileData - The actual file data to be processed.
+     * @returns A promise that resolves with an array containing the processed file information.
+     */
+    private fileReaderFunc(uid: string, type: string, name: string, ex: string, mimetype: string, fileData: any): Promise<any> {
+        const files: any[] = [];
+        return new Promise((resolve) => {
+            let fileReader: FileReader = new FileReader();
+            fileReader.onload = () => {
+                const fileData: any = fileReader.result;
+                const byteCharacters = atob(fileData.split(",")[1]);
+                const byteNumbers = new Uint8Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+
+                files.push({
+                    uid: uid,
+                    type: type,
+                    name: name,
+                    ex: ex,
+                    data: new Blob([byteNumbers], { type: mimetype }),
+                });
+                resolve(files);
+            };
+            fileReader.readAsDataURL(fileData);
+        });
+    }
+
+    /**
+     * Gets the week of the month for a given date.
+     *
+     * If `returnDay` is set to `true`, the function will return the day of the week (1-7) instead of the week of the month.
+     *
+     * The week of the month is calculated as the week that contains the date and is zero-indexed.
+     * @param eventDate - The date for which to get the week of the month.
+     * @param returnDay - Whether to return the day of the week instead of the week of the month.
+     * @returns The week of the month or the day of the week.
      */
     public getWeekOfMonth(eventDate: Date, returnDay: boolean = false): number {
         let d: Date = new Date(eventDate);
@@ -413,9 +485,9 @@ export class CoreService implements OnDestroy {
     }
 
     /**
-     *
-     * @param date
-     * @returns
+     * Converts a date to the ISO 8601 format with timezone offset.
+     * @param date - The date to convert.
+     * @returns The ISO 8601 formatted date string.
      */
     public toIsoZone(date: Date | string): string {
         try {
@@ -438,45 +510,58 @@ export class CoreService implements OnDestroy {
     }
 
     /**
-     * Update server online status
-     */
-    public async checkOnline() {
-        // const res: any = await this.httpService.httpRequest("POST", [{ method: "online" }]);
-        // this.config.environment.online = res.online || false;
-    }
-
-    /**
      * Return if mobile device
      * @param custom - Custom width size
      */
     public isMobile(custom?: string): Observable<boolean> {
-        return this.breakpoints.observe(`(max-width: ${custom ? custom : 860}px)`).pipe(map((breakpoint) => breakpoint.matches));
+        return this.breakpoints.observe(`(max-width: ${custom ?? 860}px)`).pipe(map((breakpoint) => breakpoint.matches));
     }
 
     /**
-     * Convert user format to one of presets
-     * @param format - User default date format
-     * @param type - Preset name
-     * @returns New format string
+     * Formats a date string according to a specified type.
+     *
+     * This function processes the input format string and transforms it
+     * based on the specified type, which can be "date", "time", "shortdate",
+     * or "shorttime". The transformation adjusts the year and month formats
+     * according to the specified type.
+     *
+     * @param format - The date format string to transform.
+     * @param type - The type of formatting to apply ("date", "time", "shortdate", "shorttime").
+     * @returns The formatted date string.
      */
     public dateFormat(format: string, type: "date" | "time" | "shortdate" | "shorttime"): string {
-        const dateRegx: RegExp = /(d{1,2}\W{0,1}m{1,5}\W{0,1}y{1,4})|(m{1,5}\W{0,1}d{1,2}\W{0,1}y{1,4})|(y{1,4}\W{0,1}m{1,5}\W{0,1}d{1,2})/gi;
-        let value: string = JSON.parse(JSON.stringify(format));
-        let match = value.match(dateRegx);
-        if (value) {
-            switch (type) {
-                case "date":
-                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YYYY" : "yyyy") : value;
-                case "time":
-                    return value.replace(/y{2,4}/gi, value.includes("Y") ? "YYYY" : "yyyy");
-                case "shorttime":
-                    value = value.replace(/m{2,5}/gi, value.includes("M") ? "MM" : "mm");
-                    return value.replace(/y{2,4}/gi, value.includes("Y") ? "YY" : "yy");
-                case "shortdate":
-                    return match ? match[0].replace(/y{2,4}/gi, match[0].includes("Y") ? "YY" : "yy") : value;
-            }
-        } else {
-            return format;
+        const dateRegex = /(?:[dmy]+\W?){3}/gi;
+        const value = JSON.parse(JSON.stringify(format));
+        const match = value.match(dateRegex);
+
+        if (!value) return format;
+
+        const getYearFormat = (isLong: boolean) => (isLong ? "YYYY" : "yyyy");
+        const getShortYearFormat = (isLong: boolean) => (isLong ? "YY" : "yy");
+
+        switch (type) {
+            case "date":
+                if (match) {
+                    const yearFormat = getYearFormat(match[0].includes("Y"));
+                    return match[0].replace(/y{2,4}/gi, yearFormat);
+                }
+                return value;
+
+            case "time":
+                return value.replace(/y{2,4}/gi, getYearFormat(value.includes("Y")));
+
+            case "shorttime":
+                return value.replace(/m{2,5}/gi, value.includes("M") ? "MM" : "mm").replace(/y{2,4}/gi, getShortYearFormat(value.includes("Y")));
+
+            case "shortdate":
+                if (match) {
+                    const yearFormat = getShortYearFormat(match[0].includes("Y"));
+                    return match[0].replace(/y{2,4}/gi, yearFormat);
+                }
+                return value;
+
+            default:
+                return format;
         }
     }
 
@@ -485,7 +570,7 @@ export class CoreService implements OnDestroy {
      * @param outlet
      * @returns boolean status
      */
-    public prepareRoute(outlet: RouterOutlet | any) {
+    public prepareRoute(outlet: RouterOutlet) {
         return outlet?.activatedRouteData["animationState"] ?? false;
     }
 
@@ -514,7 +599,7 @@ export class CoreService implements OnDestroy {
      * @returns generated string
      */
     public generateString(options?: StringOptions): string {
-        if (options && options.uuid) {
+        if (options?.uuid) {
             return v4();
         } else {
             const numberChars: string = "0123456789";
@@ -522,7 +607,7 @@ export class CoreService implements OnDestroy {
             const lowerChars: string = "abcdefghijklmnopqrstuvwxyz";
             const symbolChars: string = "!@#$%^&*";
             let allChars: string = "";
-            let randCodeArray: string[] = Array((options && options.lengthChars) || 10);
+            let randCodeArray: string[] = Array(options?.lengthChars ?? 10);
             let index: number = 0;
 
             if ((options && !options.numberDisable) || !options) {
@@ -549,7 +634,7 @@ export class CoreService implements OnDestroy {
             randCodeArray = randCodeArray.fill(allChars, index);
 
             let genArray: string[] = randCodeArray.map((x: any) => x[Math.floor(Math.random() * x.length)]);
-            genArray.map((x: string, ix: number) => {
+            genArray.forEach((x: string, ix: number) => {
                 let j = Math.floor(Math.random() * (ix + 1));
                 x = genArray[j];
                 genArray[j] = x;
@@ -590,11 +675,11 @@ export class CoreService implements OnDestroy {
      * @returns A random number between min and max.
      */
     public random(min: number = 0, max: number = 1): number {
-        var byteArray = new Uint8Array(1);
+        const byteArray = new Uint8Array(1);
         window.crypto.getRandomValues(byteArray);
 
-        var range = max - min + 1;
-        var max_range = 256;
+        const range = max - min + 1;
+        const max_range = 256;
         if (byteArray[0] >= Math.floor(max_range / range) * range) return this.random(min, max);
         return min + (byteArray[0] % range);
     }

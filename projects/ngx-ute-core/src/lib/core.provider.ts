@@ -1,6 +1,8 @@
+/* Module imports */
 import { APP_INITIALIZER, LOCALE_ID } from "@angular/core";
 import { provideHttpClient, withFetch } from "@angular/common/http";
 
+/* Project imports */
 import { UteCoreConfigs } from "./interfaces/config";
 import { CoreService } from "./services/core.service";
 import { NumberStringPipe } from "./pipes/number-string.pipe";

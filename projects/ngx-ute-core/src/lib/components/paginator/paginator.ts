@@ -15,16 +15,17 @@ import { PaginationData } from "../../interfaces/pagination";
     templateUrl: "paginator.html",
 })
 export class UtePaginator implements OnDestroy {
-    public page: number = 0;
-    public pageRange: number[] = [];
-    public pageList: number[] = [];
-    public displayList: number[] = [];
-    public resizerOpen: boolean = false;
-    public initPageSize: number = 0;
     public arrowLeft: any = null;
     public arrowRight: any = null;
-    public resizerPortal: TemplatePortal = null!;
     public loaderPortal: TemplatePortal = null!;
+    public resizerPortal: TemplatePortal = null!;
+
+    protected page: number = 0;
+    protected pageRange: number[] = [];
+    protected pageList: number[] = [];
+    protected displayList: number[] = [];
+    protected resizerOpen: boolean = false;
+    protected initPageSize: number = 0;
 
     private lastPageHeight: number = 0;
     private scrollChecker: any = null;
@@ -242,7 +243,6 @@ export class UtePaginator implements OnDestroy {
      * scrolling behaviors. The interval is cleared after a 200ms delay to ensure
      * any pending scroll actions are completed.
      */
-
     private stopScrollChecking() {
         setTimeout(() => {
             clearInterval(this.scrollChecker);

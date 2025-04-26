@@ -21,107 +21,18 @@ export class ResolveService {
      * @returns A promise resolving to the requested data or false if not found.
      */
     public resolve(route: ActivatedRouteSnapshot): Promise<any> {
-        // console.log("resolve");
-
-        // console.log(route.url);
-        // console.log(route.data);
-        // console.log(route);
-        // console.log(route.fragment);
-
-        // const fragment = route.fragment;
-        // console.log("fragment", fragment);
-
-        // if (route.data["customResolve"]) {
-        //     console.log(111);
-
-        //     let jsons: UteApis<any>[] = route.data["jsons"];
-        //     jsons.forEach((j: UteApis<any>) => {
-        //         if (j.as === "page") {
-        //             j.where = {
-        //                 code: route.url.join("/"),
-        //             };
-        //         }
-        //     });
-        //     console.log(jsons);
-
-        //     return new Promise((resolve, reject) => {
-        //         (async () => {
-        //             try {
-        //                 const result: any = await this.httpService.httpRequest("GET", jsons);
-        //                 resolve(result);
-        //             } catch (error: any) {
-        //                 reject(error as ErrorsData);
-        //             }
-        //         })();
-        //     });
-        // }
-        // let page: string = route.queryParams["page"];
-
-        // console.log(route.data);
-        // console.log("page", page);
-
-        // if (page !== undefined) {
-        //     return new Promise((resolve, reject) => {
-        //         (async () => {
-        //             if (!page) {
-        //                 page = "home";
-        //             }
-
-        //             try {
-        //                 const result: any = await this.httpService.httpRequest("GET", [
-        //                     {
-        //                         table: (route.data as any).table || "pages",
-        //                         where: {
-        //                             template: page,
-        //                         },
-        //                         refs: true,
-        //                     },
-        //                 ]);
-        //                 try {
-        //                     resolve(result[(route.data as any).table || "pages"][0]);
-        //                 } catch {
-        //                     resolve(false);
-        //                 }
-        //             } catch (error: any) {
-        //                 reject(error as ErrorsData);
-        //             }
-        //         })();
-        //     });
-        // } else {
         let jsons: UteApis<any>[] = [];
         const data: any = route.data;
 
         return new Promise((resolve, reject) => {
             (async () => {
-                // if (route.url.length) {
                 const table: string = this.getTable(route.url, data);
                 const id: UteObjects | null = this.getId(route.params);
 
-                // console.log("table", table);
-                // console.log("id", id);
-
-                if (!table && route.data["jsons"]) {
-                }
-
-                // if (!table) {
-                //     resolve(false);
-                // } else {
                 jsons = this.buildObject(data, table, id, route);
-                // }
-                // }else{
-
-                // }
-
-                // console.log("jsons", jsons);
 
                 try {
-                    console.log(111);
-
                     const result: any = await this.httpService.httpRequest("GET", jsons);
-                    console.log(222, result);
-
-                    // if (result["page"]?.length) result["page"][0].fragment = fragment ?? null;
-                    // console.log(result);
 
                     resolve(result);
                 } catch (error: any) {
@@ -147,10 +58,10 @@ export class ResolveService {
                       .map((u) => u.path)
                       .slice(0, -1)
                       .join("/")
-                : url[0]?.path || "";
+                : url[0]?.path ?? "";
         table = table.split("?")[0].split("#")[0];
 
-        return data?.path ? data.path : table;
+        return data?.path ?? table;
     }
 
     /**

@@ -1,7 +1,10 @@
+/* Module imports */
 import { Inject, Injectable } from "@angular/core";
 import { CookieService as NgxCookieService } from "ngx-cookie-service";
 import { Preferences } from "@capacitor/preferences";
 import { AES, enc, pad } from "crypto-ts";
+
+/* Project imports */
 import { UteEnvironment } from "../interfaces/environment";
 import { DOCUMENT } from "@angular/common";
 
@@ -12,10 +15,10 @@ export class CookieService {
     private cookiesExp: number = 30;
     private cookiesCode: string = "";
     private environment: UteEnvironment = {} as UteEnvironment;
-    private locationDom: Location;
-    private localStorageDom: Storage;
+    private readonly locationDom: Location;
+    private readonly localStorageDom: Storage;
 
-    constructor(@Inject(DOCUMENT) private document: Document, private cookieService: NgxCookieService) {
+    constructor(@Inject(DOCUMENT) private readonly document: Document, private readonly cookieService: NgxCookieService) {
         this.locationDom = this.document.defaultView?.location!;
         this.localStorageDom = this.document.defaultView?.localStorage!;
     }
@@ -64,7 +67,7 @@ export class CookieService {
                 }
             } else {
                 let expires = new Date();
-                expires.setDate(expires.getDate() + (time ? time : this.cookiesExp));
+                expires.setDate(expires.getDate() + (time ?? this.cookiesExp));
                 let local = this.locationDom.host.split(":")[0];
                 let secure = false;
                 if (this.locationDom.protocol == "https:") {
@@ -136,24 +139,20 @@ export class CookieService {
                     } else {
                         Preferences.clear();
                     }
+                } else if (name) {
+                    this.localStorageDom.removeItem(this.cookiesCode + name);
                 } else {
-                    if (name) {
-                        this.localStorageDom.removeItem(this.cookiesCode + name);
-                    } else {
-                        this.localStorageDom.clear();
-                    }
+                    this.localStorageDom.clear();
                 }
+            } else if (name) {
+                this.cookieService.delete(this.cookiesCode + name, "/");
             } else {
-                if (name) {
-                    this.cookieService.delete(this.cookiesCode + name, "/");
-                } else {
-                    let local = this.locationDom.host.split(":")[0];
-                    let secure = false;
-                    if (this.locationDom.protocol == "https:") {
-                        secure = true;
-                    }
-                    this.cookieService.deleteAll("/", local, secure);
+                let local = this.locationDom.host.split(":")[0];
+                let secure = false;
+                if (this.locationDom.protocol == "https:") {
+                    secure = true;
                 }
+                this.cookieService.deleteAll("/", local, secure);
             }
             return true;
         } catch (error) {

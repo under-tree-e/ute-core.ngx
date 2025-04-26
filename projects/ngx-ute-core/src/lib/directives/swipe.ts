@@ -1,6 +1,9 @@
+/* Module imports */
 import { Directive, ElementRef, EventEmitter, HostBinding, Input, NgZone, OnDestroy, OnInit, Output } from "@angular/core";
 import { fromEvent, merge, Observable, race, Subscription } from "rxjs";
 import { elementAt, map, switchMap, takeUntil, tap } from "rxjs/operators";
+
+/* Project imports */
 import { SwipeCoordinates, SwipeDirection, SwipeDirectionConst, SwipeEvent, SwipePhase, SwipeScroll, SwipeStartEvent, SwipeSubscriptionConfig } from "../interfaces/swipe";
 
 @Directive({
@@ -10,8 +13,8 @@ import { SwipeCoordinates, SwipeDirection, SwipeDirectionConst, SwipeEvent, Swip
 export class SwipeDirective implements OnInit, OnDestroy {
     @HostBinding("style.user-select") userSelect: string = "none";
 
-    private subscriptions = new Subscription();
-    private swipeDirection: typeof SwipeDirectionConst = SwipeDirectionConst;
+    private readonly subscriptions = new Subscription();
+    private readonly swipeDirection: typeof SwipeDirectionConst = SwipeDirectionConst;
 
     @Input() swipeAxis: SwipeScroll = SwipeScroll.both;
     @Input() touchEndTrigger: boolean = true;
@@ -19,8 +22,15 @@ export class SwipeDirective implements OnInit, OnDestroy {
     @Input() allMoves: boolean = false;
     @Output() swipe: EventEmitter<SwipeEvent> = new EventEmitter<SwipeEvent>();
 
-    constructor(private elementRef: ElementRef, private ngZone: NgZone) {}
+    constructor(private readonly elementRef: ElementRef, private readonly ngZone: NgZone) {}
 
+    /**
+     * Sets up the swipe directive.
+     *
+     * This method is called when the directive is initialized.
+     * It sets up the event listeners for the swipe events.
+     * The event listeners are added outside the Angular zone to prevent unnecessary change detection.
+     */
     ngOnInit() {
         this.ngZone.runOutsideAngular(() => {
             this.subscriptions.add(
@@ -32,10 +42,31 @@ export class SwipeDirective implements OnInit, OnDestroy {
         });
     }
 
+    /**
+     * Unsubscribes from the swipe event subscription.
+     *
+     * This method is called when the directive is destroyed.
+     * It unsubscribes from the swipe event subscription to prevent memory leaks.
+     */
     ngOnDestroy() {
         this.subscriptions.unsubscribe();
     }
 
+    /**
+     * Creates a subscription to the swipe events.
+     *
+     * This method is an internal implementation detail of the `SwipeDirective` and should not be used directly.
+     *
+     * It sets up the event listeners for the swipe events (touchstart, touchmove, touchend, touchcancel, mousedown, mousemove, mouseup, mouseout) and
+     * emits the swipe events to the `onSwipe` event handler.
+     *
+     * The event listeners are added outside the Angular zone to prevent unnecessary change detection.
+     *
+     * It returns a subscription that can be used to unsubscribe from the swipe events.
+     *
+     * @param {SwipeSubscriptionConfig} config The configuration object for the swipe subscription.
+     * @returns {Subscription} The subscription to the swipe events.
+     */
     private createSwipeSubscription({ domElement, onSwipe }: SwipeSubscriptionConfig): Subscription {
         if (!(domElement instanceof HTMLElement)) {
             throw new Error("Provided domElement should be an instance of HTMLElement");
@@ -106,6 +137,11 @@ export class SwipeDirective implements OnInit, OnDestroy {
             .subscribe();
     }
 
+    /**
+     * Extracts the x and y coordinates from a touch or mouse event.
+     * @param event The touch or mouse event containing coordinate data.
+     * @returns An object containing the x and y coordinates.
+     */
     private getCoordinates(event: TouchEvent | MouseEvent): SwipeCoordinates {
         if (event instanceof TouchEvent) {
             return {
@@ -120,6 +156,14 @@ export class SwipeDirective implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Calculates the distance between the start and move coordinates.
+     * If `allMoves` is true, returns the exact difference between the coordinates.
+     * If `allMoves` is false, returns 0 if the absolute difference is less than `moveSize`, otherwise returns the difference.
+     * @param startCoordinates The start coordinates.
+     * @param moveCoordinates The move coordinates.
+     * @returns The distance between the start and move coordinates.
+     */
     private getDistance(startCoordinates: SwipeCoordinates, moveCoordinates: SwipeCoordinates): SwipeCoordinates {
         if (this.allMoves) {
             return {
@@ -134,6 +178,15 @@ export class SwipeDirective implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Calculates the direction of the swipe based on the start and move coordinates.
+     * The direction is determined by comparing the absolute differences of the x and y coordinates.
+     * If the absolute difference of the x coordinate is less than the absolute difference of the y coordinate,
+     * the direction is determined by the y coordinate. Otherwise, the direction is determined by the x coordinate.
+     * @param startCoordinates The start coordinates.
+     * @param moveCoordinates The move coordinates.
+     * @returns The direction of the swipe.
+     */
     private getDirection(startCoordinates: SwipeCoordinates, moveCoordinates: SwipeCoordinates): SwipeDirection {
         const { x, y } = this.getDistance(startCoordinates, moveCoordinates);
         if ((Math.abs(x) < Math.abs(y) && this.swipeAxis === SwipeScroll.both) || this.swipeAxis === SwipeScroll.vertical) {
@@ -143,6 +196,17 @@ export class SwipeDirective implements OnInit, OnDestroy {
         }
     }
 
+    /**
+     * Generates a `SwipeEvent` object for the given swipe phase and coordinates.
+     *
+     * @param phase - The current phase of the swipe (start, move, end, or cancel).
+     * @param touchStartEvent - The initial swipe event containing start coordinates and direction, or null if not applicable.
+     * @param coordinates - The current coordinates of the swipe.
+     *
+     * @returns A `SwipeEvent` object containing the phase, direction, and distance of the swipe.
+     * If `touchStartEvent` is null, returns a swipe event with no direction and zero distance.
+     * If the swipe movement is below the threshold (`moveSize`), returns a cancel phase event with no direction and zero distance.
+     */
     private getSwipeEvent(phase: SwipePhase, touchStartEvent: SwipeStartEvent | null, coordinates: SwipeCoordinates): SwipeEvent {
         if (!touchStartEvent) return { phase: phase, direction: null, distance: 0 };
         const distance: number = coordinates[this.swipeDirection[touchStartEvent!.direction] as "x" | "y"];

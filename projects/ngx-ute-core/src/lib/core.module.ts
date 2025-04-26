@@ -1,6 +1,8 @@
+/* Module imports */
 import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
 import { provideHttpClient, withFetch } from "@angular/common/http";
 
+/* Project imports */
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
 import { HttpService } from "./services/http.service";

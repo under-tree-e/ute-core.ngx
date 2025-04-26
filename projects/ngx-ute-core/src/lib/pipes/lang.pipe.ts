@@ -1,4 +1,7 @@
+/* Module imports */
 import { Pipe, PipeTransform } from "@angular/core";
+
+/* Project imports */
 import { LangService } from "../services/lang.service";
 
 @Pipe({
@@ -8,6 +11,7 @@ import { LangService } from "../services/lang.service";
 })
 export class LangPipe implements PipeTransform {
     constructor(private readonly langService: LangService) {}
+
     /**
      * Get localized text
      * @param code - uid code to search

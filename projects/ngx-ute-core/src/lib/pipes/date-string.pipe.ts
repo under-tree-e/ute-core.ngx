@@ -1,6 +1,9 @@
+/* Module imports */
 import { Pipe, PipeTransform } from "@angular/core";
-import { CoreService } from "../services/core.service";
 import { DatePipe } from "@angular/common";
+
+/* Project imports */
+import { CoreService } from "../services/core.service";
 
 @Pipe({
     name: "uteDate",
@@ -8,9 +11,9 @@ import { DatePipe } from "@angular/common";
     standalone: true,
 })
 export class DateStringPipe implements PipeTransform {
-    private datePipe: DatePipe = new DatePipe("en-US");
+    private readonly datePipe: DatePipe = new DatePipe("en-US");
 
-    constructor(private coreService: CoreService) {}
+    constructor(private readonly coreService: CoreService) {}
 
     /**
      * Transform a date to a string based on a given format.
@@ -27,7 +30,7 @@ export class DateStringPipe implements PipeTransform {
         let zone: string = dateZone.slice(-5);
 
         if (value) {
-            return this.datePipe.transform(value, format, zone, locale) || "---";
+            return this.datePipe.transform(value, format, zone, locale) ?? "---";
         } else {
             return "---";
         }

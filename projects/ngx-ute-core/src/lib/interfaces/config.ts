@@ -1,4 +1,3 @@
-import { UteEnvironment } from "./environment";
 import { UteFontSizes } from "./font-sizes";
 import { PageData } from "./page";
 
@@ -14,7 +13,7 @@ export interface UteCoreConfigs {
     /**
      * Source project environment file
      */
-    environment: UteEnvironment | any;
+    environment: any;
     /**
      * Cookies expires time (days)
      * @default 30

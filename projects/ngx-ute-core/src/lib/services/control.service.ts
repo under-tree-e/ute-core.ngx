@@ -1,12 +1,15 @@
+/* Module imports */
 import { Injectable } from "@angular/core";
 import { Subject } from "rxjs";
+
+/* Project imports */
 import { ControlData } from "../interfaces/control";
 
 @Injectable({
     providedIn: "root",
 })
 export class ControlService {
-    private controlSubject = new Subject<any>();
+    private readonly controlSubject = new Subject<any>();
     public subscriber = this.controlSubject.asObservable();
 
     /**

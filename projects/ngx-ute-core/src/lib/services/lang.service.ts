@@ -1,7 +1,9 @@
+/* Module imports */
 import { Inject, Injectable } from "@angular/core";
 import { Router, Routes, NavigationStart, NavigationEnd } from "@angular/router";
 import { registerLocaleData, Location, DOCUMENT } from "@angular/common";
 
+/* Project imports */
 import { UteEnvironment } from "../interfaces/environment";
 import { HttpService } from "./http.service";
 import { UteCoreConfigs } from "../interfaces/config";
@@ -74,7 +76,7 @@ export class LangService {
      * @returns translated text
      */
     public get(code: string): string {
-        return this.localeData[code] || code;
+        return this.localeData[code] ?? code;
     }
 
     /**
@@ -83,7 +85,7 @@ export class LangService {
      * @returns The default locale.
      */
     public default(): string {
-        return this.environment.defLocale || "en-EN";
+        return this.environment.defLocale ?? "en-EN";
     }
 
     /**
@@ -91,7 +93,7 @@ export class LangService {
      * @returns List of locales
      */
     public localList(): string[] {
-        return this.environment.localeList || ["en-EN"];
+        return this.environment.localeList ?? ["en-EN"];
     }
 
     /**
@@ -173,7 +175,7 @@ export class LangService {
         return new Promise((resolve, reject) => {
             (async () => {
                 try {
-                    this.localeData = await this.httpService.httpLocal<any>(`${this.config.path ? this.config.path : "assets/locales/"}${this.locale}.json?v=${Date.now()}`);
+                    this.localeData = await this.httpService.httpLocal<any>(`${this.config.path ?? "assets/locales/"}${this.locale}.json?v=${Date.now()}`);
 
                     this.document.documentElement.lang = this.locale;
 

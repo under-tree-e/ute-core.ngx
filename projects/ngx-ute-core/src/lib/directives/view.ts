@@ -1,3 +1,4 @@
+/* Module imports */
 import { afterNextRender, Directive, ElementRef, EventEmitter, HostListener, Input, Output } from "@angular/core";
 
 @Directive({
@@ -17,6 +18,17 @@ export class ViewDirective {
 
     @Output() public callback: EventEmitter<any> = new EventEmitter<any>();
 
+    /**
+     * @description
+     *
+     * Constructor of the ViewDirective directive.
+     *
+     * The constructor creates an IntersectionObserver instance, which is used to detect when the
+     * element is scrolled into view. The observer is set up to trigger the callback when the element
+     * is at least `viewPercent` of the viewport visible.
+     *
+     * @param elementRef The ElementRef of the element the directive is applied to.
+     */
     constructor(private readonly elementRef: ElementRef) {
         afterNextRender(() => {
             if ("IntersectionObserver" in window && !this.useScroll) {
@@ -36,6 +48,22 @@ export class ViewDirective {
     }
 
     @HostListener("window:scroll", ["$event"])
+    /**
+     * Handles the window scroll event.
+     *
+     * The method checks if the directive is configured to use the scroll event.
+     * If so, it calculates the percentage of the element that is currently visible
+     * in the viewport and sets the CSS variable `--view` to that percentage.
+     *
+     * The calculation is done as follows:
+     * - If `invertScroll` is true, the method calculates the percentage by subtracting
+     *   the top position of the element from the height of the viewport, and then
+     *   dividing the result by the height of the element.
+     * - If `invertScroll` is false, the method calculates the percentage by dividing
+     *   the top position of the element by its height.
+     *
+     * @param event The window scroll event.
+     */
     private onScroll(event: Event) {
         if (this.useScroll) {
             let height: number = document.documentElement.clientHeight;
@@ -60,6 +88,14 @@ export class ViewDirective {
         }
     }
 
+    /**
+     * Handles the intersection event.
+     *
+     * The method adds or removes the specified CSS classes from the element based on whether
+     * it is currently visible in the viewport.
+     *
+     * @param intersect A boolean indicating whether the element is currently visible in the viewport.
+     */
     private handleIntersection(intersect: boolean): void {
         if (intersect) {
             if (this.viewClass) {
