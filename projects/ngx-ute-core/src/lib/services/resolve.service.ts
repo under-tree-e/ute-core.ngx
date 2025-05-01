@@ -6,12 +6,13 @@ import { ActivatedRouteSnapshot } from "@angular/router";
 import { HttpService } from "./http.service";
 import { UteApis } from "../interfaces/api";
 import { ErrorsData, UteObjects } from "../interfaces/object";
+import { SEOService } from "./seo.service";
 
 @Injectable({
     providedIn: "root",
 })
 export class ResolveService {
-    constructor(private readonly httpService: HttpService) {}
+    constructor(private readonly httpService: HttpService, private readonly seoService: SEOService) {}
 
     /**
      * Resolve data based on route configuration.
@@ -33,6 +34,14 @@ export class ResolveService {
 
                 try {
                     const result: any = await this.httpService.httpRequest("GET", jsons);
+
+                    if (data["seo"]) {
+                        const page: any = result.page[0];
+
+                        this.seoService.title = page[route.data["seo"]["title"] ?? "seoTitle"] ?? "";
+                        this.seoService.desk = page[route.data["seo"]["desk"] ?? "seoDesk"] ?? "";
+                        this.seoService.keys = page[route.data["seo"]["keys"] ?? "seoKeywords"] ?? "";
+                    }
 
                     resolve(result);
                 } catch (error: any) {

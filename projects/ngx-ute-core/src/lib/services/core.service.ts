@@ -570,7 +570,7 @@ export class CoreService implements OnDestroy {
      * @param outlet
      * @returns boolean status
      */
-    public prepareRoute(outlet: RouterOutlet) {
+    public prepareRoute(outlet: any) {
         return outlet?.activatedRouteData["animationState"] ?? false;
     }
 

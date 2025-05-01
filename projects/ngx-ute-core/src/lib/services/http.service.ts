@@ -181,7 +181,7 @@ export class HttpService {
                             o: { ...this.options },
                         };
 
-                        let httpMethod: any = this.generateRequest(sqlMethod, jsonConvert, reqMethod, httpOptions, rp, json);
+                        let httpMethod: any = this.generateRequest(sqlMethod, jsonConvert, reqMethod, rp, httpOptions, json);
 
                         response = await lastValueFrom(httpMethod);
                     } else if (this.environment.storage) {
