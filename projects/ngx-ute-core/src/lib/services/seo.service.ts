@@ -90,7 +90,7 @@ export class SEOService {
             this.pipe = pageItem.pipe || false;
             this.title = pageItem.name;
             this.desk = pageItem.desc;
-            this.keys = pageItem.keys || "";
+            this.keys = pageItem.keys ?? "";
         }
     }
 

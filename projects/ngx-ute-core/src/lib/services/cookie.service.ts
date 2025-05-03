@@ -103,10 +103,8 @@ export class CookieService {
                 } else {
                     data = this.localStorageDom.getItem(this.cookiesCode + name);
                 }
-            } else {
-                if (this.cookieService.get(this.cookiesCode + name) && this.cookieService.get(this.cookiesCode + name) != "undefined") {
-                    data = this.cookieService.get(this.cookiesCode + name);
-                }
+            } else if (this.cookieService.get(this.cookiesCode + name) && this.cookieService.get(this.cookiesCode + name) != "undefined") {
+                data = this.cookieService.get(this.cookiesCode + name);
             }
 
             if (data && typeof data === "string") {

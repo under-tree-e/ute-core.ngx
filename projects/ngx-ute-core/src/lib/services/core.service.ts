@@ -6,7 +6,7 @@ import { v4 } from "uuid";
 import Compressor from "compressorjs";
 import { Capacitor } from "@capacitor/core";
 import { Observable, Subscription, map } from "rxjs";
-import { ActivatedRoute, NavigationEnd, NavigationStart, Router, RouterOutlet } from "@angular/router";
+import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from "@angular/router";
 
 /* Project imports */
 import { UteCoreConfigs } from "../interfaces/config";
