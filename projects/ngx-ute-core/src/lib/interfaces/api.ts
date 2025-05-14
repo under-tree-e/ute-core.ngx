@@ -64,4 +64,12 @@ export interface UteApis<T> {
      * *`ATTENTION`: Not work with `method`*
      */
     noref?: boolean;
+    /**
+     * Children (one to many) references
+     */
+    refs?: boolean | UteObjects;
+    /**
+     * Return name of values (replace table name)
+     */
+    as?: string;
 }

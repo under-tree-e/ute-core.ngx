@@ -1,5 +1,3 @@
-import { SessionData } from "./session";
-
 /**
  * Additional parameters for Angular environment
  * @prop {@link UteEnvironment.online | online}?: `boolean` - App online status
@@ -11,6 +9,10 @@ import { SessionData } from "./session";
  * @prop {@link UteEnvironment.localeList | localeList}?: `string[]` - List of available locales
  * @prop {@link UteEnvironment.authToken | authToken}?: `string` - User auth token for Bearer Authorization
  * @prop {@link UteEnvironment.apiToken | apiToken}?: `string` - App api token for Bearer API Authorization
+ * @prop {@link UteEnvironment.ssr | ssr}?: `boolean` - SSR Angular activation
+ * @prop {@link UteEnvironment.appId | appId}?: `string` - Application ID
+ * @prop {@link UteEnvironment.gtag | gtag}?: `string` - Google Analytics ID
+ * @prop {@link UteEnvironment.globalServer | globalServer}?: `string` - Global Server url
  */
 export interface UteEnvironment {
     /**
@@ -61,9 +63,17 @@ export interface UteEnvironment {
     /**
      * User session data
      */
-    session: SessionData & any;
+    session: any;
     /**
      * App api token for Bearer API Authorization
      */
     apiToken?: string;
+    /**
+     * SSR Angular activation
+     */
+    ssr?: boolean;
+    /**
+     * Google Analytics ID
+     */
+    gtag?: string;
 }

@@ -1,7 +1,7 @@
 {
   "name": "ute-core.ngx",
   "title": "UTE Core",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "description": "UTE Core module includes simple packs of function for base Angular app usage",
   "author": {
     "name": "Under Tree Entertainment",
@@ -45,22 +45,24 @@
     "npm-publish": "cd dist/ngx-ute-core/ && npm publish"
   },
   "dependencies": {
+    "@agentepsilon/decko": "^2.0.1",
     "@angular/cdk": "^18.1.0",
     "@angular/common": "^18.1.0",
     "@angular/compiler": "^18.1.0",
     "@angular/core": "^18.1.0",
+    "@angular/forms": "^18.1.0",
     "@angular/platform-browser": "^18.1.0",
     "@angular/router": "^18.1.0",
     "@capacitor/preferences": "^6.0.1",
     "compressorjs": "^1.2.1",
     "crypto-ts": "^1.0.2",
+    "keen-slider": "^6.8.6",
     "ngx-cookie-service": "^18.0.0",
     "ngx-online-status": "^2.0.0",
     "qs": "^6.12.3",
     "rxjs": "~7.8.1",
     "tslib": "^2.6.3",
-    "util": "^0.12.5",
-    "uuidv4": "^6.2.13",
+    "uuid": "^10.0.0",
     "zone.js": "~0.14.7"
   },
   "devDependencies": {
@@ -69,6 +71,7 @@
     "@angular/compiler-cli": "^18.1.0",
     "@types/jasmine": "~5.1.4",
     "@types/node": "^20.14.10",
+    "@types/uuid": "^10.0.0",
     "angular-cli-ghpages": "^2.0.1",
     "clear-folder": "^5.0.0",
     "jasmine-core": "~5.1.2",

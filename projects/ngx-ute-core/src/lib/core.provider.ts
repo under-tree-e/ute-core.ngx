@@ -1,6 +1,8 @@
+/* Module imports */
 import { APP_INITIALIZER, LOCALE_ID } from "@angular/core";
 import { provideHttpClient, withFetch } from "@angular/common/http";
 
+/* Project imports */
 import { UteCoreConfigs } from "./interfaces/config";
 import { CoreService } from "./services/core.service";
 import { NumberStringPipe } from "./pipes/number-string.pipe";
@@ -16,6 +18,8 @@ import { HttpService } from "./services/http.service";
 import { SwipeDirective } from "./directives/swipe";
 import { SEOService } from "./services/seo.service";
 import { LangService } from "./services/lang.service";
+import { DataLangPipe } from "./pipes/datalang.pipe";
+import { SliderDirective } from "../public-api";
 
 /**
  * The provider configuration for standalone Angular app.
@@ -54,10 +58,12 @@ export function provideNgxUteCore(config: UteCoreConfigs) {
         DateStringPipe,
         LengthCutPipe,
         LangPipe,
+        DataLangPipe,
         DelayIf,
         // Directives
         HoldDirective,
         SwipeDirective,
+        SliderDirective,
         {
             provide: APP_INITIALIZER,
             useFactory: (config: CoreService) => () => config.Init(),

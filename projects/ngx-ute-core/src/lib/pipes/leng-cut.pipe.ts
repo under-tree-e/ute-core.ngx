@@ -1,4 +1,7 @@
+/* Module imports */
 import { Pipe, PipeTransform } from "@angular/core";
+
+/* Project imports */
 
 @Pipe({
     name: "uteLengCut",

@@ -5,6 +5,7 @@ export interface UteFileOptions {
     checkOrientation?: boolean;
     multiple?: boolean;
     uniqName?: boolean;
+    full?: boolean;
 }
 
 export interface UteFileResult {
@@ -18,5 +19,7 @@ export interface UteFileResult {
 export const UteFileFormats = {
     images: ["bmp", "gif", "ico", "jpeg", "jpg", "svg", "png", "webp", "tga"],
     docs: ["txt", "pdf", "doc", "rtf", "docx", "xls", "xlsx", "odt"],
+    videos: ["webm", "avi", "mkv", "mp4"],
     files: ["zip", "rar", "psd", "ai", "back", "json", "xml", "html", "file"],
+    imageIgnor: ["svg", "ico"],
 };

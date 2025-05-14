@@ -1,6 +1,8 @@
-import { APP_INITIALIZER, LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
+/* Module imports */
+import { LOCALE_ID, ModuleWithProviders, NgModule } from "@angular/core";
 import { provideHttpClient, withFetch } from "@angular/common/http";
 
+/* Project imports */
 import { CoreService } from "./services/core.service";
 import { CookieService } from "./services/cookie.service";
 import { HttpService } from "./services/http.service";
@@ -15,8 +17,11 @@ import { DelayIf } from "./pipes/delay-if.pipe";
 import { HoldDirective } from "./directives/hold";
 import { LengthCutPipe } from "./pipes/leng-cut.pipe";
 import { SwipeDirective } from "./directives/swipe";
-import { Paginator } from "./components/paginator/paginator";
+import { UtePaginator } from "./components/paginator/paginator";
 import { SEOService } from "./services/seo.service";
+import { DataLangPipe } from "./pipes/datalang.pipe";
+import { SliderDirective } from "../public-api";
+import { LangRouterPrefixDirective } from "./directives/langlink";
 
 /**
  * The main module of Core library. Example usage:
@@ -37,8 +42,21 @@ import { SEOService } from "./services/seo.service";
  */
 @NgModule({
     declarations: [],
-    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, Paginator],
-    imports: [LangPipe, NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, DelayIf, LengthCutPipe, HoldDirective, SwipeDirective, Paginator],
+    exports: [NumberStringPipe, StringFloatPipe, StringIntegerPipe, DateStringPipe, LangPipe, DelayIf, HoldDirective, LengthCutPipe, SwipeDirective, UtePaginator, DataLangPipe],
+    imports: [
+        LangPipe,
+        NumberStringPipe,
+        StringFloatPipe,
+        StringIntegerPipe,
+        DateStringPipe,
+        DelayIf,
+        LengthCutPipe,
+        HoldDirective,
+        SwipeDirective,
+        UtePaginator,
+        DataLangPipe,
+        LangRouterPrefixDirective,
+    ],
     providers: [
         provideHttpClient(withFetch()),
         // Services
@@ -58,10 +76,12 @@ import { SEOService } from "./services/seo.service";
         DateStringPipe,
         LengthCutPipe,
         LangPipe,
+        DataLangPipe,
         DelayIf,
         // Directives
         HoldDirective,
         SwipeDirective,
+        SliderDirective,
     ],
 })
 export class NgxUteCoreModule {

@@ -1,7 +1,10 @@
+/* Module imports */
 import { Inject, Injectable } from "@angular/core";
 import { CookieService as NgxCookieService } from "ngx-cookie-service";
 import { Preferences } from "@capacitor/preferences";
 import { AES, enc, pad } from "crypto-ts";
+
+/* Project imports */
 import { UteEnvironment } from "../interfaces/environment";
 import { DOCUMENT } from "@angular/common";
 
@@ -12,10 +15,10 @@ export class CookieService {
     private cookiesExp: number = 30;
     private cookiesCode: string = "";
     private environment: UteEnvironment = {} as UteEnvironment;
-    private locationDom: Location;
-    private localStorageDom: Storage;
+    private readonly locationDom: Location;
+    private readonly localStorageDom: Storage;
 
-    constructor(@Inject(DOCUMENT) private document: Document, private cookieService: NgxCookieService) {
+    constructor(@Inject(DOCUMENT) private readonly document: Document, private readonly cookieService: NgxCookieService) {
         this.locationDom = this.document.defaultView?.location!;
         this.localStorageDom = this.document.defaultView?.localStorage!;
     }
@@ -39,132 +42,130 @@ export class CookieService {
 
     /**
      * Set cookies OR localStorage
+     *
      * @param name - display name {string}
-     * @param data - data to save {Object}
-     * @param time - custom expires time {number}
-     * @returns boolean or error
+     * @param data - data to save {any}
+     * @param time - life time of cookies in days {number}
+     *
+     * @returns status
      */
-    public set(name: string, data: any, time?: number): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            try {
-                if (typeof data != "string") {
-                    data = JSON.stringify(data);
-                }
-                data = this.encryption(data, true);
-
-                if (this.environment.platform) {
-                    if (this.environment.platform === ("android" || "ios")) {
-                        await Preferences.set({
-                            key: this.cookiesCode + name,
-                            value: data,
-                        });
-                    } else {
-                        this.localStorageDom.setItem(this.cookiesCode + name, data);
-                    }
-                } else {
-                    let expires = new Date();
-                    expires.setDate(expires.getDate() + (time ? time : this.cookiesExp));
-                    let local = this.locationDom.host.split(":")[0];
-                    let secure = false;
-                    if (this.locationDom.protocol == "https:") {
-                        secure = true;
-                    }
-
-                    await this.cookieService.set(this.cookiesCode + name, data, expires, "/", local, secure);
-                }
-
-                resolve(true);
-            } catch (error: any) {
-                console.error("set", error);
-                reject(error);
+    public set(name: string, data: any, time?: number) {
+        try {
+            if (typeof data != "string") {
+                data = JSON.stringify(data);
             }
-        });
+            data = this.encryption(data, true);
+
+            if (this.environment.platform) {
+                if (this.environment.platform === "android" || this.environment.platform === "ios") {
+                    Preferences.set({
+                        key: this.cookiesCode + name,
+                        value: data,
+                    });
+                } else {
+                    this.localStorageDom.setItem(this.cookiesCode + name, data);
+                }
+            } else {
+                let expires = new Date();
+                expires.setDate(expires.getDate() + (time ?? this.cookiesExp));
+                let local = this.locationDom.host.split(":")[0];
+                let secure = false;
+                if (this.locationDom.protocol == "https:") {
+                    secure = true;
+                }
+
+                this.cookieService.set(this.cookiesCode + name, data, expires, "/", local, secure);
+            }
+
+            return true;
+        } catch (error: any) {
+            console.error("set", error);
+            return error;
+        }
     }
 
     /**
-     * Get cookies OR localStorage
-     * @param name - display name {string}
-     * @returns data or error
+     * Retrieves data associated with a given name from cookies or local storage.
+     *
+     * @param name - The display name used to retrieve the stored data.
+     *
+     * @returns The retrieved data, parsed and decrypted, or the error encountered.
      */
-    public get(name: string): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            let data: any = null;
-            try {
-                if (this.environment.platform) {
-                    if (this.environment.platform === ("android" || "ios")) {
-                        data = await Preferences.get({
-                            key: this.cookiesCode + name,
-                        });
-                        data = data.value;
-                    } else {
-                        data = this.localStorageDom.getItem(this.cookiesCode + name);
-                    }
+    public get(name: string) {
+        let data: any = null;
+        try {
+            if (this.environment.platform) {
+                if (this.environment.platform === "android" || this.environment.platform === "ios") {
+                    data = Preferences.get({
+                        key: this.cookiesCode + name,
+                    });
+                    data = data.value;
                 } else {
-                    if ((await this.cookieService.get(this.cookiesCode + name)) && (await this.cookieService.get(this.cookiesCode + name)) != "undefined") {
-                        data = await this.cookieService.get(this.cookiesCode + name);
-                    }
+                    data = this.localStorageDom.getItem(this.cookiesCode + name);
                 }
-
-                if (data && typeof data === "string") {
-                    data = JSON.parse(this.encryption(data));
-                }
-                resolve(data);
-            } catch (error: any) {
-                console.error("get", error);
-                reject(error);
+            } else if (this.cookieService.get(this.cookiesCode + name) && this.cookieService.get(this.cookiesCode + name) != "undefined") {
+                data = this.cookieService.get(this.cookiesCode + name);
             }
-        });
+
+            if (data && typeof data === "string") {
+                data = JSON.parse(this.encryption(data));
+            }
+
+            return data;
+        } catch (error: any) {
+            console.error("get", error);
+            return error;
+        }
     }
 
     /**
-     * Delete cookies OR localStorage
-     * @param name - display name {string}
-     * @returns boolean or error
+     * Removes specified data associated with a given name from cookies or local storage.
+     * If no name is provided, clears all stored data.
+     *
+     * @param name - The display name used to identify the stored data to be removed.
+     *
+     * @returns True if the operation is successful, or the error encountered.
      */
-    public remove(name: string): Promise<any> {
-        return new Promise(async (resolve, reject) => {
-            try {
-                if (this.environment.platform) {
-                    if (this.environment.platform === ("android" || "ios")) {
-                        if (name) {
-                            await Preferences.remove({
-                                key: this.cookiesCode + name,
-                            });
-                        } else {
-                            await Preferences.clear();
-                        }
-                    } else {
-                        if (name) {
-                            this.localStorageDom.removeItem(this.cookiesCode + name);
-                        } else {
-                            this.localStorageDom.clear();
-                        }
-                    }
-                } else {
+    public remove(name: string) {
+        try {
+            if (this.environment.platform) {
+                if (this.environment.platform === "android" || this.environment.platform === "ios") {
                     if (name) {
-                        await this.cookieService.delete(this.cookiesCode + name, "/");
+                        Preferences.remove({
+                            key: this.cookiesCode + name,
+                        });
                     } else {
-                        let local = this.locationDom.host.split(":")[0];
-                        let secure = false;
-                        if (this.locationDom.protocol == "https:") {
-                            secure = true;
-                        }
-                        await this.cookieService.deleteAll("/", local, secure);
+                        Preferences.clear();
                     }
+                } else if (name) {
+                    this.localStorageDom.removeItem(this.cookiesCode + name);
+                } else {
+                    this.localStorageDom.clear();
                 }
-                resolve(true);
-            } catch (error) {
-                console.error("remove", error);
-                reject(error);
+            } else if (name) {
+                this.cookieService.delete(this.cookiesCode + name, "/");
+            } else {
+                let local = this.locationDom.host.split(":")[0];
+                let secure = false;
+                if (this.locationDom.protocol == "https:") {
+                    secure = true;
+                }
+                this.cookieService.deleteAll("/", local, secure);
             }
-        });
+            return true;
+        } catch (error) {
+            console.error("remove", error);
+            return error;
+        }
     }
 
     /**
-     * Encryption
-     * @param data
-     * @param encrypt
-     * @returns
+     * Encrypts or decrypts data using AES algorithm.
+     *
+     * @param data The string data to be encrypted or decrypted.
+     * @param encrypt If true, encrypt the data; otherwise decrypt the data.
+     *
+     * @returns The encrypted or decrypted string.
      */
     private encryption(data: string, encrypt: boolean = false): string {
         let key = enc.Hex.parse("0123456789abcdef0123456789abcdef");

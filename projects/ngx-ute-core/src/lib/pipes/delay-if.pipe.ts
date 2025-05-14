@@ -1,6 +1,9 @@
+/* Module imports */
 import { AsyncPipe } from "@angular/common";
 import { ChangeDetectorRef, Injector, OnDestroy, Pipe, PipeTransform } from "@angular/core";
 import { Observable } from "rxjs";
+
+/* Project imports */
 
 enum DelayStatus {
     "close",
@@ -14,13 +17,20 @@ enum DelayStatus {
     standalone: true,
 })
 export class DelayIf implements PipeTransform, OnDestroy {
-    private asyncPipe: AsyncPipe;
+    private readonly asyncPipe: AsyncPipe;
     private delayStatus: DelayStatus = DelayStatus.close;
 
-    constructor(private injector: Injector) {
-        this.asyncPipe = new AsyncPipe(injector.get(ChangeDetectorRef));
+    /**
+     * Create a new instance of `DelayIfPipe`.
+     * @param injector - Instance of `Injector` to inject `ChangeDetectorRef` to `AsyncPipe`.
+     */
+    constructor(private readonly injector: Injector) {
+        this.asyncPipe = new AsyncPipe(this.injector.get(ChangeDetectorRef));
     }
 
+    /**
+     * Call `ngOnDestroy` on the `AsyncPipe` instance to clean up any active subscriptions.
+     */
     ngOnDestroy() {
         this.asyncPipe.ngOnDestroy();
     }
@@ -50,13 +60,10 @@ export class DelayIf implements PipeTransform, OnDestroy {
                 obs.next(true);
             } else if (!value && this.delayStatus === DelayStatus.open) {
                 this.delayStatus = DelayStatus.process;
-                setTimeout(
-                    () => {
-                        this.delayStatus = DelayStatus.close;
-                        obs.next(false);
-                    },
-                    delay ? delay : 1 * 1000
-                );
+                setTimeout(() => {
+                    this.delayStatus = DelayStatus.close;
+                    obs.next(false);
+                }, delay ?? 1 * 1000);
                 obs.next(true);
             } else if (!value && this.delayStatus === DelayStatus.process) {
                 obs.next(true);
