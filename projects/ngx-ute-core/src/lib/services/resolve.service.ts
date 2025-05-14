@@ -37,10 +37,11 @@ export class ResolveService {
 
                     if (data["seo"]) {
                         const page: any = result.page[0];
-
-                        this.seoService.title = page[route.data["seo"]["title"] ?? "seoTitle"] ?? "";
-                        this.seoService.desk = page[route.data["seo"]["desk"] ?? "seoDesk"] ?? "";
-                        this.seoService.keys = page[route.data["seo"]["keys"] ?? "seoKeywords"] ?? "";
+                        if (page) {
+                            this.seoService.title = page[route.data["seo"]["title"] ?? "seoTitle"] ?? "";
+                            this.seoService.desk = page[route.data["seo"]["desk"] ?? "seoDesk"] ?? "";
+                            this.seoService.keys = page[route.data["seo"]["keys"] ?? "seoKeywords"] ?? "";
+                        }
                     }
 
                     resolve(result);

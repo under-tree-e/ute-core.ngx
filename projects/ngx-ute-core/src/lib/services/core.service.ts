@@ -94,6 +94,11 @@ export class CoreService implements OnDestroy {
                     this.fragmentGenerator();
 
                     if (this.config) {
+                        if (this.config.pages?.length) {
+                            this.pageService.Init(this.config.environment, this.config.pages);
+                            this.seoService.Init(this.config.environment, this.langService, this.pageService);
+                        }
+
                         if (this.config.environment) {
                             let platform: string = Capacitor.getPlatform();
 
@@ -114,10 +119,6 @@ export class CoreService implements OnDestroy {
                     this.cookieService.Init(this.config.environment, this.config.cookiesExp);
                     this.httpService.Init(this.config.environment);
                     await this.langService.Init(this.config.environment, this.config);
-                    if (this.config.pages?.length) {
-                        this.pageService.Init(this.config.environment, this.config.pages);
-                        this.seoService.Init(this.config.environment, this.langService, this.pageService);
-                    }
                     this.loadSession();
                     resolve(true);
                 } catch (error) {
