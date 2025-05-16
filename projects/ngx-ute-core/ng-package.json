@@ -6,6 +6,7 @@
   },
   "assets": [
     "assets/resize.scss",
-    "assets/paginator.scss"
+    "assets/paginator.scss",
+    "assets/cookie.scss"
   ]
 }
