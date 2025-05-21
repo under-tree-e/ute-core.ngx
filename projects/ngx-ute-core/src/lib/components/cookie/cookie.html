@@ -1,4 +1,4 @@
-@if(isCookies){
+@if(isCookies && !isDialog){
 <div class="cookie-bar">
     <div class="content-block">
         @if(cookieIcon){
@@ -27,7 +27,7 @@
     </div>
     @if(!isContent(content)){
     <div class="buttons-block">
-        <button class="button sq" (click)="isDialog = true">
+        <button class="button sq" (click)="editCookie()">
             <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="#000000">
                 <path d="M0 0h24v24H0V0z" fill="none" />
                 <path
@@ -39,13 +39,144 @@
     </div>
     }
 </div>
-@if(isDialog){
+}@else if(isDialog){
 <div class="cookie-dialog">
-    <div class="title">{{ cookieTexts.title }}</div>
+    <div class="title">
+        @if(cookieIcon){
+        <img loading="lazy" alt="" alt="cookie_icon" class="icon" [src]="cookieIcon" />
+        }@else {
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#000000" class="icon">
+            <g>
+                <rect fill="none" height="24" width="24" />
+            </g>
+            <g>
+                <g>
+                    <circle cx="10.5" cy="8.5" r="1.5" />
+                    <circle cx="8.5" cy="13.5" r="1.5" />
+                    <circle cx="15" cy="15" r="1" />
+                    <path
+                        d="M21.95,10.99c-1.79-0.03-3.7-1.95-2.68-4.22c-2.97,1-5.78-1.59-5.19-4.56C7.11,0.74,2,6.41,2,12c0,5.52,4.48,10,10,10 C17.89,22,22.54,16.92,21.95,10.99z M12,20c-4.41,0-8-3.59-8-8c0-3.31,2.73-8.18,8.08-8.02c0.42,2.54,2.44,4.56,4.99,4.94 c0.07,0.36,0.52,2.55,2.92,3.63C19.7,16.86,16.06,20,12,20z"
+                    />
+                </g>
+            </g>
+        </svg>
+        } {{ cookieTexts.title }}
+        <button class="close" (click)="onClose()">
+            <div class="back"></div>
+            @if(cookieSVG){
+            <svg class="icon">
+                <use [attr.xlink:href]="cookieCloseIcon" />
+            </svg>
+            }@else{
+            <img loading="lazy" alt="" alt="cookie_icon" class="icon" [src]="cookieCloseIcon" />
+            }
+        </button>
+    </div>
     <div class="body">
-        <div class="buttons-block"></div>
-        <div class="content-block"></div>
-        <div class="links-block"></div>
+        <div class="content-block">
+            <div class="text" [innerHTML]="cookieTexts.expand"></div>
+            <div class="subtitle" [innerHTML]="cookieTexts.subTitle"></div>
+            <div class="text" [innerHTML]="cookieTexts.subDesc"></div>
+            @if(cookieList.required.length){
+            <div class="group">
+                <div class="title">{{ cookieTexts.groupOneTitle }}</div>
+                <div>
+                    <div class="text">{{ cookieTexts.groupOneDesc }}</div>
+                    <div class="content">
+                        @for(item of cookieList.required; track item){
+                        <ng-component *ngTemplateOutlet="cookieItem; context: {item: item}"></ng-component>
+                        }
+                    </div>
+                </div>
+            </div>
+            } @if(cookieList.performance.length){
+            <div class="group">
+                <div class="title">{{ cookieTexts.groupTwoTitle }}</div>
+                <div class="text">{{ cookieTexts.groupTwoDesc }}</div>
+                <div class="content">
+                    @for(item of cookieList.performance; track item){
+                    <ng-component *ngTemplateOutlet="cookieItem; context: {item: item}"></ng-component>
+                    }
+                </div>
+            </div>
+            } @if(cookieList.functional.length){
+            <div class="group">
+                <div class="title">{{ cookieTexts.groupThreeTitle }}</div>
+                <div class="text">{{ cookieTexts.groupThreeDesc }}</div>
+                <div class="content">
+                    @for(item of cookieList.functional; track item){
+                    <ng-component *ngTemplateOutlet="cookieItem; context: {item: item}"></ng-component>
+                    }
+                </div>
+            </div>
+            } @if(cookieList.marketing.length){
+            <div class="group">
+                <div class="title">{{ cookieTexts.groupFourTitle }}</div>
+                <div class="text">{{ cookieTexts.groupFourDesc }}</div>
+                <div class="content">
+                    @for(item of cookieList.marketing; track item){
+                    <ng-component *ngTemplateOutlet="cookieItem; context: {item: item}"></ng-component>
+                    }
+                </div>
+            </div>
+            } @if(cookieList.social.length){
+            <div class="group">
+                <div class="title">{{ cookieTexts.grouFiveTitle }}</div>
+                <div class="text">{{ cookieTexts.groupFiveDesc }}</div>
+                <div class="content">
+                    @for(item of cookieList.social; track item){
+                    <ng-component *ngTemplateOutlet="cookieItem; context: {item: item}"></ng-component>
+                    }
+                </div>
+            </div>
+            }
+        </div>
+    </div>
+    <div class="links-block">
+        <div class="links">
+            @for(link of cookieLinks; track link){
+            <a class="link" href="{{ link.url }}" target="_blank">{{ link.title }}</a>
+            }
+        </div>
+        <div class="buttons-block">
+            <button class="button" (click)="acceptCookie()">
+                <div class="inner">
+                    @if(cookieSVG){
+                    <svg class="icon">
+                        <use [attr.xlink:href]="cookieCancelIcon" />
+                    </svg>
+                    }@else{
+                    <img loading="lazy" alt="" alt="cookie_icon" class="icon" [src]="cookieCancelIcon" />
+                    }
+                    <div class="text">{{ cookieTexts.reject }}</div>
+                </div>
+            </button>
+            <button class="button" (click)="rejectCookie()">
+                <div class="inner">
+                    @if(cookieSVG){
+                    <svg class="icon">
+                        <use [attr.xlink:href]="cookieAcceptIcon" />
+                    </svg>
+                    }@else{
+                    <img loading="lazy" alt="" alt="cookie_icon" class="icon" [src]="cookieAcceptIcon" />
+                    }
+                    <div class="text">{{ cookieTexts.acceptSelective }}</div>
+                </div>
+            </button>
+        </div>
     </div>
 </div>
-} }
+}
+
+<ng-template #cookieItem let-item="item">
+    <div class="item">
+        <div class="value">{{item.name}}</div>
+        <div class="value">{{item.host}}</div>
+        <div class="value">{{item.duration}}</div>
+        <div class="value">{{item.type}}</div>
+        <div class="value">{{item.category}}</div>
+        @if(item.description){
+        <div class="value">{{item.description}}</div>
+        }
+    </div>
+</ng-template>

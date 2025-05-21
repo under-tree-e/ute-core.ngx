@@ -1,5 +1,7 @@
 export interface CookieTextsData {
     accept: string;
+    acceptSelective: string;
+    reject: string;
     text: string;
     title: string;
     expand: string;
@@ -39,4 +41,5 @@ export interface CookieItemData {
     duration: number;
     type: string;
     category: string;
+    description?: string;
 }

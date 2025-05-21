@@ -50,3 +50,5 @@ export * from "./lib/components/paginator/paginator-arrows";
 export * from "./lib/components/paginator/paginator-resizer";
 export * from "./lib/components/paginator/paginator-loader";
 export * from "./lib/components/cookie/cookie";
+export * from "./lib/components/cookie/cookie-accept";
+export * from "./lib/components/cookie/cookie-edit";
