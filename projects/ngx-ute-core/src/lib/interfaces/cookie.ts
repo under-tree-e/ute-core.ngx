@@ -7,16 +7,16 @@ export interface CookieTextsData {
     expand: string;
     subTitle: string;
     subDesc: string;
-    groupOneTitle: string;
-    groupOneDesc: string;
-    groupTwoTitle: string;
-    groupTwoDesc: string;
-    groupThreeTitle: string;
-    groupThreeDesc: string;
-    groupFourTitle: string;
-    groupFourDesc: string;
-    grouFiveTitle: string;
-    groupFiveDesc: string;
+    requiredGroupTitle: string;
+    requiredGroupDesc: string;
+    performanceGroupTitle: string;
+    performanceGroupDesc: string;
+    functionalGroupTitle: string;
+    functionalGroupDesc: string;
+    marketingGroupTitle: string;
+    marketingGroupDesc: string;
+    socialGroupTitle: string;
+    socialGroupDesc: string;
 }
 
 export interface CookieTypesData {
