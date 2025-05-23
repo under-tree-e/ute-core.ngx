@@ -1,22 +1,29 @@
 export interface CookieTextsData {
-    accept: string;
-    acceptSelective: string;
-    reject: string;
-    text: string;
-    title: string;
-    expand: string;
-    subTitle: string;
-    subDesc: string;
-    requiredGroupTitle: string;
-    requiredGroupDesc: string;
-    performanceGroupTitle: string;
-    performanceGroupDesc: string;
-    functionalGroupTitle: string;
-    functionalGroupDesc: string;
-    marketingGroupTitle: string;
-    marketingGroupDesc: string;
-    socialGroupTitle: string;
-    socialGroupDesc: string;
+    cookieAccept: string;
+    cookieAcceptSelective: string;
+    cookieReject: string;
+    cookieName: string;
+    cookieHost: string;
+    cookieDuration: string;
+    cookieType: string;
+    cookieCategory: string;
+    cookieDescription: string;
+    cookieText: string;
+    cookieTitle: string;
+    cookieExpand: string;
+    cookieSubTitle: string;
+    cookieSubDesc: string;
+    cookierequiredGroupTitle: string;
+    cookierequiredGroupDesc: string;
+    cookieperformanceGroupTitle: string;
+    cookieperformanceGroupDesc: string;
+    cookiefunctionalGroupTitle: string;
+    cookiefunctionalGroupDesc: string;
+    cookiemarketingGroupTitle: string;
+    cookiemarketingGroupDesc: string;
+    cookiesocialGroupTitle: string;
+    cookiesocialGroupDesc: string;
+    cookiePolicy: string;
 }
 
 export interface CookieTypesData {

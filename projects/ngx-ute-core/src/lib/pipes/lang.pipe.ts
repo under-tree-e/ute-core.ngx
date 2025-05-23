@@ -17,10 +17,13 @@ export class LangPipe implements PipeTransform {
      * @param code - uid code to search
      * @returns translated text
      */
-    public transform(code: string): string {
+    public transform(code: string, boolean?: boolean): string {
         try {
             return this.langService.get(code);
         } catch {
+            if (boolean) {
+                return "";
+            }
             return code;
         }
     }

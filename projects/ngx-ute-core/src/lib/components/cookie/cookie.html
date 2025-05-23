@@ -20,7 +20,7 @@
             </g>
         </svg>
         }
-        <div class="text" [innerHTML]="cookieTexts.text"></div>
+        <div class="text" [innerHTML]="getCookieText('cookieText')"></div>
     </div>
     <div class="buttons-block" #content>
         <ng-content></ng-content>
@@ -35,7 +35,7 @@
                 />
             </svg>
         </button>
-        <button class="button line" (click)="acceptCookie()">{{ cookieTexts.accept }}</button>
+        <button class="button line" (click)="acceptCookie()">{{getCookieText('cookieAccept')}}</button>
     </div>
     }
 </div>
@@ -60,10 +60,10 @@
                 </g>
             </g>
         </svg>
-        } {{ cookieTexts.title }}
+        } {{ getCookieText('cookieTitle') }}
         <button class="close" (click)="onClose()">
             <div class="back"></div>
-            @if(cookieSVG){
+            @if(cookieCloseIcon.includes('#icon')){
             <svg class="icon">
                 <use [attr.xlink:href]="cookieCloseIcon" />
             </svg>
@@ -74,9 +74,9 @@
     </div>
     <div class="body">
         <div class="content-block">
-            <div class="text" [innerHTML]="cookieTexts.expand"></div>
-            <div class="subtitle" [innerHTML]="cookieTexts.subTitle"></div>
-            <div class="text" [innerHTML]="cookieTexts.subDesc"></div>
+            <div class="text" [innerHTML]="getCookieText('cookieExpand')"></div>
+            <div class="subtitle" [innerHTML]="getCookieText('cookieSubTitle')"></div>
+            <div class="text" [innerHTML]="getCookieText('cookieSubDesc')"></div>
             @if(cookieList.required.length){
             <ng-component *ngTemplateOutlet="cookieGroup; context: {group: 'required'}"></ng-component>
             } @if(cookieList.performance.length){
@@ -92,14 +92,12 @@
     </div>
     <div class="links-block">
         <div class="links">
-            @for(link of cookieLinks; track link){
-            <a class="link" href="{{ link.url }}" target="_blank">{{ link.title }}</a>
-            }
+            <a class="link" [routerLink]="[cookiePolicyLink]" target="_blank">{{ ('cookiePolicy' | lang:true) ?? cookieTexts.cookiePolicy }}</a>
         </div>
         <div class="buttons-block">
             <button class="button" (click)="rejectCookie()">
                 <div class="inner">
-                    @if(cookieIcon){ @if(cookieSVG){
+                    @if(cookieIcon){ @if(cookieCancelIcon.includes('#icon')){
                     <svg class="icon">
                         <use [attr.xlink:href]="cookieCancelIcon" />
                     </svg>
@@ -111,12 +109,12 @@
                         <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z" />
                     </svg>
                     }
-                    <div class="text">{{ cookieTexts.reject }}</div>
+                    <div class="text">{{ getCookieText('cookieReject') }}</div>
                 </div>
             </button>
             <button class="button" (click)="setCookies()">
                 <div class="inner">
-                    @if(cookieIcon){ @if(cookieSVG){
+                    @if(cookieIcon){ @if(cookieAcceptIcon.includes('#icon')){
                     <svg class="icon">
                         <use [attr.xlink:href]="cookieAcceptIcon" />
                     </svg>
@@ -128,7 +126,7 @@
                         <path d="M9 16.2L4.8 12l-1.4 1.4L9 19 21 7l-1.4-1.4L9 16.2z" />
                     </svg>
                     }
-                    <div class="text">{{ cookieTexts.acceptSelective }}</div>
+                    <div class="text">{{ getCookieText('cookieAcceptSelective') }}</div>
                 </div>
             </button>
         </div>
@@ -152,10 +150,10 @@
 <ng-template #cookieGroup let-group="group">
     <div class="group" [ngClass]="{'open': openGroup[group]}">
         <div class="control-block">
-            <div class="toogle-block" [ngClass]="{disabled: group === 'required'}" (click)="cookieTypes[group] = !cookieTypes[group]">
+            <div class="toogle-block" [ngClass]="{disabled: group === 'required'}">
                 <button class="button" [ngClass]="{active: !cookieTypes[group]}" (click)="cookieTypes[group] = false" [disabled]="group === 'required'">
                     <div class="inner">
-                        @if(cookieIcon){ @if(cookieSVG){
+                        @if(cookieIcon){ @if(cookieCancelIcon.includes('#icon')){
                         <svg class="icon">
                             <use [attr.xlink:href]="cookieCancelIcon" />
                         </svg>
@@ -171,7 +169,7 @@
                 </button>
                 <button class="button" [ngClass]="{active: cookieTypes[group]}" (click)="cookieTypes[group] = true" [disabled]="group === 'required'">
                     <div class="inner">
-                        @if(cookieIcon){ @if(cookieSVG){
+                        @if(cookieIcon){ @if(cookieAcceptIcon.includes('#icon')){
                         <svg class="icon">
                             <use [attr.xlink:href]="cookieAcceptIcon" />
                         </svg>
@@ -187,7 +185,7 @@
                 </button>
             </div>
             <button class="title" (click)="openGroup[group] = !openGroup[group]">
-                {{ cookieTexts[group + 'GroupTitle'] }} @if(cookieIcon){ @if(cookieSVG){
+                {{ getCookieText('cookie' + group + 'GroupTitle') }} @if(cookieIcon){ @if(cookieArrowIcon.includes('#icon')){
                 <svg class="icon">
                     <use [attr.xlink:href]="cookieArrowIcon" />
                 </svg>
@@ -201,19 +199,19 @@
                 }
             </button>
         </div>
-        <div class="text">{{ cookieTexts[group + 'GroupDesc'] }}</div>
+        <div class="text">{{ getCookieText('cookie' + group + 'GroupDesc') }}</div>
         <div class="content">
             <div>
                 <div class="content">
-                    @for(item of cookieList.required; track item){
+                    @for(item of cookieList[group]; track item){
                     <div class="item">
-                        <div class="value"><span>{{cookieTexts.name}}:</span>{{item.name}}</div>
-                        <div class="value"><span>{{cookieTexts.host}}:</span>{{item.host}}</div>
-                        <div class="value"><span>{{cookieTexts.duration}}:</span>{{item.duration}}</div>
-                        <div class="value"><span>{{cookieTexts.type}}:</span>{{item.type}}</div>
-                        <div class="value"><span>{{cookieTexts.category}}:</span>{{item.category}}</div>
+                        <div class="value"><span>{{getCookieText('cookieName') }}:</span>{{item.name}}</div>
+                        <div class="value"><span>{{getCookieText('cookieHost') }}:</span>{{item.host}}</div>
+                        <div class="value"><span>{{getCookieText('cookieDuration') }}:</span>{{item.duration}}</div>
+                        <div class="value"><span>{{getCookieText('cookieType') }}:</span>{{item.type}}</div>
+                        <div class="value"><span>{{getCookieText('cookieCategory') }}:</span>{{item.category}}</div>
                         @if(item.description){
-                        <div class="value"><span>{{cookieTexts.description}}:</span>{{item.description}}</div>
+                        <div class="value"><span>{{getCookieText('cookieDescription') }}:</span>{{item.description}}</div>
                         }
                     </div>
                     }
